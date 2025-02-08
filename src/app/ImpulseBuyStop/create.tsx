@@ -1,0 +1,43 @@
+import { 
+    View, TextInput, StyleSheet, KeyboardAvoidingView
+} from 'react-native'
+
+import Header from '../../components/Header'
+import CircleButton from '../../components/CircleButton'
+import Icon from '../../components/icon'
+
+// 新規作成画面
+
+const Create = ():JSX.Element => {
+    return (
+        <KeyboardAvoidingView style={styles.container} behavior='height'>
+            <Header />
+            <View style={styles.inputContainer}>
+                {/* multiline iOSで上揃えにする為に必要 */}
+                <TextInput multiline style={styles.input} value='' />
+            </View>
+            <CircleButton>
+                <Icon name='check' size={40} color='#ffffff' />
+            </CircleButton>
+        </KeyboardAvoidingView>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
+    inputContainer: {
+        paddingVertical: 32,
+        paddingHorizontal: 27,
+        flex: 1
+    },
+    input: {
+        flex: 1,
+        textAlignVertical: 'top',
+        fontSize: 16,
+        lineHeight: 24
+    }
+})
+
+export default Create
