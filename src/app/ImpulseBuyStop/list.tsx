@@ -8,13 +8,11 @@ const List = ():JSX.Element => {
     return (
         <View style={styles.container}>
             <Header/>
-
-            <BuyListItem />
-
-            <BuyListItem />
-
-            <BuyListItem />
-
+            <View>
+                <BuyListItem />
+                <BuyListItem />
+                <BuyListItem />
+            </View>
             <CircleButton>
                 <Icon name='plus' size={40} color='#FFFFFF' />
             </CircleButton>
