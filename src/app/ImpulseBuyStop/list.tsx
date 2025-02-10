@@ -1,8 +1,14 @@
 import { View, StyleSheet} from 'react-native'
+import { router } from 'expo-router'
+
 import Header from '../../components/Header'
 import BuyListItem from '../../components/BuyListItem'
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
+
+const handlePress = (): void => {
+    router.push('/ImpulseBuyStop/create')
+}
 
 const List = ():JSX.Element => {
     return (
@@ -13,7 +19,7 @@ const List = ():JSX.Element => {
                 <BuyListItem />
                 <BuyListItem />
             </View>
-            <CircleButton>
+            <CircleButton onPress={handlePress}>
                 <Icon name='plus' size={40} color='#FFFFFF' />
             </CircleButton>
         </View>
