@@ -3,7 +3,6 @@ import {
 } from 'react-native'
 import { router } from 'expo-router'
 
-import Header from '../../components/Header'
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 
@@ -16,7 +15,6 @@ const handlePress = (): void => {
 const Create = ():JSX.Element => {
     return (
         <KeyboardAvoidingView style={styles.container} behavior='height'>
-            <Header />
             <View style={styles.inputContainer}>
                 {/* multiline iOSで上揃えにする為に必要 */}
                 <TextInput multiline style={styles.input} value='' />
