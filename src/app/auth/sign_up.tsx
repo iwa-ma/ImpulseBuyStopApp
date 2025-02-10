@@ -1,11 +1,11 @@
 import {
     View, Text, TextInput,
     TouchableOpacity, StyleSheet
-} from "react-native"
-import { Link } from "expo-router"
+} from 'react-native'
+import { Link } from 'expo-router'
 
-import Header from "../../components/Header"
-import Button from "../../components/Button"
+import Header from '../../components/Header'
+import Button from '../../components/Button'
 
 const SignUp = (): JSX.Element => {
     return (
