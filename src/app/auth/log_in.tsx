@@ -1,15 +1,29 @@
 import {
-    View, Text, TextInput,
+    View, Text, TextInput,Alert,
     TouchableOpacity, StyleSheet
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
 import Button from '../../components/Button'
+import { auth } from '../../config'
 
-const handleSubmitPress = (): void => {
+const handleSubmitPress = (email: string, password: string): void => {
     // ログイン
-    router.replace('/ImpulseBuyStop/list')
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log(userCredential.user.uid)
+        // ログイン処理に成功でリスト画面に書き換え
+        router.replace('/ImpulseBuyStop/list')
+      })
+      .catch((error) => {
+          const { code, message }: { code: string, message: string } = error
+          console.log(code, message)
+          // ログイン失敗でアラートを画面に表示
+          Alert.alert(message)
+        }
+      )
 }
 
 const LogIn = (): JSX.Element => {
@@ -38,11 +52,11 @@ const LogIn = (): JSX.Element => {
                   placeholder='Password'
                   textContentType='password'
                 />
-                <Button label='Submit' onPress={handleSubmitPress}/>
+                <Button label='Submit' onPress={() => {handleSubmitPress(email,password)}}/>
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Not registered?</Text>
 
-                    <Link href='/auth/sign_up' asChild>
+                    <Link href='/auth/sign_up' asChild replace>
                         <TouchableOpacity>
                             <Text style={styles.footerLink}>Sign up here!</Text>
                         </TouchableOpacity>
