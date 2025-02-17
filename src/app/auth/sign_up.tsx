@@ -16,13 +16,11 @@ const handleSubmitPress = (email: string,password: string): void => {
       .then((userCredenital) => {
         console.log(userCredenital.user.uid)
 
-        // TODO:ログイン処理追加
-        
         // 登録に成功でリスト画面に書き換え
         router.replace('/ImpulseBuyStop/list')
       })
       .catch((error) => {
-        const { code, message } = error
+        const { code, message }: { code: string, message: string } = error
         console.log(code,message)
 
         // 登録に失敗でアラートを画面に表示
@@ -60,7 +58,7 @@ const SignUp = (): JSX.Element => {
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Alredy registered?</Text>
-                    <Link href='auth/log_in' asChild>
+                    <Link href='auth/log_in' asChild replace>
                         <TouchableOpacity>
                             <Text style={styles.footerLink}>Log in.</Text>
                         </TouchableOpacity>
