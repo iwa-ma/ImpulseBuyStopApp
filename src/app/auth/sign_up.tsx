@@ -1,16 +1,33 @@
 import {
-    View, Text, TextInput,
+    View, Text, TextInput, Alert,
     TouchableOpacity, StyleSheet
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 
+import { auth } from '../../config'
 import Button from '../../components/Button'
 
-const handleSubmitPress = (): void => {
-    // ログイン
+const handleSubmitPress = (email: string,password: string): void => {
+    // 会員登録
+    console.log(email,password)
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredenital) => {
+        console.log(userCredenital.user.uid)
 
-    router.push('/ImpulseBuyStop/List')
+        // TODO:ログイン処理追加
+        
+        // 登録に成功でリスト画面に書き換え
+        router.replace('/ImpulseBuyStop/list')
+      })
+      .catch((error) => {
+        const { code, message } = error
+        console.log(code,message)
+
+        // 登録に失敗でアラートを画面に表示
+        Alert.alert(message)
+      })
 }
 
 const SignUp = (): JSX.Element => {
@@ -39,7 +56,7 @@ const SignUp = (): JSX.Element => {
                   placeholder='Password'
                   textContentType='password'
                 />
-                <Button label='Submit' onPress={handleSubmitPress}/>
+                <Button label='Submit' onPress={() => { handleSubmitPress(email ,password) }}/>
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Alredy registered?</Text>
