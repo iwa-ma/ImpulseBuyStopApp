@@ -8,7 +8,7 @@ const handlePress = (): void => {
   router.push('ImpulseBuyStop/edit')
 }
 
-const Detail = () => {
+const Detail = (): JSX.Element => {
   return (
     <View style={styles.container}>
       <View style={styles.itemHeader}>
