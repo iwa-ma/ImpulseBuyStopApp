@@ -2,14 +2,24 @@ import { View, Text, TouchableOpacity, StyleSheet} from 'react-native'
 import { Link } from 'expo-router'
 
 import Icon from './icon'
+import { type BuyItem } from '../../types/buyItem'
 
-const BuyListItem = (): JSX.Element => {
+interface Props {
+  buyItem: BuyItem
+}
+
+const BuyListItem = (props: Props): JSX.Element | null => {
+  const { buyItem } = props
+  const { bodyText, updatedAt } = buyItem
+  if ( !bodyText || !updatedAt ) { return null}
+  console.log('BuyListItem buyItem'+ buyItem)
+  const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
   return (
     <Link href='ImpulseBuyStop/detail' asChild>
       <TouchableOpacity style={styles.buyListItem}>
         <View>
-          <Text style={styles.buyListItemTitle}>ヤフーオークション</Text>
-          <Text style={styles.buyListItemDate}>2025/2/26 2:25</Text>
+          <Text numberOfLines={1} style={styles.buyListItemTitle}>{bodyText}</Text>
+          <Text style={styles.buyListItemDate}>{dateString}</Text>
         </View>
         <TouchableOpacity>
           <Icon name='delete' size={32} color='#B0B0B0' />
