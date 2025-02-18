@@ -35,7 +35,6 @@ const List = ():JSX.Element => {
     const unsubscrive = onSnapshot(q, (snapshot) =>{
       const tempItems: BuyItem[] = []
       snapshot.forEach((doc)=> {
-        console.log('item', doc.data())
         const { bodyText, updatedAt } = doc.data()
         tempItems.push({
           id: doc.id,
