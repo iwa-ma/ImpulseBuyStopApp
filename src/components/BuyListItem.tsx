@@ -10,12 +10,12 @@ interface Props {
 
 const BuyListItem = (props: Props): JSX.Element | null => {
   const { buyItem } = props
-  const { bodyText, updatedAt } = buyItem
+  const { id,bodyText, updatedAt } = buyItem
   if ( !bodyText || !updatedAt ) { return null}
-  console.log('BuyListItem buyItem'+ buyItem)
   const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
   return (
-    <Link href='ImpulseBuyStop/detail' asChild>
+    <Link
+      href={{ pathname: 'ImpulseBuyStop/detail', params: { id: id}}} asChild>
       <TouchableOpacity style={styles.buyListItem}>
         <View>
           <Text numberOfLines={1} style={styles.buyListItemTitle}>{bodyText}</Text>
