@@ -1,16 +1,38 @@
-import { View, Text, TouchableOpacity, StyleSheet} from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native'
 import { Link } from 'expo-router'
+import { deleteDoc, doc } from 'firebase/firestore'
 
 import Icon from './icon'
 import { type BuyItem } from '../../types/buyItem'
+import { auth, db } from '../config'
 
 interface Props {
   buyItem: BuyItem
 }
 
+const handlePress = (id: string): void => {
+  if (!auth.currentUser) { return }
+  const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+
+  Alert.alert('表示中のデータを削除します','宜しいですか？',[
+    {
+      text:'キャンセル'
+    },
+    {
+      text:'削除する',
+      style: 'destructive',
+      onPress: () => {
+        deleteDoc(ref)
+          .catch(() => { Alert.alert('削除に失敗しました')})
+      }
+    }
+  ])
+
+}
+
 const BuyListItem = (props: Props): JSX.Element | null => {
   const { buyItem } = props
-  const { id,bodyText, updatedAt } = buyItem
+  const { id ,bodyText , updatedAt } = buyItem
   if ( !bodyText || !updatedAt ) { return null}
   const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
   return (
@@ -21,7 +43,7 @@ const BuyListItem = (props: Props): JSX.Element | null => {
           <Text numberOfLines={1} style={styles.buyListItemTitle}>{bodyText}</Text>
           <Text style={styles.buyListItemDate}>{dateString}</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => { handlePress(id)}}>
           <Icon name='delete' size={32} color='#B0B0B0' />
         </TouchableOpacity>
       </TouchableOpacity>
