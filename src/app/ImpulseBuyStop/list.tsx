@@ -1,11 +1,13 @@
-import { View, StyleSheet, FlatList } from 'react-native'
+import { View, StyleSheet, FlatList, Text } from 'react-native'
 import { router, useNavigation } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 
 import BuyListItem from '../../components/BuyListItem'
 import CircleButton from '../../components/CircleButton'
-import Icon from '../../components/icon'
+import CustomIcon from '../../components/icon'
 import LogOutButton from '../../components/LogoutButton'
 import { db, auth } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
@@ -52,12 +54,21 @@ const List = ():JSX.Element => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={items}
-        renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} /> }}
+
+      {/* 取得データが0件の場合、FlatListではなくメッセージを表示 */}
+      {items.length === 0
+        ? <Text style={styles.nodetaWrap}>
+            <Text style={styles.nodetaTextStyle}>表示するデータがありません。</Text>
+            <FontAwesomeIcon size={24} icon={faComment} />
+          </Text>
+        : <FlatList
+            data={items}
+            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} /> }}
       />
+      }
+
       <CircleButton onPress={handlePress}>
-        <Icon name='plus' size={40} color='#FFFFFF' />
+        <CustomIcon name='plus' size={40} color='#FFFFFF' />
       </CircleButton>
     </View>
   )
@@ -67,6 +78,15 @@ const styles = StyleSheet.create({
   container: {
     flex:1,
     backgroundColor:'#ffffff'
+  },
+  nodetaWrap: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto'
+  },
+  nodetaTextStyle: {
+    fontSize: 24
   }
 })
 
