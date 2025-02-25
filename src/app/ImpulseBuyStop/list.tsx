@@ -46,7 +46,7 @@ const buyList = (items: BuyItem[] | null,anonymous: string): JSX.Element => {
     return (<ActivityIndicator size={120} style={styles.loadingWrap}/> )
   }
 
-  // 取得データが0件の場合、FlatListではなくメッセージを表示 /
+  // 取得データが0件の場合、FlatListではなくメッセージを表示
   if(items.length === 0){
     return (
       <Text style={styles.nodetaWrap}>
