@@ -1,6 +1,5 @@
 import { View, StyleSheet, FlatList, Text, Alert } from 'react-native'
-import { router, useNavigation } from 'expo-router'
-import { useLocalSearchParams } from 'expo-router'
+import { router, useNavigation, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
