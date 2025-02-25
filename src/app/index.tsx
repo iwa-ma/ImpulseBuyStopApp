@@ -11,9 +11,9 @@ const Index = ():JSX.Element => {
         {
           // 匿名ログイン状態によってパラメーターの値を変更
           if(user.isAnonymous){
-            router.push({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'true' }})
+            router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'true' }})
           }else{
-            router.push({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
+            router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
           }
         }
       }
