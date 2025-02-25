@@ -7,11 +7,30 @@ import { type BuyItem } from '../../types/buyItem'
 import { auth, db } from '../config'
 
 interface Props {
+  /** リストアイテム */
   buyItem: BuyItem
+  /** 匿名ログイン状態 */
+  anonymous: string
 }
 
-const handlePress = (id: string): void => {
+/**
+ * 削除アイコン選択動作
+ *
+ * @param id 選択されたリストアイテムのid
+ * @param anonymous 匿名ログイン状態
+ */
+const handlePress = (id: string,anonymous: string): void => {
   if (!auth.currentUser) { return }
+
+  if(anonymous === 'true'){
+    Alert.alert('お試し体験モード中はデータ削除できません。','キャンセルを選択して下さい',[
+      {
+        text:'キャンセル'
+      }
+    ])
+    return
+  }
+
   const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
 
   Alert.alert('表示中のデータを削除します','宜しいですか？',[
@@ -31,19 +50,19 @@ const handlePress = (id: string): void => {
 }
 
 const BuyListItem = (props: Props): JSX.Element | null => {
-  const { buyItem } = props
+  const { buyItem,anonymous } = props
   const { id ,bodyText , updatedAt } = buyItem
   if ( !bodyText || !updatedAt ) { return null}
   const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
   return (
     <Link
-      href={{ pathname: 'ImpulseBuyStop/detail', params: { id: id}}} asChild>
+      href={{ pathname: 'ImpulseBuyStop/detail', params: { id: id, anonymous:anonymous}}} asChild>
       <TouchableOpacity style={styles.buyListItem}>
         <View>
           <Text numberOfLines={1} style={styles.buyListItemTitle}>{bodyText}</Text>
           <Text style={styles.buyListItemDate}>{dateString}</Text>
         </View>
-        <TouchableOpacity onPress={() => { handlePress(id)}}>
+        <TouchableOpacity onPress={() => { handlePress(id, anonymous)}}>
           <Icon name='delete' size={32} color='#B0B0B0' />
         </TouchableOpacity>
       </TouchableOpacity>

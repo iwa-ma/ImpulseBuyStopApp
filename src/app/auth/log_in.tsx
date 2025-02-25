@@ -4,18 +4,24 @@ import {
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase/auth'
 
 import Button from '../../components/Button'
 import { auth } from '../../config'
 
+/**
+ * ログインボタンクリック動作
+ *
+ * @param email
+ * @param password
+ */
 const handleSubmitPress = (email: string, password: string): void => {
     // ログイン
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential.user.uid)
-        // ログイン処理に成功でリスト画面に書き換え
-        router.replace('/ImpulseBuyStop/list')
+        console.log('log_in handleSubmitPress' + userCredential.user.uid)
+        // ログイン処理に成功でリスト画面に書き換え、anonymousパラメーターに'false'を設定
+        router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
       })
       .catch((error) => {
           const { code, message }: { code: string, message: string } = error
@@ -24,6 +30,25 @@ const handleSubmitPress = (email: string, password: string): void => {
           Alert.alert(message)
         }
       )
+}
+
+/**
+ * お試し体験モードリンククリック動作
+ */
+const handleAnonymously = (): void => {
+  const auth = getAuth()
+  signInAnonymously(auth)
+    .then((userCredential) => {
+      console.log('log_in signInAnonymously' + userCredential.user.uid)
+      // ログイン処理に成功でリスト画面に書き換え、anonymousパラメーターに'true'を設定
+      router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'true' }})
+    })
+    .catch((error) => {
+      const { code, message }: { code: string, message: string } = error
+      console.log(code, message)
+      // ログイン失敗でアラートを画面に表示
+      Alert.alert(message)
+    })
 }
 
 const LogIn = (): JSX.Element => {
@@ -54,13 +79,26 @@ const LogIn = (): JSX.Element => {
                 />
                 <Button label='Submit' onPress={() => {handleSubmitPress(email,password)}}/>
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>Not registered?</Text>
+                    <Text style={styles.footerText}>未登録の場合はこちら</Text>
 
-                    <Link href='/auth/sign_up' asChild replace>
-                        <TouchableOpacity>
-                            <Text style={styles.footerLink}>Sign up here!</Text>
-                        </TouchableOpacity>
-                    </Link>
+                    <Text>
+                      <Link href='/auth/sign_up' asChild replace>
+                          <TouchableOpacity>
+                              <Text style={styles.footerLink}>1.ユーザー登録する！</Text>
+                          </TouchableOpacity>
+                      </Link>
+                    </Text>
+
+                    <Text>
+                      <TouchableOpacity>
+                        <Text
+                          style={styles.footerLink}
+                          onPress={() => { handleAnonymously()}}
+                        >
+                          2.お試し体験モードで操作する！
+                        </Text>
+                      </TouchableOpacity>
+                    </Text>
                 </View>
             </View>
         </View>
@@ -91,9 +129,7 @@ const styles =StyleSheet.create({
         fontSize: 16,
         marginBottom: 24
     },
-
     footer:{
-        flexDirection: 'row'
     },
     footerText:{
         fontSize: 14,

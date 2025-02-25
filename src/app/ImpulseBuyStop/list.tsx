@@ -1,5 +1,6 @@
-import { View, StyleSheet, FlatList, Text } from 'react-native'
+import { View, StyleSheet, FlatList, Text, Alert } from 'react-native'
 import { router, useNavigation } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -12,11 +13,30 @@ import LogOutButton from '../../components/LogoutButton'
 import { db, auth } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
 
-const handlePress = (): void => {
+/**
+ * 新規追加アイコン選択動作
+ *
+ */
+const handlePress = (anonymous: string): void => {
+  if (!auth.currentUser) { return }
+
+  // 匿名ログインの場合、警告表示して処理終了
+  if( anonymous === 'true' ){
+    Alert.alert('お試し体験モード中はデータ追加できません。','キャンセルを選択して下さい',[
+      {
+        text:'キャンセル'
+      }
+    ])
+    return
+  }
+
   router.push('/ImpulseBuyStop/create')
 }
 
 const List = ():JSX.Element => {
+  // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
+  const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
+
   const [items, setItems] = useState<BuyItem[]>([])
   const navigation = useNavigation()
   useEffect(() => {
@@ -26,13 +46,21 @@ const List = ():JSX.Element => {
   }, [])
 
   useEffect(() => {
-      // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
+    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
 
-    // コレクションを取得して、更新日時の昇順でソート
-    const ref = collection(db, `users/${auth.currentUser.uid}/items`)
-    const q = query(ref, orderBy('updatedAt', 'asc'))
+    let collectionPath = ''
+    if(anonymous === 'true'){
+      // collectionPathにサンプルデータのパスを指定
+      collectionPath  = 'users/sample9999/items'
+    }else{
+      // collectionPathにログイン中ユーザーのパスを指定
+      collectionPath  = `users/${auth.currentUser?.uid}/items`
+    }
 
+    // コレクションを取得して、更新日時の昇順でソート
+    const ref = collection(db, collectionPath)
+    const q = query(ref, orderBy('updatedAt', 'asc'))
     // ドキュメントを取得して、出力用の配列を生成
     const unsubscrive = onSnapshot(q, (snapshot) =>{
       const tempItems: BuyItem[] = []
@@ -63,11 +91,11 @@ const List = ():JSX.Element => {
           </Text>
         : <FlatList
             data={items}
-            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} /> }}
+            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
       />
       }
 
-      <CircleButton onPress={handlePress}>
+      <CircleButton onPress={() => { handlePress(anonymous)}}>
         <CustomIcon name='plus' size={40} color='#FFFFFF' />
       </CircleButton>
     </View>
