@@ -1,4 +1,7 @@
-import { View, StyleSheet, FlatList, Text, Alert } from 'react-native'
+import {
+  View, StyleSheet, FlatList,
+  Text, Alert, ActivityIndicator
+} from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
@@ -32,11 +35,40 @@ const handlePress = (anonymous: string): void => {
   router.push('/ImpulseBuyStop/create')
 }
 
+/**
+ * リストの表示処理
+ * @items リスト表示データ
+ * @anonymous 匿名ログイン状態
+ */
+const buyList = (items: BuyItem[] | null,anonymous: string): JSX.Element => {
+  // ローディング中(itemsがnull)はインジケータを表示
+  if(!items){
+    return (<ActivityIndicator size={120} style={styles.loadingWrap}/> )
+  }
+
+  // 取得データが0件の場合、FlatListではなくメッセージを表示 /
+  if(items.length === 0){
+    return (
+      <Text style={styles.nodetaWrap}>
+        <Text style={styles.nodetaTextStyle}>表示するデータがありません。</Text>
+        <FontAwesomeIcon size={24} icon={faComment} />
+      </Text>
+    )
+  }else{
+    return (
+      <FlatList
+            data={items}
+            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
+      />
+    )
+  }
+}
+
 const List = ():JSX.Element => {
   // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
 
-  const [items, setItems] = useState<BuyItem[]>([])
+  const [items, setItems] = useState<BuyItem[] | null>(null)
   const navigation = useNavigation()
   useEffect(() => {
     navigation.setOptions({
@@ -81,18 +113,7 @@ const List = ():JSX.Element => {
 
   return (
     <View style={styles.container}>
-
-      {/* 取得データが0件の場合、FlatListではなくメッセージを表示 */}
-      {items.length === 0
-        ? <Text style={styles.nodetaWrap}>
-            <Text style={styles.nodetaTextStyle}>表示するデータがありません。</Text>
-            <FontAwesomeIcon size={24} icon={faComment} />
-          </Text>
-        : <FlatList
-            data={items}
-            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
-      />
-      }
+      {buyList(items,anonymous)}
 
       <CircleButton onPress={() => { handlePress(anonymous)}}>
         <CustomIcon name='plus' size={40} color='#FFFFFF' />
@@ -107,6 +128,12 @@ const styles = StyleSheet.create({
     backgroundColor:'#ffffff'
   },
   nodetaWrap: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto'
+  },
+  loadingWrap: {
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: 'auto',
