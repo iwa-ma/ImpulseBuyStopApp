@@ -5,7 +5,6 @@ import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 
 import { signOut } from 'firebase/auth'
 import { router } from 'expo-router'
-
 import { auth } from '../config'
 
 const handlePress = (): void => {
@@ -21,7 +20,6 @@ const handlePress = (): void => {
 
     )
 }
-// router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'true' }})
 
 const PopupMenu = () => {
   return (
