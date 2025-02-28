@@ -21,6 +21,14 @@ const handlePress = (): void => {
     )
 }
 
+/** 匿名ログイン状態を判定する */
+const isAnonymous = () :boolean => {
+  // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
+  if(!auth.currentUser) { return true }
+
+  return auth.currentUser?.isAnonymous
+}
+
 const PopupMenu = () => {
   return (
     <Menu>
@@ -28,8 +36,16 @@ const PopupMenu = () => {
         <FontAwesomeIcon size={30} icon={faBars} color="white"/>
       </MenuTrigger>
       <MenuOptions customStyles={optionsStyles}>
-        <MenuOption text='アカウント設定' customStyles={optionStyles}/>
-        <MenuOption text='ログアウト' customStyles={optionStyles} onSelect={handlePress}/>
+        <MenuOption
+          text='アカウント設定'
+          customStyles={isAnonymous() ? optionStylesDisabled :optionStyles}
+          onSelect={() =>router.push({ pathname: '/auth/accountSeting'})}
+          disabled={isAnonymous()}
+        />
+        <MenuOption
+          text='ログアウト'
+          customStyles={optionStyles} onSelect={handlePress}
+        />
       </MenuOptions>
     </Menu>
   )
@@ -48,6 +64,17 @@ const optionStyles = {
   },
   optionText: {
     color: 'black'
+  }
+}
+
+/** アカウント設定無効時のスタイル設定 */
+const optionStylesDisabled = {
+  optionWrapper: {
+    backgroundColor: 'white',
+    paddingTop: 20
+  },
+  optionText: {
+    color: 'silver'
   }
 }
 
