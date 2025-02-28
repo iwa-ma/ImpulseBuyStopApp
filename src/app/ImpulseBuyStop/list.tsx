@@ -11,9 +11,9 @@ import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 import BuyListItem from '../../components/BuyListItem'
 import CircleButton from '../../components/CircleButton'
 import CustomIcon from '../../components/icon'
-import LogOutButton from '../../components/LogoutButton'
 import { db, auth } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
+import PopupMenu from '../../components/PopupMenu'
 
 /**
  * 新規追加アイコン選択動作
@@ -72,7 +72,7 @@ const List = ():JSX.Element => {
   const navigation = useNavigation()
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => { return <LogOutButton />}
+      headerRight: () => { return <PopupMenu />}
     })
   }, [])
 
