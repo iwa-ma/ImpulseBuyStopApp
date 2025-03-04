@@ -12,7 +12,7 @@ const handleEditButton = ():void => {
 const accountSeting = ():JSX.Element => {
   const [activeUser, setActiveUser] = useState<User | null>(null)
   const [email, setEmail] = useState<string | null>(null)
-  const emailContent:string = `登録しているメールアドレスを変更します\nメールアドレス(現在設定): ${email}`
+  const emailContent:string = `登録しているメールアドレスを変更します\n\nメールアドレス(現在設定): ${email}`
   const passwordContent:string = `ログイン時のパスワードを変更します`
   const cancelMembershipContent:string = `退会すると登録データが消去されますのでご注意ください`
 
@@ -62,6 +62,7 @@ const accountSeting = ():JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     backgroundColor:'#ffffff'
@@ -80,13 +81,15 @@ const styles = StyleSheet.create({
     backgroundColor:'#ADD8E6'
   },
   itemContentsFontType: {
+    flex: 1,
+    paddingTop:32,
     textAlign:'center',
     fontSize: 14,
     fontWeight: 'normal',
-    backgroundColor:'white',
-    height:80
+    backgroundColor:'white'
   },
   buttonWrap: {
+    flex: 1,
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: 'auto',
