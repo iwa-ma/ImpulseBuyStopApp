@@ -39,7 +39,7 @@ const PopupMenu = () => {
         <MenuOption
           text='アカウント設定'
           customStyles={isAnonymous() ? optionStylesDisabled :optionStyles}
-          onSelect={() =>router.push({ pathname: '/auth/accountSeting'})}
+          onSelect={() =>router.push({ pathname: '/auth/accountSetting'})}
           disabled={isAnonymous()}
         />
         <MenuOption

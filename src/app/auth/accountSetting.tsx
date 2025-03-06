@@ -10,7 +10,7 @@ const handleEditButton = ():void => {
 }
 
 
-const accountSeting = ():JSX.Element => {
+const accountSetting = ():JSX.Element => {
   const [ activeUser, setActiveUser ] = useState<User | null>(null)
   const [ email, setEmail ] = useState<string | null>(null)
   const [ modalVisible, setModalVisible ] = useState(false)
@@ -107,4 +107,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default accountSeting
+export default accountSetting
