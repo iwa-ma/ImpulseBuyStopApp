@@ -1,17 +1,26 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native'
 
 interface Props {
-  label: string
+  /** ボタンラベルに表示する文字列 */
+  label: string,
+  /** ボタンのスタイル設定(必要に応じて追加) */
+  buttonStyle?:{
+    marginTop?: number
+    marginBottom?: number,
+    marginRight?: number,
+    marginLeft?: number,
+    backgroundColor?: string,
+  }
   onPress?: () => void
 }
 
 const Button = (props: Props):JSX.Element => {
-  const { label, onPress } = props
+  const { label, onPress,buttonStyle } = props
 
   return (
-      <TouchableOpacity onPress={onPress} style={styles.button}>
-          <Text style={styles.buttonLabel}>{label}</Text>
-      </TouchableOpacity>
+    <TouchableOpacity onPress={onPress} style={[styles.button, buttonStyle]}>
+      <Text style={styles.buttonLabel}>{label}</Text>
+    </TouchableOpacity>
   )
 }
 
