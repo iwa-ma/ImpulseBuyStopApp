@@ -3,15 +3,17 @@ import { useState, useEffect} from 'react'
 import { auth } from '../../config'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import Button from '../../components/Button'
+import AccountSettingModal from '../../components/AccountSettingModal'
 
 const handleEditButton = ():void => {
  console.log('handleEditButton')
 }
 
 
-const accountSeting = ():JSX.Element => {
-  const [activeUser, setActiveUser] = useState<User | null>(null)
-  const [email, setEmail] = useState<string | null>(null)
+const accountSetting = ():JSX.Element => {
+  const [ activeUser, setActiveUser ] = useState<User | null>(null)
+  const [ email, setEmail ] = useState<string | null>(null)
+  const [ modalVisible, setModalVisible ] = useState(false)
   const emailContent:string = `登録しているメールアドレスを変更します\n\nメールアドレス(現在設定): ${email}`
   const passwordContent:string = `ログイン時のパスワードを変更します`
   const cancelMembershipContent:string = `退会すると登録データが消去されますのでご注意ください`
@@ -42,8 +44,10 @@ const accountSeting = ():JSX.Element => {
         </Text>
 
         <View style={styles.buttonWrap}>
-          <Button label='登録メールアドレス変更' onPress={() => { handleEditButton() }}/>
+          <Button label='登録メールアドレス変更' onPress={() => { setModalVisible(true) }}/>
         </View>
+
+        <AccountSettingModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
 
       <Text style={styles.itemNameFontType}>セキュリティ</Text>
         <Text style={styles.itemContentsFontType}>{passwordContent}</Text>
@@ -103,5 +107,4 @@ const styles = StyleSheet.create({
   }
 })
 
-
-export default accountSeting
+export default accountSetting
