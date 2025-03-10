@@ -14,6 +14,7 @@ import CustomIcon from '../../components/icon'
 import { db, auth } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
 import PopupMenu from '../../components/PopupMenu'
+import { useUnsubscribe } from '../UnsubscribeContext'
 
 /**
  * 新規追加アイコン選択動作
@@ -57,8 +58,8 @@ const buyList = (items: BuyItem[] | null,anonymous: string): JSX.Element => {
   }else{
     return (
       <FlatList
-            data={items}
-            renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
+        data={items}
+        renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
       />
     )
   }
@@ -70,6 +71,8 @@ const List = ():JSX.Element => {
 
   const [items, setItems] = useState<BuyItem[] | null>(null)
   const navigation = useNavigation()
+  const { setUnsubscribe } = useUnsubscribe()
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => { return <PopupMenu />}
@@ -92,8 +95,8 @@ const List = ():JSX.Element => {
     // コレクションを取得して、更新日時の昇順でソート
     const ref = collection(db, collectionPath)
     const q = query(ref, orderBy('updatedAt', 'asc'))
-    // ドキュメントを取得して、出力用の配列を生成
-    const unsubscrive = onSnapshot(q, (snapshot) =>{
+    // ドキュメントを取得して、出力用の配列を生成(リアルタイムリスナーで監視)
+    const unsubscribe = onSnapshot(q, (snapshot) =>{
       const tempItems: BuyItem[] = []
       snapshot.forEach((doc)=> {
         const { bodyText, updatedAt } = doc.data()
@@ -107,8 +110,11 @@ const List = ():JSX.Element => {
       // 出力用の配列を更新
       setItems(tempItems)
     })
-    // onSnapshotの監視を終了させる
-    return unsubscrive
+
+    setUnsubscribe(() => unsubscribe)
+
+    // コンポーネントアンマウント時、onSnapshotの監視を終了させる
+    return unsubscribe
   }, [])
 
   return (
