@@ -67,7 +67,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
     )
   }
 
-
   useEffect( () => {
     setModalVisible(props.modalVisible)
     // モーダルの状態が変わる時は、毎回Emailアドレスを初期化する
@@ -87,7 +86,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
       <Dialog.Container visible={dialogVisible}>
         <Dialog.Title>確認メールを送信しました。</Dialog.Title>
         <Dialog.Description>
-          確認メールで確認処理を行う事で、設定変更が完了します。
+          確認メールから確認処理を行う事で、設定変更が完了します。
         </Dialog.Description>
         <Dialog.Button label="OK"
           onPress={()=> { handleSignOut()}
