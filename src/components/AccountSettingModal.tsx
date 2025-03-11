@@ -9,11 +9,14 @@ import Button from './Button'
 import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
 import { useUnsubscribe } from '../app/UnsubscribeContext'
+import { modalModeType } from '../app/auth/accountSetting'
 interface Props {
   /** モーダル開閉状態(真の時開く) */
   modalVisible: boolean,
   /** モーダル開閉状態変更用関数 */
   setModalVisible: Dispatch<React.SetStateAction<boolean>>
+  /** モーダルの表示情報種別 */
+  modalMode: modalModeType
 }
 
 const accountSettingModal = (props: Props):JSX.Element => {

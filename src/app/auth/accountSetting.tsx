@@ -9,6 +9,7 @@ const handleEditButton = ():void => {
  console.log('handleEditButton')
 }
 
+export type modalModeType = ('eMail'| 'passWord' | 'cancelMembership' | null)
 
 const accountSetting = ():JSX.Element => {
   const [ activeUser, setActiveUser ] = useState<User | null>(null)
