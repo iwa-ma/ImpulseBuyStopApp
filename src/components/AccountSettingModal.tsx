@@ -29,6 +29,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
   // リスト(list.tsx)のリスト取得処理のunsubscribe
   const { unsubscribe } = useUnsubscribe()
 
+  // サインアウト処理
   const handleSignOut = (): void => {
     signOut(auth)
       .then(() => {
@@ -43,7 +44,8 @@ const accountSettingModal = (props: Props):JSX.Element => {
       })
   }
 
-  const handleSendingButton = (email: string):void => {
+  // 登録メールアドレス変更送信処理
+  const handleEmailSending = (email: string):void => {
     // 未ログインまたは、新しいメールアドレスが未入力の場合、以降の処理を実行しない
     if (!auth.currentUser || email === ''){ return }
 
@@ -133,7 +135,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
                 opacity: emailInput.length === 0 ? 0.7 : 1
               }}
               onPress={() => {
-                handleSendingButton(emailInput)
+                handleEmailSending(emailInput)
             }}/>
             <Button
               label='キャンセル'
