@@ -17,9 +17,13 @@ interface Props {
 }
 
 const accountSettingModal = (props: Props):JSX.Element => {
+  // モーダル開閉制御
   const { modalVisible, setModalVisible } = props
+  // メールアドレス入力制御
   const [ emailInput, setInputEmail ] = useState('')
+  // ダイアログ表示制御
   const [ dialogVisible, setDialogVisible ] = useState(false)
+  // リスト(list.tsx)のリスト取得処理のunsubscribe
   const { unsubscribe } = useUnsubscribe()
 
   const handleSignOut = (): void => {
