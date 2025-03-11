@@ -77,10 +77,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
     setInputEmail('')
   },[props.modalVisible])
 
-  useEffect( () => {
-    console.log('accountSettingModal emailInput:'+emailInput)
-  },[emailInput])
-
   return (
     <Modal
       visible={modalVisible}
