@@ -40,18 +40,28 @@ const accountSettingModal = (props: Props):JSX.Element => {
 
   // モーダルタイトル
   const [ modalTitle, setModalTitle ] = useState('')
+  // モーダルテキスト
   const [ modalText, setModalText ] = useState('')
+
+  // ダイアログタイトル
+  const [ dialogTitle, setDialogTitle ] = useState('')
+  // ダイアログテキスト
+  const [ dialogText, setDialogText ] = useState('')
 
   function modalInit():void {
     // タイトル、説明文設定
     if ( modalMode == 'eMail' ){
       setModalTitle('登録メールアドレス変更')
       setModalText('変更すると新しいメールアドレスに確認メールが送信されます。')
+      setDialogTitle('確認メールを送信しました。')
+      setDialogText('確認メールから確認処理を行う事で、設定変更が完了します。')
     }
 
     if ( modalMode == 'passWord' ){
       setModalTitle('パスワード変更')
-      setModalText('パスワードは半角英数字記号8文字以上入力して下さい。')
+      setModalText('パスワードは半角英数字記号6文字以上入力して下さい。')
+      setDialogTitle('パスワード変更が完了しました。')
+      setDialogText('新しいパスワードで再ログインして下さい。')
     }
     if ( modalMode == 'cancelMembership' ){ setModalTitle('退会')}
   }
@@ -95,12 +105,10 @@ const accountSettingModal = (props: Props):JSX.Element => {
       visible={modalVisible}
       transparent={true} //背景透明に
     >
-      {/* 確認メール送信完了ダイアログ */}
+      {/* 完了ダイアログ */}
       <Dialog.Container visible={dialogVisible}>
-        <Dialog.Title>確認メールを送信しました。</Dialog.Title>
-        <Dialog.Description>
-          確認メールから確認処理を行う事で、設定変更が完了します。
-        </Dialog.Description>
+        <Dialog.Title>{dialogTitle}</Dialog.Title>
+        <Dialog.Description>{dialogText}</Dialog.Description>
         <Dialog.Button label="OK"
           onPress={()=> { handleSignOut()}
           } />
@@ -110,7 +118,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
       <View style={styles.modalContainer}>
         {/* UI表示部分 モーダル種別を基に高さを変更する */}
         <View style={{
-            height: (modalMode == 'passWord' ? 600: 300),
+            height: (modalMode == 'passWord' ? 450: 300),
             backgroundColor:'white',
             paddingVertical: 14,
             paddingHorizontal: 14
