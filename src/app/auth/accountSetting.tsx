@@ -1,35 +1,33 @@
 import { View,StyleSheet, Text } from 'react-native'
 import { useState, useEffect} from 'react'
 import { auth } from '../../config'
-import { onAuthStateChanged, User } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import Button from '../../components/Button'
 import AccountSettingModal from '../../components/AccountSettingModal'
 
-const handleEditButton = ():void => {
- console.log('handleEditButton')
-}
-
+export type modalModeType = ('eMail'| 'passWord' | 'cancelMembership' | null)
 
 const accountSetting = ():JSX.Element => {
-  const [ activeUser, setActiveUser ] = useState<User | null>(null)
   const [ email, setEmail ] = useState<string | null>(null)
   const [ modalVisible, setModalVisible ] = useState(false)
+  const [ modalMode, setModalMode ] = useState<modalModeType>(null)
+
   const emailContent:string = `登録しているメールアドレスを変更します\n\nメールアドレス(現在設定): ${email}`
   const passwordContent:string = `ログイン時のパスワードを変更します`
   const cancelMembershipContent:string = `退会すると登録データが消去されますのでご注意ください`
+
+  const handleEditButton = (type:modalModeType):void => {
+    setModalMode(type)
+    setModalVisible(true)
+    console.log('handleEditButton')
+  }
 
   useEffect( () => {
     if (!auth.currentUser){return}
 
     onAuthStateChanged(auth, (currentUser) =>{
-      console.log('accountSeting:'+JSON.stringify(currentUser))
       if ( currentUser !== null ) {
-        {
-          setActiveUser(currentUser)
-          setEmail(currentUser.email)
-
-          console.log("activeUser:"+activeUser)
-        }
+        { setEmail(currentUser.email)}
       }
     })
   },[])
@@ -44,21 +42,25 @@ const accountSetting = ():JSX.Element => {
         </Text>
 
         <View style={styles.buttonWrap}>
-          <Button label='登録メールアドレス変更' onPress={() => { setModalVisible(true) }}/>
+          <Button label='登録メールアドレス変更' onPress={() => { handleEditButton('eMail') }}/>
         </View>
 
-        <AccountSettingModal modalVisible={modalVisible} setModalVisible={setModalVisible}/>
+        <AccountSettingModal
+          modalVisible={ modalVisible }
+          modalMode={ modalMode }
+          setModalVisible={ setModalVisible }
+        />
 
       <Text style={styles.itemNameFontType}>セキュリティ</Text>
         <Text style={styles.itemContentsFontType}>{passwordContent}</Text>
         <View style={styles.buttonWrap}>
-          <Button label='パスワード変更' onPress={() => { handleEditButton() }}/>
+          <Button label='パスワード変更' onPress={() => { handleEditButton('passWord') }}/>
         </View>
 
       <Text style={styles.itemNameFontType}>退会</Text>
         <Text style={styles.itemContentsFontType}>{cancelMembershipContent}</Text>
         <View style={styles.buttonWrap}>
-          <Button label='退会する' onPress={() => { handleEditButton() }}/>
+          <Button label='退会する' onPress={() => { handleEditButton('cancelMembership') }}/>
         </View>
     </View>
   )
