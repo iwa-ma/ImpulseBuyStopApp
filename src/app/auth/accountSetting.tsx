@@ -23,7 +23,6 @@ const accountSetting = ():JSX.Element => {
     if (!auth.currentUser){return}
 
     onAuthStateChanged(auth, (currentUser) =>{
-      console.log('accountSeting:'+JSON.stringify(currentUser))
       if ( currentUser !== null ) {
         {
           setActiveUser(currentUser)
