@@ -2,21 +2,21 @@ import { Text, TextInput, StyleSheet } from 'react-native'
 import { type Dispatch} from 'react'
 
 /** パスワード入力値の型定義 */
-type passWordType = {
+export type passWordType = {
   actve: string,
   new: string,
   confirm: string
 }
 
 interface Props {
-  /** メールアドレス入力値 */
+  /** パスワード入力値 */
   passWordInput: passWordType,
-  /**  メールアドレス入力値変更用関数 */
-  setPassWordInput : Dispatch<React.SetStateAction<passWordType>>
+  /** パスワード入力値変更用関数 */
+  setPassWordInput: Dispatch<React.SetStateAction<passWordType>>
 }
 
 const TextInputPassWord = (props: Props):JSX.Element => {
-  // メールアドレス入力制御
+  // パスワード入力制御
   const { passWordInput, setPassWordInput } = props
 
   return (

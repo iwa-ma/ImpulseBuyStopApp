@@ -10,6 +10,7 @@ import { modalModeType } from '../app/auth/accountSetting'
 import TextInputEmail from './AccountSetting/TextInputEmail'
 import TextInputPassWord from './AccountSetting/TextInputPassWord'
 import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
+import ButtonPasswordSending from './AccountSetting/ButtonPasswordSending'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -134,7 +135,12 @@ const accountSettingModal = (props: Props):JSX.Element => {
           <View style={styles.modalButtonWrap}>
             {/* 送信ボタン（登録メールアドレス変更） */}
             { modalMode == 'eMail' &&
-              <ButtonEmailSending emailInput={emailInput} setDialogVisible={setDialogVisible}/>
+              <ButtonEmailSending emailInput={emailInput} setDialogVisible={setDialogVisible} />
+            }
+
+            {/* 送信ボタン（パスワード変更） */}
+            { modalMode == 'passWord' &&
+              <ButtonPasswordSending passWordInput={passWordInput} setDialogVisible={setDialogVisible} />
             }
 
             <Button
