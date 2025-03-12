@@ -9,7 +9,8 @@ import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
 import { useUnsubscribe } from '../app/UnsubscribeContext'
 import { modalModeType } from '../app/auth/accountSetting'
-import  TextInputEmail  from './AccountSetting/TextInputEmail'
+import TextInputEmail from './AccountSetting/TextInputEmail'
+import TextInputPassWord from './AccountSetting/TextInputPassWord'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -25,6 +26,13 @@ const accountSettingModal = (props: Props):JSX.Element => {
   const { modalVisible, setModalVisible, modalMode } = props
   // メールアドレス入力制御
   const [ emailInput, setInputEmail ] = useState('')
+  // パスワード入力制御
+  const [ passWordInput, setPassWordInput ] = useState({
+    actve: '',
+    new: '',
+    confirm: ''
+  })
+
   // ダイアログ表示制御
   const [ dialogVisible, setDialogVisible ] = useState(false)
   // リスト(list.tsx)のリスト取得処理のunsubscribe
@@ -100,12 +108,20 @@ const accountSettingModal = (props: Props):JSX.Element => {
     setModalVisible(props.modalVisible)
     // モーダルの状態が変わる時は、毎回Emailアドレスを初期化する
     setInputEmail('')
+
+    // モーダルの状態が変わる時は、毎回パスワード入力値を初期化する
+    setPassWordInput({ ...passWordInput, actve: '', new: '', confirm:'' })
   },[props.modalVisible])
 
   // モーダル種別の変更を検知して初期化処理実行
   useEffect( () => {
     modalInit()
   },[modalMode])
+
+  // パスワード変更の入力検知
+  useEffect( () => {
+    console.log('passWordInput'+JSON.stringify(passWordInput))
+  },[passWordInput])
 
   return (
     <Modal
@@ -125,9 +141,9 @@ const accountSettingModal = (props: Props):JSX.Element => {
 
       {/* モーダル背景 */}
       <View style={styles.modalContainer}>
-        {/* UI表示部分 */}
+        {/* UI表示部分 モーダル種別を基に高さを変更する */}
         <View style={{
-            height:300,
+            height: (modalMode == 'passWord' ? 600: 300),
             backgroundColor:'white',
             paddingVertical: 14,
             paddingHorizontal: 14
@@ -144,10 +160,15 @@ const accountSettingModal = (props: Props):JSX.Element => {
             <TextInputEmail emailInput={emailInput} setInputEmail={setInputEmail}  />
           }
 
+          {/* パスワード入力欄(パスワード変更時に表示) */}
+          { modalMode == 'passWord' &&
+            <TextInputPassWord passWordInput={passWordInput} setPassWordInput={setPassWordInput}  />
+          }
+
           <View style={styles.modalButtonWrap}>
             <Button
               label='送信'
-              disabled={ emailInput.length === 0 ? true : false }
+              disabled={ emailInput.length === 0 || modalMode != 'eMail' ? true : false }
               buttonStyle={{
                 marginTop: 0,
                 marginBottom: 0,
