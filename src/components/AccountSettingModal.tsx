@@ -1,9 +1,7 @@
-import {
-  View,StyleSheet, Text,Modal, Alert
- } from 'react-native'
+import { View, StyleSheet, Text, Modal, Alert } from 'react-native'
 import { type Dispatch,useState, useEffect} from 'react'
 import { auth } from '../config'
-import { verifyBeforeUpdateEmail, signOut }from 'firebase/auth'
+import { signOut }from 'firebase/auth'
 import Button from './Button'
 import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
@@ -11,6 +9,7 @@ import { useUnsubscribe } from '../app/UnsubscribeContext'
 import { modalModeType } from '../app/auth/accountSetting'
 import TextInputEmail from './AccountSetting/TextInputEmail'
 import TextInputPassWord from './AccountSetting/TextInputPassWord'
+import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -56,7 +55,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
     if ( modalMode == 'cancelMembership' ){ setModalTitle('退会')}
   }
 
-
   // サインアウト処理
   const handleSignOut = (): void => {
     signOut(auth)
@@ -70,38 +68,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
       catch(() => {
         Alert.alert('ログアウトに失敗しました')
       })
-  }
-
-  // 登録メールアドレス変更送信処理
-  const handleEmailSending = (email: string):void => {
-    // 未ログインまたは、新しいメールアドレスが未入力の場合、以降の処理を実行しない
-    if (!auth.currentUser || email === ''){ return }
-
-    // 確認メールの言語設定を日本語に変更
-    auth.languageCode = 'ja'
-
-    // 確認メール送信
-    verifyBeforeUpdateEmail(auth.currentUser, email).then(() => {
-        // 送信成功後、完了ダイアログを表示
-        setDialogVisible(true)
-      }).catch((error) => {
-        const { code, message }: { code: string, message: string } = error
-        //  無効なメールアドレス指定時
-        if(code === 'auth/invalid-new-email' ){
-          Alert.alert('無効なメールアドレスが入力されました')
-          return
-        }
-
-        // 最後にログインから長期間経過
-        if(code === 'auth/requires-recent-login' ){
-          Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
-          return
-        }
-
-        // 登録メールアドレス変更失敗でアラートを画面に表示
-        Alert.alert(message)
-      }
-    )
   }
 
   useEffect( () => {
@@ -162,23 +128,15 @@ const accountSettingModal = (props: Props):JSX.Element => {
 
           {/* パスワード入力欄(パスワード変更時に表示) */}
           { modalMode == 'passWord' &&
-            <TextInputPassWord passWordInput={passWordInput} setPassWordInput={setPassWordInput}  />
+            <TextInputPassWord passWordInput={passWordInput} setPassWordInput={setPassWordInput} />
           }
 
           <View style={styles.modalButtonWrap}>
-            <Button
-              label='送信'
-              disabled={ emailInput.length === 0 || modalMode != 'eMail' ? true : false }
-              buttonStyle={{
-                marginTop: 0,
-                marginBottom: 0,
-                marginRight: 96,
-                marginLeft: 0,
-                opacity: emailInput.length === 0 ? 0.7 : 1
-              }}
-              onPress={() => {
-                handleEmailSending(emailInput)
-            }}/>
+            {/* 送信ボタン（登録メールアドレス変更） */}
+            { modalMode == 'eMail' &&
+              <ButtonEmailSending emailInput={emailInput} setDialogVisible={setDialogVisible}/>
+            }
+
             <Button
               label='キャンセル'
               buttonStyle={{
