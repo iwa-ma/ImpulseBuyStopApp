@@ -1,6 +1,5 @@
 import {
-  View,StyleSheet, Text,
-  Modal, TextInput, Alert
+  View,StyleSheet, Text,Modal, Alert
  } from 'react-native'
 import { type Dispatch,useState, useEffect} from 'react'
 import { auth } from '../config'
@@ -10,6 +9,8 @@ import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
 import { useUnsubscribe } from '../app/UnsubscribeContext'
 import { modalModeType } from '../app/auth/accountSetting'
+import  TextInputEmail  from './AccountSetting/TextInputEmail'
+
 interface Props {
   /** モーダル開閉状態(真の時開く) */
   modalVisible: boolean,
@@ -21,13 +22,32 @@ interface Props {
 
 const accountSettingModal = (props: Props):JSX.Element => {
   // モーダル開閉制御
-  const { modalVisible, setModalVisible } = props
+  const { modalVisible, setModalVisible, modalMode } = props
   // メールアドレス入力制御
   const [ emailInput, setInputEmail ] = useState('')
   // ダイアログ表示制御
   const [ dialogVisible, setDialogVisible ] = useState(false)
   // リスト(list.tsx)のリスト取得処理のunsubscribe
   const { unsubscribe } = useUnsubscribe()
+
+  // モーダルタイトル
+  const [ modalTitle, setModalTitle ] = useState('')
+  const [ modalText, setModalText ] = useState('')
+
+  function modalInit():void {
+    // タイトル、説明文設定
+    if ( modalMode == 'eMail' ){
+      setModalTitle('登録メールアドレス変更')
+      setModalText('変更すると新しいメールアドレスに確認メールが送信されます。')
+    }
+
+    if ( modalMode == 'passWord' ){
+      setModalTitle('パスワード変更')
+      setModalText('パスワードは半角英数字記号8文字以上入力して下さい。')
+    }
+    if ( modalMode == 'cancelMembership' ){ setModalTitle('退会')}
+  }
+
 
   // サインアウト処理
   const handleSignOut = (): void => {
@@ -82,6 +102,11 @@ const accountSettingModal = (props: Props):JSX.Element => {
     setInputEmail('')
   },[props.modalVisible])
 
+  // モーダル種別の変更を検知して初期化処理実行
+  useEffect( () => {
+    modalInit()
+  },[modalMode])
+
   return (
     <Modal
       visible={modalVisible}
@@ -109,19 +134,15 @@ const accountSettingModal = (props: Props):JSX.Element => {
           }
         }>
           {/* モーダルタイトル */}
-          <Text style={styles.modalTitleFontType}>登録メールアドレス変更</Text>
+          <Text style={styles.modalTitleFontType}>{ modalTitle }</Text>
 
-          <Text style={styles.modalContentsFontType}>変更すると新しいメールアドレスに確認メールが送信されます。</Text>
+          {/* モーダル説明テキスト */}
+          <Text style={styles.modalContentsFontType}>{ modalText }</Text>
 
-          <TextInput
-            style={styles.modalInput}
-            value={emailInput}
-            onChangeText={(text) => {setInputEmail(text)}}
-            autoCapitalize='none'
-            keyboardType='email-address'
-            placeholder='Email Address'
-            textContentType='emailAddress'
-          />
+          {/* メールアドレス入力欄(登録メールアドレス変更時に表示) */}
+          { modalMode == 'eMail' &&
+            <TextInputEmail emailInput={emailInput} setInputEmail={setInputEmail}  />
+          }
 
           <View style={styles.modalButtonWrap}>
             <Button
@@ -186,15 +207,6 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 'auto',
     marginBottom: 'auto'
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-    backgroundColor: '#FFFFFF',
-    height: 48,
-    padding: 8,
-    fontSize: 16,
-    marginBottom: 24
   }
 })
 
