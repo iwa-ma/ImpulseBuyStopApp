@@ -3,7 +3,6 @@ import { type Dispatch} from 'react'
 
 /** パスワード入力値の型定義 */
 export type passWordType = {
-  actve: string,
   new: string,
   confirm: string
 }
@@ -21,17 +20,6 @@ const TextInputPassWord = (props: Props):JSX.Element => {
 
   return (
     <>
-      <Text style={ styles.ItemName }>現在のパスワード</Text>
-      <TextInput
-        style={ styles.modalInput }
-        value={ passWordInput.actve }
-        onChangeText={(text) => { setPassWordInput({ ...passWordInput, actve: text }) }}
-        autoCapitalize='none'
-        keyboardType='default'
-        placeholder='現在のパスワードを入力して下さい'
-        textContentType='password'
-      />
-
       <Text style={ styles.ItemName }>新しいパスワード</Text>
       <TextInput
         style={ styles.modalInput }

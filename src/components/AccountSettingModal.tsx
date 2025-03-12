@@ -11,6 +11,7 @@ import TextInputEmail from './AccountSetting/TextInputEmail'
 import TextInputPassWord from './AccountSetting/TextInputPassWord'
 import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from './AccountSetting/ButtonPasswordSending'
+import { passWordType } from './AccountSetting/TextInputPassWord'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -27,8 +28,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
   // メールアドレス入力制御
   const [ emailInput, setInputEmail ] = useState('')
   // パスワード入力制御
-  const [ passWordInput, setPassWordInput ] = useState({
-    actve: '',
+  const [ passWordInput, setPassWordInput ] = useState<passWordType>({
     new: '',
     confirm: ''
   })
@@ -87,7 +87,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
     setInputEmail('')
 
     // モーダルの状態が変わる時は、毎回パスワード入力値を初期化する
-    setPassWordInput({ ...passWordInput, actve: '', new: '', confirm:'' })
+    setPassWordInput({ ...passWordInput, new: '', confirm:'' })
   },[props.modalVisible])
 
   // モーダル種別の変更を検知して初期化処理実行
