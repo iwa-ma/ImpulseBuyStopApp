@@ -66,7 +66,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
     }
     if ( modalMode == 'cancelMembership' ){
       setModalTitle('退会')
-      setModalText('退会すると登録データが初期されます。\nよろしいですか？')
+      setModalText('退会すると登録データが消去されます。\nよろしいですか？')
       setDialogTitle('退会処理が完了しました。')
       setDialogText('またのご利用よろしくお願いいたします。')
     }
@@ -100,11 +100,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
   useEffect( () => {
     modalInit()
   },[modalMode])
-
-  // パスワード変更の入力検知
-  useEffect( () => {
-    console.log('passWordInput'+JSON.stringify(passWordInput))
-  },[passWordInput])
 
   return (
     <Modal
