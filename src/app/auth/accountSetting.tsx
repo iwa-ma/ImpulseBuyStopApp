@@ -19,7 +19,6 @@ const accountSetting = ():JSX.Element => {
   const handleEditButton = (type:modalModeType):void => {
     setModalMode(type)
     setModalVisible(true)
-    console.log('handleEditButton')
   }
 
   useEffect( () => {

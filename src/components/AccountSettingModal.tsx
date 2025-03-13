@@ -11,6 +11,7 @@ import TextInputEmail from './AccountSetting/TextInputEmail'
 import TextInputPassWord from './AccountSetting/TextInputPassWord'
 import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from './AccountSetting/ButtonPasswordSending'
+import ButtonCancelMembershipSending from './AccountSetting/ButtonCancelMembershipSending'
 import { passWordType } from './AccountSetting/TextInputPassWord'
 
 interface Props {
@@ -63,7 +64,12 @@ const accountSettingModal = (props: Props):JSX.Element => {
       setDialogTitle('パスワード変更が完了しました。')
       setDialogText('新しいパスワードで再ログインして下さい。')
     }
-    if ( modalMode == 'cancelMembership' ){ setModalTitle('退会')}
+    if ( modalMode == 'cancelMembership' ){
+      setModalTitle('退会')
+      setModalText('退会すると登録データが消去されます。\nよろしいですか？')
+      setDialogTitle('退会処理が完了しました。')
+      setDialogText('またのご利用よろしくお願いいたします。')
+    }
   }
 
   // サインアウト処理
@@ -94,11 +100,6 @@ const accountSettingModal = (props: Props):JSX.Element => {
   useEffect( () => {
     modalInit()
   },[modalMode])
-
-  // パスワード変更の入力検知
-  useEffect( () => {
-    console.log('passWordInput'+JSON.stringify(passWordInput))
-  },[passWordInput])
 
   return (
     <Modal
@@ -151,6 +152,11 @@ const accountSettingModal = (props: Props):JSX.Element => {
               <ButtonPasswordSending passWordInput={passWordInput} setDialogVisible={setDialogVisible} />
             }
 
+            {/* はいボタン（退会） */}
+            { modalMode == 'cancelMembership' &&
+              <ButtonCancelMembershipSending setDialogVisible={setDialogVisible} />
+            }
+
             <Button
               label='キャンセル'
               buttonStyle={{
@@ -185,7 +191,8 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     fontSize: 19,
     fontWeight: 'normal',
-    backgroundColor:'white'
+    backgroundColor:'white',
+    lineHeight:38
   },
   modalTextWrap:{
     flex: 1/3,

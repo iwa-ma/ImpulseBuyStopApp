@@ -32,33 +32,33 @@ const ButtonPasswordSending = (props: Props):JSX.Element => {
     // 未ログインの場合、以降の処理を実行しない
     if (!auth.currentUser){ return }
 
-      // 新しいパスワード不一致
-      if(passWordInput.confirm !== passWordInput.new){
-        Alert.alert('新しいパスワードが一致しません')
+    // 新しいパスワード不一致
+    if(passWordInput.confirm !== passWordInput.new){
+      Alert.alert('新しいパスワードが一致しません')
+      return
+    }
+
+    updatePassword(auth.currentUser, passWordInput.new).then(() => {
+      // 送信成功後、完了ダ[イアログを表示
+      setDialogVisible(true)
+    }).catch((error) => {
+      const { code, message }: { code: string, message: string } = error
+
+      // パスワードポリシーを満たしていない
+      if(code === 'auth/weak-password' ){
+        Alert.alert('パスワードは半角英数字記号6文字以上入力して下さい。')
         return
       }
 
-      updatePassword(auth.currentUser, passWordInput.new).then(() => {
-        // 送信成功後、完了ダ[イアログを表示
-        setDialogVisible(true)
-      }).catch((error) => {
-        const { code, message }: { code: string, message: string } = error
+      // 最後にログインから長期間経過
+      if(code === 'auth/requires-recent-login' ){
+        Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
+        return
+      }
 
-        // パスワードポリシーを満たしていない
-        if(code === 'auth/weak-password' ){
-          Alert.alert('パスワードは半角英数字記号6文字以上入力して下さい。')
-          return
-        }
-
-        // 最後にログインから長期間経過
-        if(code === 'auth/requires-recent-login' ){
-          Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
-          return
-        }
-
-        // パスワード変更失敗でアラートを画面に表示
-        Alert.alert(message)
-      })
+      // パスワード変更失敗でアラートを画面に表示
+      Alert.alert(message)
+    })
   }
 
   return (
