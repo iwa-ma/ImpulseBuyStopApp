@@ -3,12 +3,12 @@ import { Link } from 'expo-router'
 import { deleteDoc, doc } from 'firebase/firestore'
 
 import Icon from './icon'
-import { type BuyItem } from '../../types/buyItem'
 import { auth, db } from '../config'
+import { OutPutBuyItem } from '../app/../../types/outPutBuyItem'
 
 interface Props {
   /** リストアイテム */
-  buyItem: BuyItem
+  buyItem: OutPutBuyItem
   /** 匿名ログイン状態 */
   anonymous: string
 }
@@ -51,16 +51,21 @@ const handlePress = (id: string,anonymous: string): void => {
 
 const BuyListItem = (props: Props): JSX.Element | null => {
   const { buyItem,anonymous } = props
-  const { id ,bodyText , updatedAt } = buyItem
+  const { id ,bodyText , updatedAt, priority } = buyItem
+
   if ( !bodyText || !updatedAt ) { return null}
   const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
+
   return (
     <Link
       href={{ pathname: 'ImpulseBuyStop/detail', params: { id: id, anonymous:anonymous}}} asChild>
       <TouchableOpacity style={styles.buyListItem}>
         <View>
           <Text numberOfLines={1} style={styles.buyListItemTitle}>{bodyText}</Text>
-          <Text style={styles.buyListItemDate}>{dateString}</Text>
+          <View style={styles.row}>
+            <Text style={styles.buyListItemDate}>{dateString}</Text>
+            <Text style={styles.buyListItemPriority}>{priority}</Text>
+          </View>
         </View>
         <TouchableOpacity onPress={() => { handlePress(id, anonymous)}}>
           <Icon name='delete' size={32} color='#B0B0B0' />
@@ -83,12 +88,22 @@ const styles = StyleSheet.create({
   },
   buyListItemTitle: {
     fontSize:16,
-    lineHeight:32 // 行の高さ
+    lineHeight:32,// 行の高さ
+    flexDirection:'row'
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   buyListItemDate: {
     fontSize:12,
     lineHeight:32, // 行の高さ
     color:'#848484'
+  },
+  buyListItemPriority: {
+    marginLeft: 10, // 日付と優先度の間にスペースを追加
+    fontSize:16
+    // 他のスタイル
   }
 })
 

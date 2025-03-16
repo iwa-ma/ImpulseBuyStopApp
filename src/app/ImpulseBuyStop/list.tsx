@@ -4,7 +4,7 @@ import {
 } from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import { collection, onSnapshot, query, orderBy ,getDocs, where } from 'firebase/firestore'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 
@@ -12,9 +12,10 @@ import BuyListItem from '../../components/BuyListItem'
 import CircleButton from '../../components/CircleButton'
 import CustomIcon from '../../components/icon'
 import { db, auth } from '../../config'
-import { type BuyItem } from '../../../types/buyItem'
 import PopupMenu from '../../components/PopupMenu'
 import { useUnsubscribe } from '../UnsubscribeContext'
+import { type priorityType} from '../../../types/priorityType'
+import { OutPutBuyItem } from '../../app/../../types/outPutBuyItem'
 
 /**
  * 新規追加アイコン選択動作
@@ -41,7 +42,7 @@ const handlePress = (anonymous: string): void => {
  * @items リスト表示データ
  * @anonymous 匿名ログイン状態
  */
-const buyList = (items: BuyItem[] | null,anonymous: string): JSX.Element => {
+const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element => {
   // ローディング中(itemsがnull)はインジケータを表示
   if(!items){
     return (<ActivityIndicator size={120} style={styles.loadingWrap}/> )
@@ -69,19 +70,59 @@ const List = ():JSX.Element => {
   // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
 
-  const [items, setItems] = useState<BuyItem[] | null>(null)
+  const [items, setItems] = useState<OutPutBuyItem[] | null>(null)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
+  const [ priorityType , setPriorityType] = useState<priorityType[] | null>(null)
 
+  function getpriorityName(id:number):string {
+
+    if(!priorityType){return ''}
+    const result = priorityType.find((type) => type.id == id)
+
+    if(result){return result.name}
+
+    return ''
+  }
+
+  async function getpriorityType():Promise<void> {
+    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
+    if(!auth.currentUser) { return }
+
+    // コレクションを取得して、更新日時の昇順でソート
+    const ref = collection(db, 'priorityType')
+    const q = query(ref, where("disabled", "==", false))
+    const tempItems: priorityType[] = []
+    const querySnapshot = await getDocs(q)
+
+    querySnapshot.forEach((doc)=> {
+        const { name, disabled,id} = doc.data()
+        // 項目が有効な場合、リスト項目として追加
+        if(!disabled){
+          tempItems.push({
+            id: id,
+            name
+          })
+        }
+      })
+
+    setPriorityType(tempItems)
+  }
+
+  // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => { return <PopupMenu />}
     })
   }, [])
 
+  // リストデータ取得処理
   useEffect(() => {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
+    (async () =>{
+      await getpriorityType()
+    })()
 
     let collectionPath = ''
     if(anonymous === 'true'){
@@ -97,13 +138,19 @@ const List = ():JSX.Element => {
     const q = query(ref, orderBy('updatedAt', 'asc'))
     // ドキュメントを取得して、出力用の配列を生成(リアルタイムリスナーで監視)
     const unsubscribe = onSnapshot(q, (snapshot) =>{
-      const tempItems: BuyItem[] = []
+      const tempItems: OutPutBuyItem[] = []
       snapshot.forEach((doc)=> {
-        const { bodyText, updatedAt } = doc.data()
+        const { bodyText, updatedAt, priority } = doc.data()
+
+        // 優先度を変換(Id → 優先度名)
+        const priorityName = getpriorityName(priority)
+
+        // 出力用配列に追加
         tempItems.push({
           id: doc.id,
           bodyText,
-          updatedAt
+          updatedAt,
+          priority: priorityName
         })
       })
 
