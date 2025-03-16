@@ -1,16 +1,19 @@
 import {
     View, TextInput, StyleSheet
 } from 'react-native'
+
 import { router } from 'expo-router'
 import { collection, addDoc, Timestamp } from 'firebase/firestore'
-import { useState } from 'react'
 
+import {  useState } from 'react'
 import KeyboardAvoidingView from '../../components/KeyboardAvoidingView'
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { db, auth } from '../../config'
+import PriorityPicker from '../../components/PriorityPicker'
 
-const handlePress = (bodyText: string): void => {
+/** 新規登録処理 */
+const handlePress = (bodyText: string,priority :string): void => {
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if (!auth.currentUser) {return}
 
@@ -18,7 +21,8 @@ const handlePress = (bodyText: string): void => {
 
   addDoc(ref,{
     bodyText,
-    updatedAt: Timestamp.fromDate(new Date())
+    updatedAt: Timestamp.fromDate(new Date()),
+    priority
   })
     .then((docRef) =>{
       console.log('success', docRef.id)
@@ -33,14 +37,15 @@ const handlePress = (bodyText: string): void => {
 // 新規作成画面
 
 const Create = ():JSX.Element => {
-  const [bodyText, setbodyText] = useState('')
+  const [bodyText, setbodyText] = useState<string>('')
+  const [priority, setPriority] = useState<string>('')
 
   return (
     <KeyboardAvoidingView style={styles.container}>
     {/* iOSで発生するキーボードと投稿ボタンの表示バグ対応の為、KeyboardAvoidingViewは修正版を使用 */}
 
+      {/* multiline iOSで上揃えにする為に必要 */}
       <View style={styles.inputContainer}>
-        {/* multiline iOSで上揃えにする為に必要 */}
         <TextInput
           multiline
           style={styles.input}
@@ -48,8 +53,12 @@ const Create = ():JSX.Element => {
           onChangeText={(newText) => { setbodyText(newText)}}
           autoFocus
         />
+        {/* 優先度選択Picker */}
+        <PriorityPicker priority={priority} setPriority={setPriority}/>
       </View>
-      <CircleButton onPress={() => handlePress(bodyText)}>
+
+      {/* 新規登録ボタン */}
+      <CircleButton onPress={() => handlePress(bodyText,priority)}>
         <Icon name='check' size={40} color='#ffffff' />
       </CircleButton>
     </KeyboardAvoidingView>
@@ -57,20 +66,20 @@ const Create = ():JSX.Element => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    inputContainer: {
-        paddingVertical: 32,
-        paddingHorizontal: 27,
-        flex: 1
-    },
-    input: {
-        flex: 1,
-        textAlignVertical: 'top',
-        fontSize: 16,
-        lineHeight: 24
-    }
+  container: {
+      flex: 1
+  },
+  inputContainer: {
+      paddingVertical: 32,
+      paddingHorizontal: 27,
+      flex: 1
+  },
+  input: {
+      flex: 1,
+      textAlignVertical: 'top',
+      fontSize: 16,
+      lineHeight: 24
+  }
 })
 
 export default Create
