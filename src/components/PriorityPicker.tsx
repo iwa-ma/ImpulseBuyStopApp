@@ -11,14 +11,14 @@ import { type Dispatch} from 'react'
 
 interface Props {
   /** 優先度選択値 */
-  priority:string
+  priorityCode:number
   /** 優先度更新制御 */
-  setPriority:Dispatch<React.SetStateAction<string>>
+  setPriorityCode:Dispatch<React.SetStateAction<number>>
 }
 
 const PriorityPicker = (props: Props): JSX.Element => {
-  const [priorityType, setPriorityType] = useState<priorityType[] | null>(null)
-  const { priority, setPriority } = props
+  const [ priorityType, setPriorityType] = useState<priorityType[] | null>(null)
+  const { priorityCode, setPriorityCode } = props
 
   async function getpriorityType():Promise<void> {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
@@ -61,9 +61,9 @@ const PriorityPicker = (props: Props): JSX.Element => {
             <Text style={styles.pickerTitleText}>【優先度選択】→</Text>
           </View>
           <Picker
-              selectedValue={priority}
+              selectedValue={priorityCode}
               style={styles.picker}
-              onValueChange={(itemValue:string) => setPriority(itemValue)}
+              onValueChange={(itemValue:number) => setPriorityCode(itemValue)}
             >
               {priorityType.map((item) => (
                 <Picker.Item key={item.id} label={item.name} value={item.id} />

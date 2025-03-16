@@ -13,7 +13,8 @@ import { db, auth } from '../../config'
 import PriorityPicker from '../../components/PriorityPicker'
 
 /** 新規登録処理 */
-const handlePress = (bodyText: string,priority :string): void => {
+const handlePress = (bodyText: string, priorityCode :number): void => {
+
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if (!auth.currentUser) {return}
 
@@ -22,7 +23,7 @@ const handlePress = (bodyText: string,priority :string): void => {
   addDoc(ref,{
     bodyText,
     updatedAt: Timestamp.fromDate(new Date()),
-    priority
+    priority: priorityCode
   })
     .then((docRef) =>{
       console.log('success', docRef.id)
@@ -38,7 +39,8 @@ const handlePress = (bodyText: string,priority :string): void => {
 
 const Create = ():JSX.Element => {
   const [bodyText, setbodyText] = useState<string>('')
-  const [priority, setPriority] = useState<string>('')
+  // 優先度コードに初期値として1(高)を設定
+  const [priorityCode, setPriorityCode] = useState<number>(1)
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -54,11 +56,11 @@ const Create = ():JSX.Element => {
           autoFocus
         />
         {/* 優先度選択Picker */}
-        <PriorityPicker priority={priority} setPriority={setPriority}/>
+        <PriorityPicker priorityCode={priorityCode} setPriorityCode={setPriorityCode}/>
       </View>
 
       {/* 新規登録ボタン */}
-      <CircleButton onPress={() => handlePress(bodyText,priority)}>
+      <CircleButton onPress={() => handlePress(bodyText,priorityCode)}>
         <Icon name='check' size={40} color='#ffffff' />
       </CircleButton>
     </KeyboardAvoidingView>
