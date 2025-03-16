@@ -1,6 +1,8 @@
 import { View, Text,ScrollView, StyleSheet, Alert} from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { onSnapshot, doc } from 'firebase/firestore'
+import { collection, onSnapshot, query, doc ,getDocs, where } from 'firebase/firestore'
+import { type priorityType} from '../../../types/priorityType'
+
 import { useState, useEffect} from 'react'
 
 import CircleButton from '../../components/CircleButton'
@@ -31,6 +33,42 @@ const Detail = (): JSX.Element => {
   const id = String(useLocalSearchParams().id)
   console.log(id)
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
+  const [ priorityType , setPriorityType] = useState<priorityType[] | null>(null)
+
+  function getpriorityName(id:number):string {
+
+    if(!priorityType){return ''}
+    const result = priorityType.find((type) => type.id == id)
+    // console.log('result:'+result)
+
+    if(result){return result.name}
+
+    return ''
+  }
+
+  async function getpriorityType():Promise<void> {
+    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
+    if(!auth.currentUser) { return }
+
+    // コレクションを取得して、更新日時の昇順でソート
+    const ref = collection(db, 'priorityType')
+    const q = query(ref, where("disabled", "==", false))
+    const tempItems: priorityType[] = []
+    const querySnapshot = await getDocs(q)
+
+    querySnapshot.forEach((doc)=> {
+        const { name, disabled,id} = doc.data()
+        // 項目が有効な場合、リスト項目として追加
+        if(!disabled){
+          tempItems.push({
+            id: id,
+            name
+          })
+        }
+      })
+
+    setPriorityType(tempItems)
+  }
 
   let docPath = ''
   if(anonymous === 'true'){
@@ -46,15 +84,22 @@ const Detail = (): JSX.Element => {
     if (!auth.currentUser){return}
     const ref = doc(db, docPath, id)
     const unsubscrive = onSnapshot(ref, (itemDoc) => {
-      const { bodyText, updatedAt } = itemDoc.data() as BuyItem
+      const { bodyText, updatedAt,priority } = itemDoc.data() as BuyItem
       setItems({
         id: itemDoc.id,
         bodyText,
-        updatedAt
+        updatedAt,
+        priority
       })
     })
 
     return unsubscrive
+  },[])
+
+  useEffect( () => {
+    (async () =>{
+      await getpriorityType()
+    })()
   },[])
 
   return (
@@ -68,6 +113,12 @@ const Detail = (): JSX.Element => {
           {item?.bodyText}
         </Text>
       </ScrollView>
+
+      {/* 優先度 */}
+      <View style={styles.itemPriorityText}>
+        <Text>優先度:{item?.priority ? getpriorityName(item?.priority) : null}</Text>
+      </View>
+
       <CircleButton onPress={() => {handlePress(id,anonymous)}} style={{top:60,bottom: 'auto'}}>
         <Icon name='pencil' size={40} color='#FFFFFF' />
       </CircleButton>
@@ -106,6 +157,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color:'#000000'
+  },
+  itemPriorityText: {
+    paddingBottom:16,
+    paddingLeft:16
   }
 })
 
