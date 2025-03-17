@@ -4,7 +4,8 @@ import {
 } from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { collection, onSnapshot, query, orderBy ,getDocs, where } from 'firebase/firestore'
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 
@@ -16,6 +17,8 @@ import PopupMenu from '../../components/PopupMenu'
 import { useUnsubscribe } from '../UnsubscribeContext'
 import { type priorityType} from '../../../types/priorityType'
 import { OutPutBuyItem } from '../../app/../../types/outPutBuyItem'
+import { getpriorityType } from '../features/priorityUtils'
+import { getpriorityName } from '../features/priorityUtils'
 
 /**
  * 新規追加アイコン選択動作
@@ -73,46 +76,7 @@ const List = ():JSX.Element => {
   const [items, setItems] = useState<OutPutBuyItem[] | null>(null)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
-  const [ priorityType , setPriorityType] = useState<priorityType[] | null>(null)
-
-  /** code → 優先度名の変換を行う */
-  function getpriorityName(id:number):string {
-    // 優先度名が取得されていない場合は処理を実行ぜずに終了する
-    if(!priorityType){return ''}
-    const result = priorityType.find((type) => type.id == id)
-
-    // codeに対応する優先度名が取得できた場合は結果を返す
-    if(result){return result.name}
-
-    // codeに対応する優先度名が取得できない場合は、空文字を返す
-    return ''
-  }
-
-  /** 優先度名を取得 */
-  async function getpriorityType():Promise<void> {
-    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-    if(!auth.currentUser) { return }
-
-    // コレクションを取得して、更新日時の昇順でソート
-    const ref = collection(db, 'priorityType')
-    const q = query(ref, where("disabled", "==", false))
-    const tempItems: priorityType[] = []
-    const querySnapshot = await getDocs(q)
-
-    querySnapshot.forEach((doc)=> {
-        const { name, disabled,id} = doc.data()
-        // 項目が有効な場合、リスト項目として追加
-        if(!disabled){
-          tempItems.push({
-            id: id,
-            name
-          })
-        }
-      })
-
-    // 取得結果でpriorityTypeを更新
-    setPriorityType(tempItems)
-  }
+  const [ priorityType , setPriorityType] = useState<priorityType[]>([])
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
@@ -124,7 +88,7 @@ const List = ():JSX.Element => {
   // 優先度名リストを取得
   useEffect(() => {
     (async () =>{
-      await getpriorityType()
+      await getpriorityType({setPriorityType})
     })()
   }, [])
 
@@ -154,12 +118,12 @@ const List = ():JSX.Element => {
         const { bodyText, updatedAt, priority } = doc.data()
 
         // 出力用配列に追加
-        // 優先度をgetpriorityName関数で変換(Id → 優先度名)
+        // 優先度をgetpriorityName関数で変換(code → 優先度名)
         tempItems.push({
           id: doc.id,
           bodyText,
           updatedAt,
-          priority: getpriorityName(priority)
+          priority: getpriorityName(priorityType,priority)
         })
       })
 
