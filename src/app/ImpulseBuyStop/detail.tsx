@@ -1,13 +1,16 @@
 import { View, Text,ScrollView, StyleSheet, Alert} from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { onSnapshot, doc } from 'firebase/firestore'
+import { type priorityType} from '../../../types/priorityType'
+
 import { useState, useEffect} from 'react'
 
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { auth, db } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
-
+import { getpriorityType } from '../features/priorityUtils'
+import { getpriorityName } from '../features/priorityUtils'
 /**
  * 編集アイコン選択動作
  *
@@ -31,6 +34,7 @@ const Detail = (): JSX.Element => {
   const id = String(useLocalSearchParams().id)
   console.log(id)
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
+  const [ priorityType , setPriorityType] = useState<priorityType[]>([])
 
   let docPath = ''
   if(anonymous === 'true'){
@@ -46,15 +50,22 @@ const Detail = (): JSX.Element => {
     if (!auth.currentUser){return}
     const ref = doc(db, docPath, id)
     const unsubscrive = onSnapshot(ref, (itemDoc) => {
-      const { bodyText, updatedAt } = itemDoc.data() as BuyItem
+      const { bodyText, updatedAt,priority } = itemDoc.data() as BuyItem
       setItems({
         id: itemDoc.id,
         bodyText,
-        updatedAt
+        updatedAt,
+        priority
       })
     })
 
     return unsubscrive
+  },[])
+
+  useEffect( () => {
+    (async () =>{
+      await getpriorityType({setPriorityType})
+    })()
   },[])
 
   return (
@@ -68,6 +79,12 @@ const Detail = (): JSX.Element => {
           {item?.bodyText}
         </Text>
       </ScrollView>
+
+      {/* 優先度 */}
+      <View style={styles.itemPriorityText}>
+        <Text>優先度:{item?.priority ? getpriorityName(priorityType,item?.priority) : null}</Text>
+      </View>
+
       <CircleButton onPress={() => {handlePress(id,anonymous)}} style={{top:60,bottom: 'auto'}}>
         <Icon name='pencil' size={40} color='#FFFFFF' />
       </CircleButton>
@@ -106,6 +123,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color:'#000000'
+  },
+  itemPriorityText: {
+    paddingBottom:16,
+    paddingLeft:16
   }
 })
 

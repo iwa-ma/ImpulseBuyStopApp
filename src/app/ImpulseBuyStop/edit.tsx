@@ -10,13 +10,16 @@ import KeyboardAvoidingView from '../../components/KeyboardAvoidingView'
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { auth, db } from '../../config'
+import PriorityPicker from '../../components/PriorityPicker'
 
-const handlePress = (id: string, bodyText: string): void => {
+const handlePress = (id: string, bodyText: string, priorityCode : number): void => {
+
   if (!auth.currentUser) { return}
   const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
   setDoc(ref, {
     bodyText,
-    updatedAt: Timestamp.fromDate(new Date())
+    updatedAt: Timestamp.fromDate(new Date()),
+    priority: priorityCode
   })
     .then(() =>{
       router.back()
@@ -31,19 +34,27 @@ const handlePress = (id: string, bodyText: string): void => {
 const Edit = ():JSX.Element => {
   const id = String(useLocalSearchParams().id)
   const [bodyText, setBodyText] = useState('')
+  // 優先度コードに初期値として1(高)を設定
+  const [priorityCode, setPriorityCode] = useState<number>(1)
+
   useEffect(() => {
     if(!auth.currentUser){return}
     const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
     getDoc(ref)
       .then((docRef) =>{
+        //取得データから登録内容、優先度を初期値として設定
         const tempBodyText = docRef?.data()?.bodyText
         setBodyText(tempBodyText)
+        const tempPriority = docRef?.data()?.priority
+        setPriorityCode(tempPriority)
       })
       .catch((error) => {
         console.log(error)
       })
   },[])
+
   console.log('edit',id)
+
   return (
     <KeyboardAvoidingView style={styles.container} >
     {/* iOSで発生するキーボードと投稿ボタンの表示バグ対応の為、KeyboardAvoidingViewは修正版を使用 */}
@@ -57,8 +68,10 @@ const Edit = ():JSX.Element => {
           onChangeText={(text) => {setBodyText(text)}}
           autoFocus
         />
+        {/* 優先度選択Picker */}
+        <PriorityPicker priorityCode={priorityCode} setPriorityCode={setPriorityCode}/>
       </View>
-      <CircleButton onPress={() => {handlePress(id, bodyText)}}>
+      <CircleButton onPress={() => {handlePress(id, bodyText, priorityCode)}}>
         <Icon name='check' size={40} color='#ffffff' />
       </CircleButton>
     </KeyboardAvoidingView>
