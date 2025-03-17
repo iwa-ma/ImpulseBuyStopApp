@@ -4,7 +4,7 @@ interface OutPutBuyItem {
   id: string
   bodyText: string
   updatedAt: Timestamp
-  priority: string | null
+  priority: string
 }
 
 export type { OutPutBuyItem }

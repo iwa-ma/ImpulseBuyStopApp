@@ -75,16 +75,20 @@ const List = ():JSX.Element => {
   const { setUnsubscribe } = useUnsubscribe()
   const [ priorityType , setPriorityType] = useState<priorityType[] | null>(null)
 
+  /** code → 優先度名の変換を行う */
   function getpriorityName(id:number):string {
-
+    // 優先度名が取得されていない場合は処理を実行ぜずに終了する
     if(!priorityType){return ''}
     const result = priorityType.find((type) => type.id == id)
 
+    // codeに対応する優先度名が取得できた場合は結果を返す
     if(result){return result.name}
 
+    // codeに対応する優先度名が取得できない場合は、空文字を返す
     return ''
   }
 
+  /** 優先度名を取得 */
   async function getpriorityType():Promise<void> {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
@@ -106,6 +110,7 @@ const List = ():JSX.Element => {
         }
       })
 
+    // 取得結果でpriorityTypeを更新
     setPriorityType(tempItems)
   }
 
@@ -116,13 +121,19 @@ const List = ():JSX.Element => {
     })
   }, [])
 
+  // 優先度名リストを取得
+  useEffect(() => {
+    (async () =>{
+      await getpriorityType()
+    })()
+  }, [])
+
   // リストデータ取得処理
   useEffect(() => {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
-    (async () =>{
-      await getpriorityType()
-    })()
+    // 優先度名が取得されていない場合は処理を実行ぜずに終了する
+    if(!priorityType) { return }
 
     let collectionPath = ''
     if(anonymous === 'true'){
@@ -142,15 +153,13 @@ const List = ():JSX.Element => {
       snapshot.forEach((doc)=> {
         const { bodyText, updatedAt, priority } = doc.data()
 
-        // 優先度を変換(Id → 優先度名)
-        const priorityName = getpriorityName(priority)
-
         // 出力用配列に追加
+        // 優先度をgetpriorityName関数で変換(Id → 優先度名)
         tempItems.push({
           id: doc.id,
           bodyText,
           updatedAt,
-          priority: priorityName
+          priority: getpriorityName(priority)
         })
       })
 
@@ -162,7 +171,7 @@ const List = ():JSX.Element => {
 
     // コンポーネントアンマウント時、onSnapshotの監視を終了させる
     return unsubscribe
-  }, [])
+  }, [priorityType])
 
   return (
     <View style={styles.container}>
