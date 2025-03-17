@@ -8,32 +8,32 @@ interface Props {
   setPriorityType: Dispatch<React.SetStateAction<priorityType[]>>
 }
 
-  /** 優先度名を取得 */
- export async function getpriorityType(props:Props):Promise<void> {
-    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-    if(!auth.currentUser) { return }
-    const {setPriorityType} = props
+/** 優先度名を取得 */
+export async function getpriorityType(props:Props):Promise<void> {
+  // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
+  if(!auth.currentUser) { return }
+  const {setPriorityType} = props
 
-    // コレクションを取得して、更新日時の昇順でソート
-    const ref = collection(db, 'priorityType')
-    const q = query(ref, where("disabled", "==", false))
-    const tempItems: priorityType[] = []
-    const querySnapshot = await getDocs(q)
+  // コレクションを取得して、更新日時の昇順でソート
+  const ref = collection(db, 'priorityType')
+  const q = query(ref, where("disabled", "==", false))
+  const tempItems: priorityType[] = []
+  const querySnapshot = await getDocs(q)
 
-    querySnapshot.forEach((doc)=> {
-        const { name, disabled,id} = doc.data()
-        // 項目が有効な場合、リスト項目として追加
-        if(!disabled){
-          tempItems.push({
-            id: id,
-            name
-          })
-        }
-      })
+  querySnapshot.forEach((doc)=> {
+      const { name, disabled,id} = doc.data()
+      // 項目が有効な場合、リスト項目として追加
+      if(!disabled){
+        tempItems.push({
+          id: id,
+          name
+        })
+      }
+    })
 
-    // 取得結果でpriorityTypeを更新
-    setPriorityType(tempItems)
-  }
+  // 取得結果でpriorityTypeを更新
+  setPriorityType(tempItems)
+}
 
 /** code → 優先度名の変換を行う */
 export function getpriorityName(priorityType:priorityType[],id:number):string {
