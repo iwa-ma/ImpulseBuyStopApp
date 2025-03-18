@@ -19,6 +19,8 @@ import { type priorityType} from '../../../types/priorityType'
 import { OutPutBuyItem } from '../../app/../../types/outPutBuyItem'
 import { getpriorityType } from '../features/priorityUtils'
 import { getpriorityName } from '../features/priorityUtils'
+import  ListSort from './listSort'
+import { type SortType,OrderByDirection } from '../../app/../../types/list'
 
 /**
  * 新規追加アイコン選択動作
@@ -73,10 +75,15 @@ const List = ():JSX.Element => {
   // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
 
-  const [items, setItems] = useState<OutPutBuyItem[] | null>(null)
+  const [items, setItems ] = useState<OutPutBuyItem[] | null>(null)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
-  const [ priorityType , setPriorityType] = useState<priorityType[]>([])
+  const [ priorityType , setPriorityType ] = useState<priorityType[]>([])
+
+  // 優先度のソートタイプ
+  const [ itemsSortType, setItemsSortType ] = useState<SortType>('priority')
+  // 優先度のソート順
+  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('asc')
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
@@ -99,6 +106,7 @@ const List = ():JSX.Element => {
     // 優先度名が取得されていない場合は処理を実行ぜずに終了する
     if(!priorityType) { return }
 
+    setItems([])
     let collectionPath = ''
     if(anonymous === 'true'){
       // collectionPathにサンプルデータのパスを指定
@@ -108,9 +116,10 @@ const List = ():JSX.Element => {
       collectionPath  = `users/${auth.currentUser?.uid}/items`
     }
 
-    // コレクションを取得して、更新日時の昇順でソート
+    // コレクションを取得して、指定された項目の指定順でソート
     const ref = collection(db, collectionPath)
-    const q = query(ref, orderBy('updatedAt', 'asc'))
+    const q = query(ref, orderBy(itemsSortType, itemsSortOrder))
+
     // ドキュメントを取得して、出力用の配列を生成(リアルタイムリスナーで監視)
     const unsubscribe = onSnapshot(q, (snapshot) =>{
       const tempItems: OutPutBuyItem[] = []
@@ -135,10 +144,19 @@ const List = ():JSX.Element => {
 
     // コンポーネントアンマウント時、onSnapshotの監視を終了させる
     return unsubscribe
-  }, [priorityType])
+  }, [priorityType,itemsSortType,itemsSortOrder])
 
   return (
     <View style={styles.container}>
+      {/* リストソートUI */}
+      <ListSort
+        itemsSortType={itemsSortType}
+        itemsSortOrder={itemsSortOrder}
+        setItemsSortType={setItemsSortType}
+        setItemsSortOrder={setItemsSortOrder}
+      />
+
+      {/* リスト表示 */}
       {buyList(items,anonymous)}
 
       <CircleButton onPress={() => { handlePress(anonymous)}}>
