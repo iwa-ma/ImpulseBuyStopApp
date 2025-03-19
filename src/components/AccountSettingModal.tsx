@@ -6,7 +6,7 @@ import Button from './Button'
 import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
 import { useUnsubscribe } from '../app/UnsubscribeContext'
-import { modalModeType } from '../app/auth/accountSetting'
+import { modalModeType } from '../../types/accountSettingModalMode'
 import TextInputEmail from './AccountSetting/TextInputEmail'
 import TextInputPassWord from './AccountSetting/TextInputPassWord'
 import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
@@ -50,7 +50,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
   const [ dialogText, setDialogText ] = useState('')
 
   function modalInit():void {
-    // タイトル、説明文設定
+    // modalModeを基にタイトル、説明文設定
     if ( modalMode == 'eMail' ){
       setModalTitle('登録メールアドレス変更')
       setModalText('変更すると新しいメールアドレスに確認メールが送信されます。')
@@ -64,11 +64,31 @@ const accountSettingModal = (props: Props):JSX.Element => {
       setDialogTitle('パスワード変更が完了しました。')
       setDialogText('新しいパスワードで再ログインして下さい。')
     }
+
+    if ( modalMode == 'passWordReset' ){
+      setModalTitle('パスワード再設定')
+      setModalText('パスワード変更画面のURLをメールでお送りいたします。\nご登録されているメールアドレスを入力して送信してください。')
+      setDialogTitle('URLの送信が完了しました。')
+      setDialogText('メールに送らせて頂いたURLから再設定を行って下さい。')
+    }
+
     if ( modalMode == 'cancelMembership' ){
       setModalTitle('退会')
       setModalText('退会すると登録データが消去されます。\nよろしいですか？')
       setDialogTitle('退会処理が完了しました。')
       setDialogText('またのご利用よろしくお願いいたします。')
+    }
+  }
+
+  // 完了ダイアログでOKボタンタッチ処理
+  const onPressDialog = (): void => {
+    // パスワード再設定の場合は、サインアウトを実行せずに、ダイアログとモーダルを閉じる
+    if(modalMode == 'passWordReset') {
+      setDialogVisible(false)
+      setModalVisible(false)
+      return
+    }else{
+      handleSignOut()
     }
   }
 
@@ -111,7 +131,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
         <Dialog.Title>{dialogTitle}</Dialog.Title>
         <Dialog.Description>{dialogText}</Dialog.Description>
         <Dialog.Button label="OK"
-          onPress={()=> { handleSignOut()}
+          onPress={()=> { onPressDialog()}
           } />
       </Dialog.Container>
 
@@ -119,7 +139,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
       <View style={styles.modalContainer}>
         {/* UI表示部分 モーダル種別を基に高さを変更する */}
         <View style={{
-            height: (modalMode == 'passWord' ? 450: 300),
+            height: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 450: 300),
             backgroundColor:'white',
             paddingVertical: 14,
             paddingHorizontal: 14
@@ -132,7 +152,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
           <Text style={styles.modalContentsFontType}>{ modalText }</Text>
 
           {/* メールアドレス入力欄(登録メールアドレス変更時に表示) */}
-          { modalMode == 'eMail' &&
+          { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
             <TextInputEmail emailInput={emailInput} setInputEmail={setInputEmail}  />
           }
 
@@ -142,9 +162,9 @@ const accountSettingModal = (props: Props):JSX.Element => {
           }
 
           <View style={styles.modalButtonWrap}>
-            {/* 送信ボタン（登録メールアドレス変更） */}
-            { modalMode == 'eMail' &&
-              <ButtonEmailSending emailInput={emailInput} setDialogVisible={setDialogVisible} />
+            {/* 送信ボタン（登録メールアドレス変更、パスワード再設定） */}
+            { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
+              <ButtonEmailSending modalMode={modalMode} emailInput={emailInput} setDialogVisible={setDialogVisible} />
             }
 
             {/* 送信ボタン（パスワード変更） */}

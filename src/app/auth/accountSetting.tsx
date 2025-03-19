@@ -4,8 +4,7 @@ import { auth } from '../../config'
 import { onAuthStateChanged } from 'firebase/auth'
 import Button from '../../components/Button'
 import AccountSettingModal from '../../components/AccountSettingModal'
-
-export type modalModeType = ('eMail'| 'passWord' | 'cancelMembership' | null)
+import { modalModeType } from '../../../types/accountSettingModalMode'
 
 const accountSetting = ():JSX.Element => {
   const [ email, setEmail ] = useState<string | null>(null)
