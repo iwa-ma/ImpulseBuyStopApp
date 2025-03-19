@@ -1,10 +1,12 @@
 import { Alert } from 'react-native'
 import Button from '../Button'
 import { auth } from '../../config'
-import { verifyBeforeUpdateEmail }from 'firebase/auth'
+import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
 import { type Dispatch} from 'react'
+import { modalModeType } from '../../../types/accountSettingModalMode'
 
 interface Props {
+  modalMode: modalModeType
   /** メールアドレス入力値 */
   emailInput: string,
   /** ダイアログ表示制御 */
@@ -12,7 +14,38 @@ interface Props {
 }
 
 const ButtonEmailSending = (props: Props):JSX.Element => {
-  const { emailInput, setDialogVisible } = props
+  const { modalMode,emailInput, setDialogVisible } = props
+
+  const handlePress = () => {
+    if (modalMode === 'eMail') {
+      handleEmailSending(emailInput)
+    } else {
+      handlePassWordEmailSending(emailInput)
+    }
+  }
+
+  // パスワード再設定メール送信処理
+  const handlePassWordEmailSending = (email: string):void => {
+    // メールアドレスが未入力の場合、以降の処理を実行しない
+    if ( email === ''){ return }
+
+    sendPasswordResetEmail(auth, email).then(() => {
+    // 送信成功後、完了ダイアログを表示
+    setDialogVisible(true)
+    }).catch((error) => {
+      const { code, message }: { code: string, message: string } = error
+
+      // 無効なメールアドレス指定時
+      if(code === 'auth/invalid-email' ){
+        Alert.alert('無効なメールアドレスが入力されました')
+        return
+      }
+
+      // 登録メールアドレス変更失敗でアラートを画面に表示
+      Alert.alert(message)
+      }
+    )
+  }
 
   // 登録メールアドレス変更送信処理
   const handleEmailSending = (email: string):void => {
@@ -57,9 +90,7 @@ const ButtonEmailSending = (props: Props):JSX.Element => {
         marginLeft: 0,
         opacity: emailInput.length === 0 ? 0.7 : 1
       }}
-      onPress={() => {
-      handleEmailSending(emailInput)
-      }}
+      onPress={() => {handlePress()}}
     />
   )
 }

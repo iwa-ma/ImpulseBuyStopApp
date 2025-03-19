@@ -8,6 +8,7 @@ import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase
 
 import Button from '../../components/Button'
 import { auth } from '../../config'
+import AccountSettingModal from '../../components/AccountSettingModal'
 
 /**
  * ログインボタンクリック動作
@@ -32,9 +33,7 @@ const handleSubmitPress = (email: string, password: string): void => {
     )
 }
 
-/**
- * お試し体験モードリンククリック動作
- */
+/** お試し体験モードリンククリック動作 */
 const handleAnonymously = (): void => {
   const auth = getAuth()
   signInAnonymously(auth)
@@ -51,9 +50,11 @@ const handleAnonymously = (): void => {
     })
 }
 
+
 const LogIn = (): JSX.Element => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+  const [ modalVisible, setModalVisible ] = useState(false)
 
   return (
     <View style={styles.container}>
@@ -83,9 +84,9 @@ const LogIn = (): JSX.Element => {
 
           <Text>
             <Link href='/auth/sign_up' asChild replace>
-                <TouchableOpacity>
-                    <Text style={styles.footerLink}>1.ユーザー登録する！</Text>
-                </TouchableOpacity>
+              <TouchableOpacity>
+                  <Text style={styles.footerLink}>1.ユーザー登録する！</Text>
+              </TouchableOpacity>
             </Link>
           </Text>
 
@@ -99,6 +100,25 @@ const LogIn = (): JSX.Element => {
               </Text>
             </TouchableOpacity>
           </Text>
+
+          <Text style={styles.footerText}>パスワードを忘れてしまった方</Text>
+          <Text>
+            <TouchableOpacity>
+              <Text
+                style={styles.footerLink}
+                onPress={() => { setModalVisible(true)}}
+              >
+                3.パスワード再設定
+              </Text>
+            </TouchableOpacity>
+          </Text>
+
+          {/* パスワード再設定用モーダル */}
+          <AccountSettingModal
+            modalVisible={ modalVisible }
+            modalMode='passWordReset'
+            setModalVisible={ setModalVisible }
+          />
         </View>
       </View>
     </View>
@@ -138,7 +158,8 @@ const styles =StyleSheet.create({
   footerLink:{
     fontSize: 14,
     lineHeight: 24,
-    color: '#467FD3'
+    color: '#467FD3',
+    paddingBottom: 32
   }
 })
 
