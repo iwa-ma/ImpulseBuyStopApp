@@ -5,7 +5,7 @@ interface BuyItem {
   id?: string
   bodyText: string
   updatedAt: Timestamp
-  priority: priorityType["id"] | null
+  priority: priorityType["id"]
 }
 
 export type { BuyItem }
