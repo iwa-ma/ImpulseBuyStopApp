@@ -32,7 +32,6 @@ const handlePress = (id: string,anonymous: string): void => {
 
 const Detail = (): JSX.Element => {
   const id = String(useLocalSearchParams().id)
-  console.log(id)
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
   const [ priorityType , setPriorityType] = useState<priorityType[]>([])
 
