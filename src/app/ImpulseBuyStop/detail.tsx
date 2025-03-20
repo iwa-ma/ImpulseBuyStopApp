@@ -9,8 +9,8 @@ import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { auth, db } from '../../config'
 import { type BuyItem } from '../../../types/buyItem'
-import { getpriorityType } from '../features/priorityUtils'
-import { getpriorityName } from '../features/priorityUtils'
+import { getpriorityType, getpriorityName } from '../../utils/priorityUtils'
+
 /**
  * 編集アイコン選択動作
  *

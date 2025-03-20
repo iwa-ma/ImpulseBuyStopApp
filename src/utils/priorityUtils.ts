@@ -1,7 +1,7 @@
 import { type Dispatch} from 'react'
-import { db, auth } from '../../config'
+import { db, auth } from '../config'
 import { collection, query ,getDocs, where } from 'firebase/firestore'
-import { type priorityType} from '../../../types/priorityType'
+import { type priorityType} from '../../types/priorityType'
 
 interface Props {
   /** 優先度名更新 */
