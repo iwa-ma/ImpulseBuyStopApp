@@ -80,9 +80,9 @@ const List = ():JSX.Element => {
   const [ priorityType , setPriorityType ] = useState<priorityType[]>([])
 
   // 優先度のソートタイプ
-  const [ itemsSortType, setItemsSortType ] = useState<SortType>('priority')
+  const [ itemsSortType, setItemsSortType ] = useState<SortType>('updatedAt')
   // 優先度のソート順
-  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('asc')
+  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('desc')
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
