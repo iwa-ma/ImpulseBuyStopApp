@@ -25,7 +25,7 @@ const handlePress = (id: string, bodyText: string, priorityCode : number): void 
   }
 
   // apiを使用して登録処理を行い、成功後、詳細表示画面に戻る
-  setDoc(ref, data )
+  setDoc(ref, data)
     .then(() =>{
       router.back()
     })
