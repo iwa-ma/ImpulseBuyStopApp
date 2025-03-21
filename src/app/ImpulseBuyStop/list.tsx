@@ -129,7 +129,7 @@ const List = ():JSX.Element => {
           // 出力用配列に追加
           // 優先度をgetpriorityName関数で変換(code → 優先度名)
           const buyItem: OutPutBuyItem = {
-            id: data.id,
+            id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
             bodyText: data.bodyText,
             updatedAt: data.updatedAt,
             priority: getpriorityName(priorityType,data.priority)
