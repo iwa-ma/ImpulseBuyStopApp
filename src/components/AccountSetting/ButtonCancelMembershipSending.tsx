@@ -7,6 +7,7 @@ import { type Dispatch} from 'react'
 import { useUnsubscribe } from '../../app/UnsubscribeContext'
 import { DeleteUsers } from '../../../types/deleteUsers'
 
+/** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
   /** ダイアログ表示制御 */
   setDialogVisible:Dispatch<React.SetStateAction<boolean>>
