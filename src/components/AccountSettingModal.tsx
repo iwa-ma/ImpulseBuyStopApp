@@ -12,7 +12,7 @@ import TextInputPassWord from './AccountSetting/TextInputPassWord'
 import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from './AccountSetting/ButtonPasswordSending'
 import ButtonCancelMembershipSending from './AccountSetting/ButtonCancelMembershipSending'
-import { passWordType } from './AccountSetting/TextInputPassWord'
+import { EditPassWordType } from '../../types/ediPassWordType'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -29,7 +29,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
   // メールアドレス入力制御
   const [ emailInput, setInputEmail ] = useState('')
   // パスワード入力制御
-  const [ passWordInput, setPassWordInput ] = useState<passWordType>({
+  const [ passWordInput, setPassWordInput ] = useState<EditPassWordType>({
     new: '',
     confirm: ''
   })

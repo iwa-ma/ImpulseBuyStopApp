@@ -1,17 +1,13 @@
 import { Text, TextInput, StyleSheet } from 'react-native'
 import { type Dispatch} from 'react'
+import { EditPassWordType} from '../../../types/ediPassWordType'
 
-/** パスワード入力値の型定義 */
-export type passWordType = {
-  new: string,
-  confirm: string
-}
-
+/** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
   /** パスワード入力値 */
-  passWordInput: passWordType,
+  passWordInput: EditPassWordType,
   /** パスワード入力値変更用関数 */
-  setPassWordInput: Dispatch<React.SetStateAction<passWordType>>
+  setPassWordInput: Dispatch<React.SetStateAction<EditPassWordType>>
 }
 
 const TextInputPassWord = (props: Props):JSX.Element => {
