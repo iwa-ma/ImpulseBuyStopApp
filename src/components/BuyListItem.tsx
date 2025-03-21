@@ -6,6 +6,7 @@ import Icon from './icon'
 import { auth, db } from '../config'
 import { OutPutBuyItem } from '../app/../../types/outPutBuyItem'
 
+/** list.tsxから受け取るprops型を定義 */
 interface Props {
   /** リストアイテム */
   buyItem: OutPutBuyItem

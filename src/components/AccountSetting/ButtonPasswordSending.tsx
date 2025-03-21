@@ -1,12 +1,14 @@
 import Button from '../Button'
 import { auth } from '../../config'
-import { type Dispatch} from 'react'
-import { passWordType } from './TextInputPassWord'
+import { type Dispatch } from 'react'
+import { EditPassWordType} from '../../../types/ediPassWordType'
 import { Alert } from 'react-native'
 import { updatePassword }from 'firebase/auth'
+
+/** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
-  /** メールアドレス入力値 */
-  passWordInput: passWordType,
+  /** パスワード入力値 */
+  passWordInput: EditPassWordType,
   /** ダイアログ表示制御 */
   setDialogVisible:Dispatch<React.SetStateAction<boolean>>
 }

@@ -3,6 +3,7 @@ import { Picker } from '@react-native-picker/picker'
 import { type Dispatch, useState} from 'react'
 import { type SortType,OrderByDirection,pickerChangeType } from '../../app/../../types/list'
 
+/** list.tsxから受け取るprops型を定義 */
 interface Props {
   /** リストソートキー選択値 */
   itemsSortType:SortType

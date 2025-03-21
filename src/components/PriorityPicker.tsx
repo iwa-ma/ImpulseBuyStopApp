@@ -9,6 +9,7 @@ import { useEffect,useState } from 'react'
 import { db, auth } from '../config'
 import { type Dispatch} from 'react'
 
+/** 親コンポーネントから受け取るprops型を定義 */
 interface Props {
   /** 優先度選択値 */
   priorityCode:number
