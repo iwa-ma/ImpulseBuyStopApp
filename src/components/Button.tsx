@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native'
 
+/** 親コンポーネントから受け取るprops型を定義 */
 interface Props {
   /** ボタンラベルに表示する文字列 */
   label: string,

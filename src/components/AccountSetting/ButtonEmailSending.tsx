@@ -5,6 +5,7 @@ import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
 import { type Dispatch} from 'react'
 import { modalModeType } from '../../../types/accountSettingModalMode'
 
+/** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
   modalMode: modalModeType
   /** メールアドレス入力値 */

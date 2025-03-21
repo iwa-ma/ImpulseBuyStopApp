@@ -3,6 +3,7 @@ import {
     type ViewStyle
 } from 'react-native'
 
+/** 親コンポーネントから受け取るprops型を定義 */
 interface Props {
     children: JSX.Element
     style?: ViewStyle
