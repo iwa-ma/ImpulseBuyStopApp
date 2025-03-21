@@ -5,6 +5,7 @@ import { doc, setDoc, Timestamp, deleteDoc, getDoc } from 'firebase/firestore'
 import { deleteUser }from 'firebase/auth'
 import { type Dispatch} from 'react'
 import { useUnsubscribe } from '../../app/UnsubscribeContext'
+import { DeleteUsers } from '../../../types/deleteUsers'
 
 interface Props {
   /** ダイアログ表示制御 */
@@ -17,17 +18,19 @@ const ButtonCancelMembershipSending = (props: Props):JSX.Element => {
   const { unsubscribe } = useUnsubscribe()
   /** 削除ユーザー履歴の登録 */
   async function regCancelMember():Promise<void> {
-    // 未ログインの場合、以降の処理を実行しない
-    if (!auth.currentUser){ return }
+    // 未ログインまたはメールアドレス未設定の場合、以降の処理を実行しない
+    if (!auth.currentUser || !auth.currentUser.email){ return }
 
-    // uid、email、登録日をコレクションとして登録
-    const ref = doc(db, `deleteUsers/${auth.currentUser.uid}`)
-    setDoc(ref, {
-      ID:auth.currentUser.uid,
-      id:auth.currentUser.email,
+    // ログイン情報を基に登録データを生成
+    const data: DeleteUsers = {
+      UID: auth.currentUser.uid,
+      id: auth.currentUser.email,
       createdAt: Timestamp.fromDate(new Date())
-    })
+    }
 
+    // apiを使用して登録処理を行う
+    const ref = doc(db, `deleteUsers/${auth.currentUser.uid}`)
+    setDoc(ref, data)
     .then(() =>{})
     .catch((error) => {
       console.log(error)
