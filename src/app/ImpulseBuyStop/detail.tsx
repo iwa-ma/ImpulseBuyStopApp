@@ -51,12 +51,17 @@ const Detail = (): JSX.Element => {
       const data = itemDoc.data()
       if (data) {
         const buyItem: BuyItem = {
-          id: itemDoc.id,
           bodyText: data.bodyText,
           updatedAt: data.updatedAt,
           priority: data.priority
         }
         setItems(buyItem)
+      }else{
+        Alert.alert('詳細表示データの取得に失敗しました','もう一度開いて発生する場合は運営に問い合わせお願いいたします。',[
+          {
+            text:'OK'
+          }
+        ])
       }
     })
 
