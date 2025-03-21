@@ -44,13 +44,15 @@ const ButtonCancelMembershipSending = (props: Props):JSX.Element => {
     if (!auth.currentUser){ return }
 
     deleteUser(auth.currentUser).then(() => {
-      // 送信成功後、完了ダ[イアログを表示
+      // 送信成功後、完了ダイアログを表示
       setDialogVisible(true)
     }).catch((error) => {
       if (!auth.currentUser){ return }
-      deleteDoc(doc(db,  `deleteUsers/`, auth.currentUser.uid))
 
+      // 削除処理に失敗した場合、ログイン中ユーザーのuidを指定して削除ユーザー履歴を削除
+      deleteDoc(doc(db, `deleteUsers/` , auth.currentUser.uid))
       const { code, message }: { code: string, message: string } = error
+
       // 最後にログインから長期間経過
       if(code === 'auth/requires-recent-login' ){
         Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
@@ -69,7 +71,7 @@ const ButtonCancelMembershipSending = (props: Props):JSX.Element => {
     await regCancelMember()
 
     // 削除ユーザー履歴登録結果確認
-    const docRef = doc(db, "deleteUsers/", auth.currentUser.uid)
+    const docRef = doc(db, `deleteUsers/`, auth.currentUser.uid)
     const result = await getDoc(docRef)
 
     // 削除ユーザー履歴の登録実行※削除ユーザー履歴が登録されていない場合は実行しない
