@@ -80,9 +80,9 @@ const List = ():JSX.Element => {
   const [ priorityType , setPriorityType ] = useState<priorityType[]>([])
 
   // 優先度のソートタイプ
-  const [ itemsSortType, setItemsSortType ] = useState<SortType>('priority')
+  const [ itemsSortType, setItemsSortType ] = useState<SortType>('updatedAt')
   // 優先度のソート順
-  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('asc')
+  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('desc')
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
@@ -123,16 +123,19 @@ const List = ():JSX.Element => {
     const unsubscribe = onSnapshot(q, (snapshot) =>{
       const tempItems: OutPutBuyItem[] = []
       snapshot.forEach((doc)=> {
-        const { bodyText, updatedAt, priority } = doc.data()
-
-        // 出力用配列に追加
-        // 優先度をgetpriorityName関数で変換(code → 優先度名)
-        tempItems.push({
-          id: doc.id,
-          bodyText,
-          updatedAt,
-          priority: getpriorityName(priorityType,priority)
-        })
+      // Firestoreからデータを型付けして取得
+      const data = doc.data()
+        if (data) {
+          // 出力用配列に追加
+          // 優先度をgetpriorityName関数で変換(code → 優先度名)
+          const buyItem: OutPutBuyItem = {
+            id: data.id,
+            bodyText: data.bodyText,
+            updatedAt: data.updatedAt,
+            priority: getpriorityName(priorityType,data.priority)
+          }
+          tempItems.push(buyItem)
+        }
       })
 
       // 出力用の配列を更新

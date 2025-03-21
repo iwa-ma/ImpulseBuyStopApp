@@ -52,9 +52,6 @@ const ButtonEmailSending = (props: Props):JSX.Element => {
     // 未ログインまたは、新しいメールアドレスが未入力の場合、以降の処理を実行しない
     if (!auth.currentUser || email === ''){ return }
 
-    // 確認メールの言語設定を日本語に変更
-    auth.languageCode = 'ja'
-
     // 確認メール送信
     verifyBeforeUpdateEmail(auth.currentUser, email).then(() => {
         // 送信成功後、完了ダイアログを表示

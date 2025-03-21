@@ -1,14 +1,12 @@
 import { View, Text,ScrollView, StyleSheet, Alert} from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { onSnapshot, doc } from 'firebase/firestore'
-import { type priorityType} from '../../../types/priorityType'
-
 import { useState, useEffect} from 'react'
-
+import { type priorityType} from '../../../types/priorityType'
+import { type BuyItem } from '../../../types/buyItem'
 import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { auth, db } from '../../config'
-import { type BuyItem } from '../../../types/buyItem'
 import { getpriorityType, getpriorityName } from '../../utils/priorityUtils'
 
 /**
@@ -32,7 +30,6 @@ const handlePress = (id: string,anonymous: string): void => {
 
 const Detail = (): JSX.Element => {
   const id = String(useLocalSearchParams().id)
-  console.log(id)
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
   const [ priorityType , setPriorityType] = useState<priorityType[]>([])
 
@@ -50,13 +47,17 @@ const Detail = (): JSX.Element => {
     if (!auth.currentUser){return}
     const ref = doc(db, docPath, id)
     const unsubscrive = onSnapshot(ref, (itemDoc) => {
-      const { bodyText, updatedAt,priority } = itemDoc.data() as BuyItem
-      setItems({
-        id: itemDoc.id,
-        bodyText,
-        updatedAt,
-        priority
-      })
+      // Firestoreからデータを型付けして取得
+      const data = itemDoc.data()
+      if (data) {
+        const buyItem: BuyItem = {
+          id: itemDoc.id,
+          bodyText: data.bodyText,
+          updatedAt: data.updatedAt,
+          priority: data.priority
+        }
+        setItems(buyItem)
+      }
     })
 
     return unsubscrive
