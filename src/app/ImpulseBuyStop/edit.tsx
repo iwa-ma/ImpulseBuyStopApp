@@ -14,6 +14,12 @@ import { BuyItem } from '../.../../../../types/buyItem'
 
 // 登録ボタンタッチ処理
 const handlePress = (id: string, bodyText: string, priorityCode : number): void => {
+  // 登録データが未入力の場合エラーを表示して処理終了
+  if (!bodyText){
+    Alert.alert('登録データが未入力です')
+    return
+  }
+
   if (!auth.currentUser) { return}
   const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
 

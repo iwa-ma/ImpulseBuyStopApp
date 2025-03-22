@@ -12,6 +12,12 @@ import { db, auth } from '../../config'
 
 /** 新規登録処理 */
 const handlePress = (bodyText: string, priorityCode :number): void => {
+  // 登録データが未入力の場合エラーを表示して処理終了
+  if (!bodyText){
+    Alert.alert('登録データが未入力です')
+    return
+  }
+
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if (!auth.currentUser) {return}
 
