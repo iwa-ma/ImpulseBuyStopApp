@@ -27,7 +27,10 @@ const handlePress = (bodyText: string, priorityCode :number): void => {
   // apiを使用して登録処理を行い、成功後一覧に戻る
   addDoc(ref,data)
     .then((docRef) =>{
-      if(docRef.id){router.back()}
+      if(docRef.id){
+        Alert.alert('新規登録が完了しました')
+        router.back()
+      }
     })
     .catch((error) => {
       const { code, message }: { code: string, message: string } = error
