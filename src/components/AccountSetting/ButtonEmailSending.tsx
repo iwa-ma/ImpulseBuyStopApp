@@ -59,7 +59,7 @@ const ButtonEmailSending = (props: Props):JSX.Element => {
         setDialogVisible(true)
       }).catch((error) => {
         const { code, message }: { code: string, message: string } = error
-        //  無効なメールアドレス指定時
+        // 無効なメールアドレス指定時
         if(code === 'auth/invalid-new-email' ){
           Alert.alert('無効なメールアドレスが入力されました')
           return
