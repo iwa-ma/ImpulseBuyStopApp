@@ -90,11 +90,8 @@ const LogIn = (): JSX.Element => {
           </Text>
 
           <Text>
-            <TouchableOpacity>
-              <Text
-                style={styles.footerLink}
-                onPress={() => { handleAnonymously()}}
-              >
+            <TouchableOpacity onPress={() => { handleAnonymously() }}>
+              <Text style={styles.footerLink}>
                 2.お試し体験モードで操作する！
               </Text>
             </TouchableOpacity>
@@ -102,11 +99,8 @@ const LogIn = (): JSX.Element => {
 
           <Text style={styles.footerText}>パスワードを忘れてしまった方</Text>
           <Text>
-            <TouchableOpacity>
-              <Text
-                style={styles.footerLink}
-                onPress={() => { setModalVisible(true)}}
-              >
+            <TouchableOpacity onPress={() => { setModalVisible(true) }}>
+              <Text style={styles.footerLink}>
                 3.パスワード再設定
               </Text>
             </TouchableOpacity>
