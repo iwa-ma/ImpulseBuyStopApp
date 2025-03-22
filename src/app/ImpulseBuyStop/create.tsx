@@ -1,3 +1,4 @@
+import { Alert } from 'react-native'
 import { View, TextInput, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { collection, addDoc, Timestamp } from 'firebase/firestore'
@@ -11,6 +12,11 @@ import { db, auth } from '../../config'
 
 /** 新規登録処理 */
 const handlePress = (bodyText: string, priorityCode :number): void => {
+  // 登録データが未入力の場合エラーを表示して処理終了
+  if (!bodyText){
+    Alert.alert('登録データが未入力です')
+    return
+  }
 
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if (!auth.currentUser) {return}
@@ -27,11 +33,20 @@ const handlePress = (bodyText: string, priorityCode :number): void => {
   // apiを使用して登録処理を行い、成功後一覧に戻る
   addDoc(ref,data)
     .then((docRef) =>{
-      console.log('create success', docRef.id)
-      router.back()
+      if(docRef.id){
+        Alert.alert('新規登録が完了しました')
+        router.back()
+      }
     })
     .catch((error) => {
-      console.log(error)
+      const { code, message }: { code: string, message: string } = error
+      // 新規登録権限が無い場合
+      if(code === 'permission-denied' ){
+        Alert.alert('新規登録処理に失敗しました\n'+'新規登録権限が無いユーザーです。')
+        return
+      }
+
+      Alert.alert('新規登録処理に失敗しました\n'+message)
     })
 }
 

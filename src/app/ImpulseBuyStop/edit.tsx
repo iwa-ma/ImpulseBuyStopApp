@@ -14,6 +14,12 @@ import { BuyItem } from '../.../../../../types/buyItem'
 
 // 登録ボタンタッチ処理
 const handlePress = (id: string, bodyText: string, priorityCode : number): void => {
+  // 登録データが未入力の場合エラーを表示して処理終了
+  if (!bodyText){
+    Alert.alert('登録データが未入力です')
+    return
+  }
+
   if (!auth.currentUser) { return}
   const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
 
@@ -27,11 +33,18 @@ const handlePress = (id: string, bodyText: string, priorityCode : number): void 
   // apiを使用して登録処理を行い、成功後、詳細表示画面に戻る
   setDoc(ref, data)
     .then(() =>{
+      Alert.alert('編集完了しました')
       router.back()
     })
     .catch((error) => {
-      console.log(error)
-      Alert.alert('更新に失敗しました')
+      const { code, message }: { code: string, message: string } = error
+      // 更新権限が無い場合
+      if(code === 'permission-denied' ){
+        Alert.alert('編集処理に失敗しました\n'+'編集権限が無いユーザーです。')
+        return
+      }
+
+      Alert.alert('編集処理に失敗しました\n'+message)
     })
 }
 
