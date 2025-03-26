@@ -22,6 +22,11 @@ const handleSubmitPress = (email: string,password: string): void => {
     .catch((error) => {
       const { code, message }: { code: string, message: string } = error
 
+      // 登録済みメールアドレス
+      if(code === 'auth/email-already-in-use' ){
+        Alert.alert('登録済みのメールアドレスです')
+        return
+      }
       // 登録に失敗でアラートを画面に表示
       Alert.alert(message)
     })
