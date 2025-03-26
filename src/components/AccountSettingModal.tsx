@@ -139,9 +139,10 @@ const accountSettingModal = (props: Props):JSX.Element => {
       <View style={styles.modalContainer}>
         {/* UI表示部分 モーダル種別を基に高さを変更する */}
         <View style={{
-            height: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 450: 300),
+            height: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 415: 300),
             backgroundColor:'white',
             paddingVertical: 14,
+            marginBottom: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 200: 300),
             paddingHorizontal: 14
           }
         }>
@@ -201,14 +202,14 @@ const styles = StyleSheet.create({
     opacity: 1
   },
   modalTitleFontType: {
-    paddingBottom: 14,
+    paddingBottom: 10,
     textAlign:'center',
     fontSize: 28,
     fontWeight: 'normal',
     fontFamily: 'Meiryo'
   },
   modalContentsFontType:{
-    paddingBottom: 14,
+    paddingBottom: 10,
     fontSize: 19,
     fontWeight: 'normal',
     backgroundColor:'white',
