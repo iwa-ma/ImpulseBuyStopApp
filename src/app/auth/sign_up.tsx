@@ -10,22 +10,26 @@ import { auth } from '../../config'
 import Button from '../../components/Button'
 
 const handleSubmitPress = (email: string,password: string): void => {
-    // 会員登録
-    console.log(email,password)
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredenital) => {
-        console.log(userCredenital.user.uid)
+  // 会員登録
+  console.log(email,password)
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredenital) => {
+      console.log(userCredenital.user.uid)
 
-        // 登録に成功でリスト画面に書き換え
-        router.replace('/ImpulseBuyStop/list')
-      })
-      .catch((error) => {
-        const { code, message }: { code: string, message: string } = error
-        console.log(code,message)
+      // 登録に成功でリスト画面に書き換え
+      router.replace('/ImpulseBuyStop/list')
+    })
+    .catch((error) => {
+      const { code, message }: { code: string, message: string } = error
 
-        // 登録に失敗でアラートを画面に表示
-        Alert.alert(message)
-      })
+      // 登録済みメールアドレス
+      if(code === 'auth/email-already-in-use' ){
+        Alert.alert('登録済みのメールアドレスです')
+        return
+      }
+      // 登録に失敗でアラートを画面に表示
+      Alert.alert(message)
+    })
 }
 
 const SignUp = (): JSX.Element => {
