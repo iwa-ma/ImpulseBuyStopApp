@@ -1,9 +1,8 @@
 import {
-  View, Text, StyleSheet
+  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity
 } from 'react-native'
 import { collection, query, getDocs, where } from 'firebase/firestore'
 
-import { Picker } from '@react-native-picker/picker'
 import { type priorityType} from '../../types/priorityType'
 import { useEffect,useState } from 'react'
 import { db, auth } from '../config'
@@ -54,6 +53,27 @@ const PriorityPicker = (props: Props): JSX.Element => {
     })()
   }, [])
 
+  // 優先度選択ピッカーの値を変更する
+  const handlePickerChange = (itemIndex: number) => {
+    if (priorityType && itemIndex >= 0 && itemIndex < priorityType.length) {
+      setPriorityCode(priorityType[itemIndex].id)
+    }
+  }
+
+  // 優先度選択ピッカーを表示する
+  const showActionSheet = () => {
+    if (!priorityType?.length) return
+
+    // 取得した優先度リストを表示する、キャンセルボタンを追加する
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: [...priorityType.map(item => item.name), 'キャンセル'],
+        cancelButtonIndex: priorityType.length
+      },
+      handlePickerChange
+    )
+  }
+
   return (
     <>
       { priorityType && (
@@ -61,15 +81,13 @@ const PriorityPicker = (props: Props): JSX.Element => {
           <View style={styles.pickerTitleWrap}>
             <Text style={styles.pickerTitleText}>【優先度選択】→</Text>
           </View>
-          <Picker
-              selectedValue={priorityCode}
-              style={styles.picker}
-              onValueChange={(itemValue:number) => setPriorityCode(itemValue)}
-            >
-              {priorityType.map((item) => (
-                <Picker.Item key={item.id} label={item.name} value={item.id} />
-              ))}
-          </Picker>
+
+          <View style={styles.pickerValueWrap}>
+            <TouchableOpacity onPress={showActionSheet}>
+              <Text>{priorityType.find((item) => item.id === priorityCode)?.name}</Text>
+            </TouchableOpacity>
+          </View>
+
         </View>
       )}
     </>
@@ -77,17 +95,19 @@ const PriorityPicker = (props: Props): JSX.Element => {
 }
 
 const styles = StyleSheet.create({
-  picker: {
-    height: 60,
-    width: '100%'
-  },
   pickerTitleWrap:{
     height: 60,
     justifyContent: 'center', // 縦方向中央揃え
     alignItems: 'center' // 横方向中央揃え
   },
   pickerTitleText:{
-    fontSize:16
+    fontSize:16,
+    paddingRight:16
+  },
+  pickerValueWrap:{
+    justifyContent: 'center', // 縦方向中央揃え
+    alignItems: 'center', // 横方向中央揃え
+    paddingBottom: 2
   }
 })
 export default PriorityPicker
