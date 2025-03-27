@@ -9,7 +9,7 @@ import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase
 import Button from '../../components/Button'
 import { auth } from '../../config'
 import AccountSettingModal from '../../components/AccountSettingModal'
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'
 
 /**
  * ログインボタンクリック動作
@@ -56,11 +56,11 @@ const LogIn = (): JSX.Element => {
   const [ password, setPassword ] = useState('')
   const [ modalVisible, setModalVisible ] = useState(false)
 
-  const [isSecure, setIsSecure] = useState(true); // secureTextEntryの状態を管理
+  const [isSecure, setIsSecure] = useState(true)// secureTextEntryの状態を管理
 
   const togglePasswordVisibility = () => {
-    setIsSecure(!isSecure); // 表示/非表示を切り替える
-  };
+    setIsSecure(!isSecure) // 表示/非表示を切り替える
+  }
 
   return (
     <View style={styles.container}>
@@ -168,11 +168,11 @@ const styles =StyleSheet.create({
     flex: 1,
     height: 48,
     padding: 8,
-    fontSize: 16,
+    fontSize: 16
 
   },
   visibilityToggle: {
-    padding: 8,
+    padding: 8
   },
   footerText:{
     fontSize: 14,

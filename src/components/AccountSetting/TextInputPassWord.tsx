@@ -2,7 +2,7 @@ import { View,Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native
 import { type Dispatch} from 'react'
 import { EditPassWordType} from '../../../types/ediPassWordType'
 import { useState } from 'react'
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
@@ -16,16 +16,16 @@ const TextInputPassWord = (props: Props):JSX.Element => {
   // パスワード入力制御
   const { passWordInput, setPassWordInput } = props
 
-  const [isSecure, setIsSecure] = useState(true); // secureTextEntryの状態を管理
-  const [isSecureConfirm, setIsSecureConfirm] = useState(true); // secureTextEntryの状態を管理
+  const [isSecure, setIsSecure] = useState(true) // secureTextEntryの状態を管理
+  const [isSecureConfirm, setIsSecureConfirm] = useState(true)// secureTextEntryの状態を管理
 
   const togglePasswordVisibility = () => {
-    setIsSecure(!isSecure); // 表示/非表示を切り替える
-  };
+    setIsSecure(!isSecure)// 表示/非表示を切り替える
+  }
 
   const togglePasswordVisibilityConfirm = () => {
-    setIsSecureConfirm(!isSecureConfirm); // 表示/非表示を切り替える
-  };
+    setIsSecureConfirm(!isSecureConfirm) // 表示/非表示を切り替える
+  }
 
   return (
     <>
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   modalInput: {
     height: 48,
     fontSize: 16,
-    flex: 1,
+    flex: 1
   },
   inputContainer: {
     flexDirection: 'row',
@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginBottom: 24,
     paddingLeft: 16,
-    paddingRight: 8,
+    paddingRight: 8
   },
   visibilityToggle: {
-    padding: 8,
-  },
+    padding: 8
+  }
 })
 
 export default TextInputPassWord

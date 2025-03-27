@@ -9,10 +9,10 @@ const SORT_OPTIONS: Record<SortOptionKey, SortValueType> = {
   'updatedAt:asc': '最終更新日 古い順',
   'priority:asc': '優先度 高い順',
   'priority:desc': '優先度 低い順'
-};
+}
 
 // ソートキーとソート順に対応するラベル
-const SORT_LABELS = ['キャンセル', ...Object.values(SORT_OPTIONS)];
+const SORT_LABELS = ['キャンセル', ...Object.values(SORT_OPTIONS)]
 
 interface Props {
   /** リストソートキー選択値 */
@@ -33,7 +33,7 @@ const ListSort = (props: Props) => {
 
   const handlePickerChange = (itemIndex: number) => {
     // キャンセルボタンを選択した場合は何もしない
-    if (itemIndex === 0) return;
+    if (itemIndex === 0) return
     // 選択されたキーを取得
     const selectedKey = Object.keys(SORT_OPTIONS)[itemIndex - 1] as SortOptionKey
     // キーを分割してソートタイプとソート順を取得
@@ -49,11 +49,11 @@ const ListSort = (props: Props) => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: SORT_LABELS,
-        cancelButtonIndex: 0,
+        cancelButtonIndex: 0
       },
       handlePickerChange
-    );
-  };
+    )
+  }
 
   return (
     <>
