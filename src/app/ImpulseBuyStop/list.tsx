@@ -20,6 +20,7 @@ import { OutPutBuyItem } from '../../app/../../types/outPutBuyItem'
 import { getpriorityType,getpriorityName } from '../../utils/priorityUtils'
 import  ListSort from './listSort'
 import { type SortType,OrderByDirection } from '../../app/../../types/list'
+import { FirebaseError } from 'firebase/app'
 
 /**
  * 新規追加アイコン選択動作
@@ -120,26 +121,41 @@ const List = ():JSX.Element => {
     const q = query(ref, orderBy(itemsSortType, itemsSortOrder))
 
     // ドキュメントを取得して、出力用の配列を生成(リアルタイムリスナーで監視)
-    const unsubscribe = onSnapshot(q, (snapshot) =>{
-      const tempItems: OutPutBuyItem[] = []
-      snapshot.forEach((doc)=> {
-      // Firestoreからデータを型付けして取得
-      const data = doc.data()
-        if (data) {
-          // 出力用配列に追加
-          // 優先度をgetpriorityName関数で変換(code → 優先度名)
-          const buyItem: OutPutBuyItem = {
-            id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
-            bodyText: data.bodyText,
-            updatedAt: data.updatedAt,
-            priority: getpriorityName(priorityType,data.priority)
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      try {
+        const tempItems: OutPutBuyItem[] = []
+        snapshot.forEach((doc) => {
+          // Firestoreからデータを型付けして取得
+          const data = doc.data()
+          if (data) {
+            // 出力用配列に追加
+            // 優先度をgetpriorityName関数で変換(code → 優先度名)
+            const buyItem: OutPutBuyItem = {
+              id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
+              bodyText: data.bodyText,
+              updatedAt: data.updatedAt,
+              priority: getpriorityName(priorityType, data.priority)
+            }
+            tempItems.push(buyItem)
           }
-          tempItems.push(buyItem)
-        }
-      })
+        })
 
-      // 出力用の配列を更新
-      setItems(tempItems)
+        // 出力用の配列を更新
+        setItems(tempItems)
+      } catch (error: unknown) {
+        if (error instanceof FirebaseError) {
+          const { message } = error
+          Alert.alert(
+            'エラーが発生しました',
+            'データの取得中にエラーが発生しました。もう一度お試しください。' + message
+          )
+        } else {
+          Alert.alert(
+            'エラーが発生しました',
+            'データの取得中にエラーが発生しました。もう一度お試しください。'
+          )
+        }
+      }
     })
 
     setUnsubscribe(() => unsubscribe)
