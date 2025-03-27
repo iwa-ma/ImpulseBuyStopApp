@@ -11,8 +11,8 @@ const Layout = ():JSX.Element => {
             backgroundColor: '#0E75FC'
         },
         headerTintColor: '#ffffff',
-        headerTitle: 'Impulse Buy Stop App',
-        headerBackTitle: 'Back',
+        headerTitle: '衝動買いストップ',
+        headerBackTitle: '戻る',
         headerTitleStyle: {
             fontSize: 22,
             fontWeight:'bold'

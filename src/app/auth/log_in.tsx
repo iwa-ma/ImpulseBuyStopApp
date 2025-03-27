@@ -65,7 +65,7 @@ const LogIn = (): JSX.Element => {
   return (
     <View style={styles.container}>
       <View style={styles.inner}>
-        <Text style={styles.title}>Log In</Text>
+        <Text style={styles.title}>ログイン</Text>
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -74,7 +74,7 @@ const LogIn = (): JSX.Element => {
             onChangeText={(text) => {setEmail(text)}}
             autoCapitalize='none'
             keyboardType='email-address'
-            placeholder='Email Address'
+            placeholder='メールアドレスを入力してください'
             textContentType='emailAddress'
           />
         </View>
@@ -86,7 +86,7 @@ const LogIn = (): JSX.Element => {
             onChangeText={(text) => {setPassword(text)}}
             autoCapitalize='none'
             secureTextEntry={isSecure}
-            placeholder='Password'
+            placeholder='パスワードを入力してください'
             textContentType='password'
           />
           <TouchableOpacity
@@ -100,7 +100,7 @@ const LogIn = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        <Button label='Submit' onPress={() => {handleSubmitPress(email,password)}}/>
+        <Button label='ログイン' buttonStyle={{ marginBottom: 24 }} onPress={() => {handleSubmitPress(email,password)}}/>
         <View>
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
 
