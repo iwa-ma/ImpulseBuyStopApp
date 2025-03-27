@@ -106,7 +106,11 @@ const LogIn = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        <Button label='ログイン' buttonStyle={{ marginBottom: 24 }} onPress={() => {handleSubmitPress(email,password)}}/>
+        <Button label='ログイン'
+          disabled={email === '' || password === ''}
+          buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' ? 0.5 : 1 }}
+          onPress={() => {handleSubmitPress(email,password)}}
+        />
         <View>
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
 
