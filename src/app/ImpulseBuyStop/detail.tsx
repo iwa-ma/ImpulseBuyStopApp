@@ -8,6 +8,7 @@ import CircleButton from '../../components/CircleButton'
 import Icon from '../../components/icon'
 import { auth, db } from '../../config'
 import { getpriorityType, getpriorityName } from '../../utils/priorityUtils'
+import { FirebaseError } from 'firebase/app'
 
 /**
  * 編集アイコン選択動作
@@ -46,31 +47,51 @@ const Detail = (): JSX.Element => {
   useEffect( () => {
     if (!auth.currentUser){return}
     const ref = doc(db, docPath, id)
-    const unsubscrive = onSnapshot(ref, (itemDoc) => {
-      // Firestoreからデータを型付けして取得
-      const data = itemDoc.data()
-      if (data) {
-        const buyItem: BuyItem = {
-          bodyText: data.bodyText,
-          updatedAt: data.updatedAt,
-          priority: data.priority
+    try {
+      const unsubscrive = onSnapshot(ref, (itemDoc) => {
+        // Firestoreからデータを型付けして取得
+        const data = itemDoc.data()
+        if (data) {
+          const buyItem: BuyItem = {
+            bodyText: data.bodyText,
+            updatedAt: data.updatedAt,
+            priority: data.priority
+          }
+          setItems(buyItem)
+        }else{
+          Alert.alert('詳細表示データの取得に失敗しました','もう一度開いて発生する場合は運営に問い合わせお願いいたします。',[
+            {
+              text:'OK'
+            }
+          ])
         }
-        setItems(buyItem)
-      }else{
-        Alert.alert('詳細表示データの取得に失敗しました','もう一度開いて発生する場合は運営に問い合わせお願いいたします。',[
+      })
+
+      return unsubscrive
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        Alert.alert('詳細表示データの取得に失敗しました', 'もう一度開いて発生する場合は運営に問い合わせお願いいたします。' + error, [
           {
-            text:'OK'
+            text: 'OK'
           }
         ])
+      }else{
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
       }
-    })
-
-    return unsubscrive
+    }
   },[])
 
   useEffect( () => {
     (async () =>{
-      await getpriorityType({setPriorityType})
+      try {
+        await getpriorityType({setPriorityType})
+      } catch (error) {
+        Alert.alert('エラーが発生しました', '優先度の取得中にエラーが発生しました。' + error, [
+          {
+            text: 'OK'
+          }
+        ])
+      }
     })()
   },[])
 
