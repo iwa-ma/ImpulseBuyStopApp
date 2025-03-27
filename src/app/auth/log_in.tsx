@@ -27,7 +27,13 @@ const handleSubmitPress = (email: string, password: string): void => {
     })
     .catch((error) => {
         const { code, message }: { code: string, message: string } = error
-        console.log(code, message)
+
+        // メールアドレスまたはパスワードが違う
+        if(code === 'auth/invalid-email' ){
+          Alert.alert('メールアドレスまたはパスワードが違います')
+          return
+        }
+
         // ログイン失敗でアラートを画面に表示
         Alert.alert(message)
       }
@@ -100,7 +106,11 @@ const LogIn = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        <Button label='ログイン' buttonStyle={{ marginBottom: 24 }} onPress={() => {handleSubmitPress(email,password)}}/>
+        <Button label='ログイン'
+          disabled={email === '' || password === ''}
+          buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' ? 0.5 : 1 }}
+          onPress={() => {handleSubmitPress(email,password)}}
+        />
         <View>
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
 
