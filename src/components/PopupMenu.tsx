@@ -6,19 +6,21 @@ import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { signOut } from 'firebase/auth'
 import { router } from 'expo-router'
 import { auth } from '../config'
+import { FirebaseError } from 'firebase/app'
 
-const handlePress = (): void => {
-  signOut(auth)
-    .then(() => {
-      // ログイン画面に書き換え
-      router.replace('/auth/log_in')
+const handlePress = async (): Promise<void> => {
+  try {
+    await signOut(auth)
+    // ログイン画面に書き換え
+    router.replace('/auth/log_in')
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { message }: { message: string } = error
+      Alert.alert('ログアウトに失敗しました\n'+message)
+    } else {
+      Alert.alert('ログアウトに失敗しました\n'+error)
     }
-    ).
-    catch(() => {
-      Alert.alert('ログアウトに失敗しました')
-    }
-
-    )
+  }
 }
 
 /** 匿名ログイン状態を判定する */
