@@ -1,7 +1,7 @@
 import { View, StyleSheet, Text, Modal, Alert } from 'react-native'
 import { type Dispatch,useState, useEffect} from 'react'
 import { auth } from '../config'
-import { signOut }from 'firebase/auth'
+import { signOut } from 'firebase/auth'
 import Button from './Button'
 import Dialog from "react-native-dialog"
 import { router } from 'expo-router'
@@ -13,6 +13,7 @@ import ButtonEmailSending from './AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from './AccountSetting/ButtonPasswordSending'
 import ButtonCancelMembershipSending from './AccountSetting/ButtonCancelMembershipSending'
 import { EditPassWordType } from '../../types/ediPassWordType'
+import { FirebaseError } from 'firebase/app'
 
 interface Props {
   /** モーダル開閉状態(真の時開く) */
@@ -93,18 +94,22 @@ const accountSettingModal = (props: Props):JSX.Element => {
   }
 
   // サインアウト処理
-  const handleSignOut = (): void => {
-    signOut(auth)
-      .then(() => {
-        if (unsubscribe) unsubscribe()
-        // モーダルを閉じる、スタック(リスト画面 → アカウント設定画面へ遷移履歴)を削除
-        router.dismissAll()
-        // ログイン画面に書き換え
-        router.replace('/auth/log_in')
-      }).
-      catch(() => {
-        Alert.alert('ログアウトに失敗しました')
-      })
+  const handleSignOut = async (): Promise<void> => {
+    try {
+      await signOut(auth)
+      if (unsubscribe) unsubscribe()
+      // モーダルを閉じる、スタック(リスト画面 → アカウント設定画面へ遷移履歴)を削除
+      router.dismissAll()
+      // ログイン画面に書き換え
+      router.replace('/auth/log_in')
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const { message }: { message: string } = error
+        Alert.alert(message)
+      } else {
+        Alert.alert('ログアウトに失敗しました\n'+error)
+      }
+    }
   }
 
   useEffect( () => {

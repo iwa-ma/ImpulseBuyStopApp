@@ -1,10 +1,11 @@
-import { View,StyleSheet, Text } from 'react-native'
+import { View, StyleSheet, Text, Alert } from 'react-native'
 import { useState, useEffect} from 'react'
 import { auth } from '../../config'
 import { onAuthStateChanged } from 'firebase/auth'
 import Button from '../../components/Button'
 import AccountSettingModal from '../../components/AccountSettingModal'
 import { modalModeType } from '../../../types/accountSettingModalMode'
+import { FirebaseError } from 'firebase/app'
 
 const accountSetting = ():JSX.Element => {
   const [ email, setEmail ] = useState<string | null>(null)
@@ -23,11 +24,19 @@ const accountSetting = ():JSX.Element => {
   useEffect( () => {
     if (!auth.currentUser){return}
 
-    onAuthStateChanged(auth, (currentUser) =>{
-      if ( currentUser !== null ) {
-        { setEmail(currentUser.email)}
+    try {
+      onAuthStateChanged(auth, (currentUser) =>{
+        if ( currentUser !== null ) {
+          { setEmail(currentUser.email)}
+        }
+      })
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        Alert.alert('認証状態の取得に失敗しました:'+error)
+      } else {
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
       }
-    })
+    }
   },[])
 
   return (

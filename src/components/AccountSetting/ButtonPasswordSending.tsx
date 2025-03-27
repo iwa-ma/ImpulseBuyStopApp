@@ -3,7 +3,8 @@ import { auth } from '../../config'
 import { type Dispatch } from 'react'
 import { EditPassWordType} from '../../../types/ediPassWordType'
 import { Alert } from 'react-native'
-import { updatePassword }from 'firebase/auth'
+import { updatePassword } from 'firebase/auth'
+import { FirebaseError } from 'firebase/app'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
@@ -29,8 +30,8 @@ const ButtonPasswordSending = (props: Props):JSX.Element => {
     return true
   }
 
-  // パスワード変更送信処理
-  const handlePasswordSending = ():void => {
+  // パスワード変更処理送信
+  const handlePasswordSending = async (): Promise<void> => {
     // 未ログインの場合、以降の処理を実行しない
     if (!auth.currentUser){ return }
 
@@ -40,27 +41,33 @@ const ButtonPasswordSending = (props: Props):JSX.Element => {
       return
     }
 
-    updatePassword(auth.currentUser, passWordInput.new).then(() => {
-      // 送信成功後、完了ダ[イアログを表示
+    try {
+      // パスワード変更処理
+      await updatePassword(auth.currentUser, passWordInput.new)
+      // 送信成功後、完了ダイアログを表示
       setDialogVisible(true)
-    }).catch((error) => {
-      const { code, message }: { code: string, message: string } = error
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const { code, message }: { code: string, message: string } = error
 
-      // パスワードポリシーを満たしていない
-      if(code === 'auth/weak-password' ){
-        Alert.alert('パスワードは半角英数字記号6文字以上入力して下さい。')
-        return
+        // パスワードポリシーを満たしていない
+        if(code === 'auth/weak-password' ){
+          Alert.alert('パスワードは半角英数字記号6文字以上入力して下さい。')
+          return
+        }
+
+        // 最後にログインから長期間経過
+        if(code === 'auth/requires-recent-login' ){
+          Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
+          return
+        }
+
+        // パスワード変更失敗でアラートを画面に表示
+        Alert.alert(message)
+      } else {
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
       }
-
-      // 最後にログインから長期間経過
-      if(code === 'auth/requires-recent-login' ){
-        Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
-        return
-      }
-
-      // パスワード変更失敗でアラートを画面に表示
-      Alert.alert(message)
-    })
+    }
   }
 
   return (

@@ -1,7 +1,7 @@
 import { Alert } from 'react-native'
 import { View, TextInput, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
-import { collection, addDoc, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, Timestamp, FirestoreError } from 'firebase/firestore'
 import { useState } from 'react'
 import KeyboardAvoidingView from '../../components/KeyboardAvoidingView'
 import CircleButton from '../../components/CircleButton'
@@ -11,7 +11,7 @@ import { BuyItem } from '../.../../../../types/buyItem'
 import { db, auth } from '../../config'
 
 /** 新規登録処理 */
-const handlePress = (bodyText: string, priorityCode :number): void => {
+const handlePress = async (bodyText: string, priorityCode :number): Promise<void> => {
   // 登録データが未入力の場合エラーを表示して処理終了
   if (!bodyText){
     Alert.alert('登録データが未入力です')
@@ -30,16 +30,16 @@ const handlePress = (bodyText: string, priorityCode :number): void => {
     priority: priorityCode
   }
 
-  // apiを使用して登録処理を行い、成功後一覧に戻る
-  addDoc(ref,data)
-    .then((docRef) =>{
-      if(docRef.id){
-        Alert.alert('新規登録が完了しました')
-        router.back()
-      }
-    })
-    .catch((error) => {
-      const { code, message }: { code: string, message: string } = error
+  try {
+    // apiを使用して登録処理を行い、成功後一覧に戻る
+    const docRef = await addDoc(ref, data)
+    if(docRef.id){
+      Alert.alert('新規登録が完了しました')
+      router.back()
+    }
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError) {
+      const { code, message } = error
       // 新規登録権限が無い場合
       if(code === 'permission-denied' ){
         Alert.alert('新規登録処理に失敗しました\n'+'新規登録権限が無いユーザーです。')
@@ -47,7 +47,10 @@ const handlePress = (bodyText: string, priorityCode :number): void => {
       }
 
       Alert.alert('新規登録処理に失敗しました\n'+message)
-    })
+    } else {
+      Alert.alert('予期せぬエラーが発生しました\n'+error)
+    }
+  }
 }
 
 // 新規作成画面

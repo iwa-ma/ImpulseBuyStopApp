@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native'
 import { Link } from 'expo-router'
 import { deleteDoc, doc } from 'firebase/firestore'
+import { FirebaseError } from 'firebase/app'
 
 import Icon from './icon'
 import { auth, db } from '../config'
@@ -41,9 +42,18 @@ const handlePress = (id: string,anonymous: string): void => {
     {
       text:'削除する',
       style: 'destructive',
-      onPress: () => {
-        deleteDoc(ref)
-          .catch(() => { Alert.alert('削除に失敗しました')})
+      onPress: async () => {
+        try {
+          await deleteDoc(ref)
+          Alert.alert('削除が完了しました')
+        } catch (error: unknown) {
+          if (error instanceof FirebaseError) {
+            const { message }: { message: string } = error
+            Alert.alert('削除に失敗しました\n'+message)
+          } else {
+            Alert.alert('削除に失敗しました\n'+error)
+          }
+        }
       }
     }
   ])

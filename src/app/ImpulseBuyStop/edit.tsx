@@ -11,33 +11,35 @@ import Icon from '../../components/icon'
 import PriorityPicker from '../../components/PriorityPicker'
 import { auth, db } from '../../config'
 import { BuyItem } from '../.../../../../types/buyItem'
+import { FirebaseError } from "firebase/app"
 
 // 登録ボタンタッチ処理
-const handlePress = (id: string, bodyText: string, priorityCode : number): void => {
-  // 登録データが未入力の場合エラーを表示して処理終了
-  if (!bodyText){
-    Alert.alert('登録データが未入力です')
-    return
-  }
+const handlePress = async (id: string, bodyText: string, priorityCode : number): Promise<void> => {
+  try {
+    // 登録データが未入力の場合エラーを表示して処理終了
+    if (!bodyText){
+      Alert.alert('登録データが未入力です')
+      return
+    }
 
-  if (!auth.currentUser) { return}
-  const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+    if (!auth.currentUser) { return}
 
-  // 受け取った引数を基に登録データを生成
-  const data: BuyItem = {
-    bodyText,
-    updatedAt: Timestamp.fromDate(new Date()),
-    priority: priorityCode
-  }
+    const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
 
-  // apiを使用して登録処理を行い、成功後、詳細表示画面に戻る
-  setDoc(ref, data)
-    .then(() =>{
-      Alert.alert('編集完了しました')
-      router.back()
-    })
-    .catch((error) => {
-      const { code, message }: { code: string, message: string } = error
+    // 受け取った引数を基に登録データを生成
+    const data: BuyItem = {
+      bodyText,
+      updatedAt: Timestamp.fromDate(new Date()),
+      priority: priorityCode
+    }
+
+    // apiを使用して登録処理を行い、成功後、詳細表示画面に戻る
+    await setDoc(ref, data)
+    Alert.alert('編集完了しました')
+    router.back()
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { code, message } = error
       // 更新権限が無い場合
       if(code === 'permission-denied' ){
         Alert.alert('編集処理に失敗しました\n'+'編集権限が無いユーザーです。')
@@ -45,7 +47,10 @@ const handlePress = (id: string, bodyText: string, priorityCode : number): void 
       }
 
       Alert.alert('編集処理に失敗しました\n'+message)
-    })
+    } else {
+      Alert.alert('予期せぬエラーが発生しました\n'+error)
+    }
+  }
 }
 
 // 編集画面
@@ -56,23 +61,42 @@ const Edit = ():JSX.Element => {
   const [priorityCode, setPriorityCode] = useState<number>(1)
 
   useEffect(() => {
-    if(!auth.currentUser){return}
-    const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
-    getDoc(ref)
-      .then((docRef) =>{
-        // Firestore データに型指定を適用
-        const data = docRef.data() as BuyItem | undefined // データがない場合に `undefined` を考慮
-        if (data) {
-          // データが存在する場合、登録内容、優先度を初期値として設定
-          setBodyText(data.bodyText)
-          setPriorityCode(data.priority)
-        }else{
-          // TODO:データが存在しない場合のエラー処理追加
+    try {
+      if(!auth.currentUser){return}
+      const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+      getDoc(ref)
+        .then((docRef) =>{
+          // Firestore データに型指定を適用
+          const data = docRef.data() as BuyItem | undefined // データがない場合に `undefined` を考慮
+          if (data) {
+            // データが存在する場合、登録内容、優先度を初期値として設定
+            setBodyText(data.bodyText)
+            setPriorityCode(data.priority)
+          }else{
+            Alert.alert('データが見つかりません')
+            router.back()
+          }
+        })
+        .catch((error) => {
+          console.error('データの取得に失敗しました:', error)
+          Alert.alert('データの取得に失敗しました')
+          router.back()
+        })
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const { code, message } = error
+
+        if(code === 'permission-denied' ){
+          Alert.alert('データの取得に失敗しました\n'+'参照権限が無いユーザーです。')
+          return
         }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+
+        Alert.alert('データの取得に失敗しました\n'+message)
+      } else {
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
+      }
+      router.back()
+    }
   },[])
 
   return (

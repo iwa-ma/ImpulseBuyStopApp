@@ -2,6 +2,8 @@ import { type Dispatch} from 'react'
 import { db, auth } from '../config'
 import { collection, query ,getDocs, where } from 'firebase/firestore'
 import { type priorityType} from '../../types/priorityType'
+import { Alert } from 'react-native'
+import { FirebaseError } from 'firebase/app'
 
 interface Props {
   /** 優先度名更新 */
@@ -12,15 +14,15 @@ interface Props {
 export async function getpriorityType(props:Props):Promise<void> {
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if(!auth.currentUser) { return }
-  const {setPriorityType} = props
 
-  // コレクションを取得して、更新日時の昇順でソート
-  const ref = collection(db, 'priorityType')
-  const q = query(ref, where("disabled", "==", false))
-  const tempItems: priorityType[] = []
-  const querySnapshot = await getDocs(q)
+  try {
+    // コレクションを取得して、更新日時の昇順でソート
+    const ref = collection(db, 'priorityType')
+    const q = query(ref, where("disabled", "==", false))
+    const tempItems: priorityType[] = []
+    const querySnapshot = await getDocs(q)
 
-  querySnapshot.forEach((doc)=> {
+    querySnapshot.forEach((doc)=> {
       const { name, disabled,id} = doc.data()
       // 項目が有効な場合、リスト項目として追加
       if(!disabled){
@@ -31,8 +33,15 @@ export async function getpriorityType(props:Props):Promise<void> {
       }
     })
 
-  // 取得結果でpriorityTypeを更新
-  setPriorityType(tempItems)
+    props.setPriorityType(tempItems)
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { message }: { message: string } = error
+      Alert.alert('優先度の取得に失敗しました\n'+message)
+    } else {
+      Alert.alert('優先度の取得に失敗しました\n'+error)
+    }
+  }
 }
 
 /** code → 優先度名の変換を行う */

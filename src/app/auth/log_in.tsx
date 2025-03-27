@@ -10,6 +10,7 @@ import Button from '../../components/Button'
 import { auth } from '../../config'
 import AccountSettingModal from '../../components/AccountSettingModal'
 import { MaterialIcons } from '@expo/vector-icons'
+import { FirebaseError } from 'firebase/app'
 
 /**
  * ログインボタンクリック動作
@@ -17,44 +18,56 @@ import { MaterialIcons } from '@expo/vector-icons'
  * @param email
  * @param password
  */
-const handleSubmitPress = (email: string, password: string): void => {
-  // ログイン
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      console.log('log_in handleSubmitPress' + userCredential.user.uid)
+const handleSubmitPress = async (email: string, password: string): Promise<void> => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password)
+    if(userCredential.user.uid){
       // ログイン処理に成功でリスト画面に書き換え、anonymousパラメーターに'false'を設定
       router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
-    })
-    .catch((error) => {
-        const { code, message }: { code: string, message: string } = error
-
-        // メールアドレスまたはパスワードが違う
-        if(code === 'auth/invalid-email' ){
-          Alert.alert('メールアドレスまたはパスワードが違います')
-          return
-        }
-
-        // ログイン失敗でアラートを画面に表示
-        Alert.alert(message)
+    }else{
+      Alert.alert('ログインに失敗しました')
+    }
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { code, message } = error
+      // メールアドレスまたはパスワードが違う
+      if(code === 'auth/invalid-email' ){
+        Alert.alert('メールアドレスまたはパスワードが違います')
+        return
       }
-    )
+
+      // 登録に失敗でアラートを画面に表示
+      Alert.alert(message)
+    } else {
+      Alert.alert('予期せぬエラーが発生しました\n'+error)
+    }
+  }
 }
 
 /** お試し体験モードリンククリック動作 */
-const handleAnonymously = (): void => {
+const handleAnonymously = async (): Promise<void> => {
   const auth = getAuth()
-  signInAnonymously(auth)
-    .then((userCredential) => {
-      console.log('log_in signInAnonymously' + userCredential.user.uid)
+  try {
+    const userCredential = await signInAnonymously(auth)
+    if(userCredential.user.uid){
       // ログイン処理に成功でリスト画面に書き換え、anonymousパラメーターに'true'を設定
       router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'true' }})
-    })
-    .catch((error) => {
-      const { code, message }: { code: string, message: string } = error
-      console.log(code, message)
-      // ログイン失敗でアラートを画面に表示
-      Alert.alert(message)
-    })
+    }else{
+      Alert.alert('ログインに失敗しました')
+    }
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { code, message } = error
+      if(code === 'auth/operation-not-allowed'){
+        Alert.alert('ログインに失敗しました')
+      }else{
+        // ログイン失敗でアラートを画面に表示
+        Alert.alert(message)
+      }
+    } else {
+      Alert.alert('予期せぬエラーが発生しました\n'+error)
+    }
+  }
 }
 
 const LogIn = (): JSX.Element => {
