@@ -4,6 +4,7 @@ import { auth } from '../../config'
 import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
 import { type Dispatch} from 'react'
 import { modalModeType } from '../../../types/accountSettingModalMode'
+import { FirebaseError } from 'firebase/app'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
@@ -26,38 +27,44 @@ const ButtonEmailSending = (props: Props):JSX.Element => {
   }
 
   // パスワード再設定メール送信処理
-  const handlePassWordEmailSending = (email: string):void => {
+  const handlePassWordEmailSending = async (email: string): Promise<void> => {
     // メールアドレスが未入力の場合、以降の処理を実行しない
-    if ( email === ''){ return }
+    if (email === ''){ return }
 
-    sendPasswordResetEmail(auth, email).then(() => {
-    // 送信成功後、完了ダイアログを表示
-    setDialogVisible(true)
-    }).catch((error) => {
-      const { code, message }: { code: string, message: string } = error
+    try {
+      await sendPasswordResetEmail(auth, email)
+      // 送信成功後、完了ダイアログを表示
+      setDialogVisible(true)
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const { code, message }: { code: string, message: string } = error
 
-      // 無効なメールアドレス指定時
-      if(code === 'auth/invalid-email' ){
-        Alert.alert('無効なメールアドレスが入力されました')
-        return
+        // 無効なメールアドレス指定時
+        if(code === 'auth/invalid-email' ){
+          Alert.alert('無効なメールアドレスが入力されました')
+          return
+        }
+
+        // 登録メールアドレス変更失敗でアラートを画面に表示
+        Alert.alert(message)
+      } else {
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
       }
-
-      // 登録メールアドレス変更失敗でアラートを画面に表示
-      Alert.alert(message)
-      }
-    )
+    }
   }
 
   // 登録メールアドレス変更送信処理
-  const handleEmailSending = (email: string):void => {
+  const handleEmailSending = async (email: string): Promise<void> => {
     // 未ログインまたは、新しいメールアドレスが未入力の場合、以降の処理を実行しない
     if (!auth.currentUser || email === ''){ return }
 
-    // 確認メール送信
-    verifyBeforeUpdateEmail(auth.currentUser, email).then(() => {
-        // 送信成功後、完了ダイアログを表示
-        setDialogVisible(true)
-      }).catch((error) => {
+    try {
+      // 確認メール送信
+      await verifyBeforeUpdateEmail(auth.currentUser, email)
+      // 送信成功後、完了ダイアログを表示
+      setDialogVisible(true)
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
         const { code, message }: { code: string, message: string } = error
         // 無効なメールアドレス指定時
         if(code === 'auth/invalid-new-email' ){
@@ -73,8 +80,10 @@ const ButtonEmailSending = (props: Props):JSX.Element => {
 
         // 登録メールアドレス変更失敗でアラートを画面に表示
         Alert.alert(message)
+      } else {
+        Alert.alert('予期せぬエラーが発生しました\n'+error)
       }
-    )
+    }
   }
 
   return (
