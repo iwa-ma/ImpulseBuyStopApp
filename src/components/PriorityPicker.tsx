@@ -1,7 +1,8 @@
 import {
-  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity
+  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity, Alert
 } from 'react-native'
 import { collection, query, getDocs, where } from 'firebase/firestore'
+import { FirebaseError } from 'firebase/app'
 
 import { type priorityType} from '../../types/priorityType'
 import { useEffect,useState } from 'react'
@@ -24,13 +25,14 @@ const PriorityPicker = (props: Props): JSX.Element => {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
 
-    // コレクションを取得して、更新日時の昇順でソート
-    const ref = collection(db, 'priorityType')
-    const q = query(ref, where("disabled", "==", false))
-    const tempItems: priorityType[] = []
-    const querySnapshot = await getDocs(q)
+    try {
+      // コレクションを取得して、更新日時の昇順でソート
+      const ref = collection(db, 'priorityType')
+      const q = query(ref, where("disabled", "==", false))
+      const tempItems: priorityType[] = []
+      const querySnapshot = await getDocs(q)
 
-    querySnapshot.forEach((doc)=> {
+      querySnapshot.forEach((doc)=> {
         const { name, disabled,id} = doc.data()
         // 項目が有効な場合、リスト項目として追加
         if(!disabled){
@@ -41,7 +43,15 @@ const PriorityPicker = (props: Props): JSX.Element => {
         }
       })
 
-    setPriorityType(tempItems)
+      setPriorityType(tempItems)
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        const { message }: { message: string } = error
+        Alert.alert('優先度の取得に失敗しました\n'+message)
+      } else {
+        Alert.alert('優先度の取得に失敗しました\n'+error)
+      }
+    }
   }
 
   useEffect(() => {
