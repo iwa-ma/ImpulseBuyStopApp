@@ -58,7 +58,11 @@ const SignUp = (): JSX.Element => {
                   placeholder='パスワードを入力してください'
                   textContentType='password'
                 />
-                <Button label='サインアップ' buttonStyle={{ marginBottom: 24 }} onPress={() => { handleSubmitPress(email ,password) }}/>
+                <Button label='サインアップ'
+                  disabled={email === '' || password === ''}
+                  buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' ? 0.5 : 1 }}
+                  onPress={() => { handleSubmitPress(email ,password) }}
+                />
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>すでに登録されている場合 → </Text>
