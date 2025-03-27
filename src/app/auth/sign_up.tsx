@@ -5,31 +5,34 @@ import {
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-
+import { FirebaseError } from 'firebase/app'
 import { auth } from '../../config'
 import Button from '../../components/Button'
 
-const handleSubmitPress = (email: string,password: string): void => {
-  // 会員登録
-  console.log(email,password)
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredenital) => {
-      console.log(userCredenital.user.uid)
-
-      // 登録に成功でリスト画面に書き換え
-      router.replace('/ImpulseBuyStop/list')
-    })
-    .catch((error) => {
-      const { code, message }: { code: string, message: string } = error
-
+const handleSubmitPress = async (email: string, password: string): Promise<void> => {
+  try {
+    // 会員登録
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+    if(userCredential.user.uid){
+        // 登録に成功でリスト画面に書き換え
+        router.replace('/ImpulseBuyStop/list')
+    }else{
+      Alert.alert('登録に失敗しました')
+    }
+  } catch (error: unknown) {
+    if (error instanceof FirebaseError) {
+      const { code, message } = error
       // 登録済みメールアドレス
-      if(code === 'auth/email-already-in-use' ){
+      if (code === 'auth/email-already-in-use') {
         Alert.alert('登録済みのメールアドレスです')
         return
       }
       // 登録に失敗でアラートを画面に表示
       Alert.alert(message)
-    })
+    } else {
+      Alert.alert('予期せぬエラーが発生しました\n'+error)
+    }
+  }
 }
 
 const SignUp = (): JSX.Element => {
