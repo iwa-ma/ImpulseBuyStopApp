@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ImpulseBuyStopApp",
+    "name": "衝動買いストップ expo",
     "slug": "ImpulseBuyStopApp",
     "scheme": "BuyStopApp",
     "version": "1.0.0",
@@ -16,11 +16,14 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "jp.xxx.BuyStopApp",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "jp.xxx.BuyStopApp",
-      "versionCodee": 1,
+      "versionCode": 1,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive_Icon_Foreground.png",
@@ -33,6 +36,14 @@
     "plugins": [
       "expo-router",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "a26a6b02-0467-4562-a54c-6ce90c773a36"
+      }
+    }
   }
 }
