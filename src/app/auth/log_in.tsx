@@ -27,7 +27,13 @@ const handleSubmitPress = (email: string, password: string): void => {
     })
     .catch((error) => {
         const { code, message }: { code: string, message: string } = error
-        console.log(code, message)
+
+        // メールアドレスまたはパスワードが違う
+        if(code === 'auth/invalid-email' ){
+          Alert.alert('メールアドレスまたはパスワードが違います')
+          return
+        }
+
         // ログイン失敗でアラートを画面に表示
         Alert.alert(message)
       }
