@@ -10,6 +10,12 @@ interface Props {
   onPress?: () => void
 }
 
+/**
+ * 共通円形ボタン
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const CircleButton = (props: Props):JSX.Element => {
   const { children, style, onPress } = props
   return (

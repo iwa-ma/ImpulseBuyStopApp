@@ -29,6 +29,11 @@ const handlePress = (id: string,anonymous: string): void => {
   router.push({ pathname: 'ImpulseBuyStop/edit', params: { id: id}})
 }
 
+/**
+ * 詳細画面
+ *
+ * @returns {JSX.Element}
+ */
 const Detail = (): JSX.Element => {
   const id = String(useLocalSearchParams().id)
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous

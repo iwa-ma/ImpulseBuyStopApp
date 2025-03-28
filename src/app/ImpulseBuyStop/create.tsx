@@ -10,7 +10,12 @@ import PriorityPicker from '../../components/PriorityPicker'
 import { BuyItem } from '../.../../../../types/buyItem'
 import { db, auth } from '../../config'
 
-/** 新規登録処理 */
+/**
+ * 新規登録ボタン押下時の処理
+ *
+ * @param bodyText 登録データ
+ * @param priorityCode 優先度コード
+ */
 const handlePress = async (bodyText: string, priorityCode :number): Promise<void> => {
   // 登録データが未入力の場合エラーを表示して処理終了
   if (!bodyText){
@@ -53,8 +58,11 @@ const handlePress = async (bodyText: string, priorityCode :number): Promise<void
   }
 }
 
-// 新規作成画面
-
+/**
+ * 新規作成画面
+ *
+ * @returns {JSX.Element}
+ */
 const Create = ():JSX.Element => {
   const [ bodyText, setbodyText ] = useState<string>('')
   // 優先度コードに初期値として1(高)を設定

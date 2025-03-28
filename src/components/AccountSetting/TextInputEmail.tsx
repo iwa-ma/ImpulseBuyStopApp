@@ -9,6 +9,12 @@ interface Props {
   setInputEmail : Dispatch<React.SetStateAction<string>>
 }
 
+/**
+ * メールアドレス入力
+ *
+ * @param props メールアドレス入力
+ * @returns {JSX.Element}
+ */
 const TextInputEmail = (props: Props):JSX.Element => {
   // メールアドレス入力制御
   const { emailInput, setInputEmail } = props

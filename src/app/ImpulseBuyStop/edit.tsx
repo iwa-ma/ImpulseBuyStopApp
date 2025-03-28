@@ -13,7 +13,13 @@ import { auth, db } from '../../config'
 import { BuyItem } from '../.../../../../types/buyItem'
 import { FirebaseError } from "firebase/app"
 
-// 登録ボタンタッチ処理
+/**
+ * 編集ボタン押下時の処理
+ *
+ * @param id 編集対象のID
+ * @param bodyText 編集データ
+ * @param priorityCode 優先度コード
+ */
 const handlePress = async (id: string, bodyText: string, priorityCode : number): Promise<void> => {
   try {
     // 登録データが未入力の場合エラーを表示して処理終了
@@ -53,7 +59,11 @@ const handlePress = async (id: string, bodyText: string, priorityCode : number):
   }
 }
 
-// 編集画面
+/**
+ * 編集画面
+ *
+ * @returns {JSX.Element}
+ */
 const Edit = ():JSX.Element => {
   const id = String(useLocalSearchParams().id)
   const [bodyText, setBodyText] = useState('')

@@ -2,8 +2,14 @@ import { View, StyleSheet, Text, ActionSheetIOS, TouchableOpacity } from 'react-
 import { type Dispatch, useState} from 'react'
 import { type SortType,OrderByDirection, SortValueType } from '../../app/../../types/list'
 
+/**
+ * ソートオプションキー
+ */
 type SortOptionKey = `${SortType}:${OrderByDirection}`;
 
+/**
+ * ソートオプション
+ */
 const SORT_OPTIONS: Record<SortOptionKey, SortValueType> = {
   'updatedAt:desc': '最終更新日 新しい順',
   'updatedAt:asc': '最終更新日 古い順',
@@ -14,6 +20,7 @@ const SORT_OPTIONS: Record<SortOptionKey, SortValueType> = {
 // ソートキーとソート順に対応するラベル
 const SORT_LABELS = ['キャンセル', ...Object.values(SORT_OPTIONS)]
 
+/** list.tsxから受け取るprops型を定義 */
 interface Props {
   /** リストソートキー選択値 */
   itemsSortType:SortType
@@ -25,6 +32,12 @@ interface Props {
   setItemsSortOrder:Dispatch<React.SetStateAction<OrderByDirection>>
 }
 
+/**
+ * リストソート
+ *
+ * @param props リストソートキー選択値
+ * @returns {JSX.Element}
+ */
 const ListSort = (props: Props) => {
   const { itemsSortType, itemsSortOrder, setItemsSortType, setItemsSortOrder } = props
   // propsで受け取った値を初期値として設定

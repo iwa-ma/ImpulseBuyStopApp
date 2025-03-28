@@ -60,6 +60,12 @@ const handlePress = (id: string,anonymous: string): void => {
 
 }
 
+/**
+ * リストアイテム
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const BuyListItem = (props: Props): JSX.Element | null => {
   const { buyItem,anonymous } = props
   const { id ,bodyText , updatedAt, priority } = buyItem

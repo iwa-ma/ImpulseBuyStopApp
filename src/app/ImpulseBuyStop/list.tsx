@@ -25,7 +25,8 @@ import { FirebaseError } from 'firebase/app'
 /**
  * 新規追加アイコン選択動作
  *
- */
+ * @param anonymous 匿名ログイン状態
+   */
 const handlePress = (anonymous: string): void => {
   if (!auth.currentUser) { return }
 
@@ -71,6 +72,11 @@ const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element =
   }
 }
 
+/**
+ * リスト画面
+ *
+ * @returns {JSX.Element}
+ */
 const List = ():JSX.Element => {
   // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous

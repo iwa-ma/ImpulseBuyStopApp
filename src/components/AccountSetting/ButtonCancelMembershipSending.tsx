@@ -14,6 +14,12 @@ interface Props {
   setDialogVisible:Dispatch<React.SetStateAction<boolean>>
 }
 
+/**
+ * 退会ボタン押下時の処理
+ *
+ * @param props ダイアログ表示制御
+ * @returns {JSX.Element}
+ */
 const ButtonCancelMembershipSending = (props: Props):JSX.Element => {
   const { setDialogVisible } = props
   // リスト(list.tsx)のリスト取得処理のunsubscribe

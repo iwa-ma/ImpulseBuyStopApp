@@ -69,6 +69,11 @@ const handleAnonymously = async (): Promise<void> => {
   }
 }
 
+/**
+ * ログイン画面
+ *
+ * @returns {JSX.Element}
+ */
 const LogIn = (): JSX.Element => {
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')

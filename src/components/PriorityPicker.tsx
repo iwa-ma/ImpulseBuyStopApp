@@ -17,6 +17,12 @@ interface Props {
   setPriorityCode:Dispatch<React.SetStateAction<number>>
 }
 
+/**
+ * 優先度選択ピッカー
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const PriorityPicker = (props: Props): JSX.Element => {
   const [ priorityType, setPriorityType] = useState<priorityType[] | null>(null)
   const { priorityCode, setPriorityCode } = props

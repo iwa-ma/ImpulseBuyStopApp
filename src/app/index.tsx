@@ -3,6 +3,11 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { useEffect } from 'react'
 import { auth } from '../config'
 
+/**
+ * インデックス画面
+ *
+ * @returns {JSX.Element}
+ */
 const Index = ():JSX.Element => {
   useEffect(()=>{
     // ログイン状態をチェックしてユーザーが取得できたらリスト画面に書き換え、取得できない場合はログイン画面に遷移
