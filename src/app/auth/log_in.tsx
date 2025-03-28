@@ -5,11 +5,10 @@ import {
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase/auth'
-
+import CustomIcon from '../../components/icon'
 import Button from '../../components/Button'
 import { auth } from '../../config'
 import AccountSettingModal from '../../components/AccountSettingModal'
-import { MaterialIcons } from '@expo/vector-icons'
 import { FirebaseError } from 'firebase/app'
 
 /**
@@ -112,9 +111,10 @@ const LogIn = (): JSX.Element => {
             style={styles.visibilityToggle}
             onPress={togglePasswordVisibility}
           >
-            <MaterialIcons
-              name={isSecure ? 'visibility' : 'visibility-off'}
+            <CustomIcon
+              name={isSecure ? 'eye' : 'eye-blocked'}
               size={24}
+              color='#000000'
             />
           </TouchableOpacity>
         </View>

@@ -2,7 +2,7 @@ import { View,Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native
 import { type Dispatch} from 'react'
 import { EditPassWordType} from '../../../types/ediPassWordType'
 import { useState } from 'react'
-import { MaterialIcons } from '@expo/vector-icons'
+import CustomIcon from '../../components/icon'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
@@ -45,9 +45,10 @@ const TextInputPassWord = (props: Props):JSX.Element => {
             style={styles.visibilityToggle}
             onPress={togglePasswordVisibility}
           >
-            <MaterialIcons
-              name={isSecure ? 'visibility' : 'visibility-off'}
+            <CustomIcon
+              name={isSecure ? 'eye' : 'eye-blocked'}
               size={24}
+              color='#000000'
             />
           </TouchableOpacity>
       </View>
@@ -68,9 +69,10 @@ const TextInputPassWord = (props: Props):JSX.Element => {
             style={styles.visibilityToggle}
             onPress={togglePasswordVisibilityConfirm}
           >
-            <MaterialIcons
-              name={isSecureConfirm ? 'visibility' : 'visibility-off'}
+            <CustomIcon
+              name={isSecureConfirm ? 'eye' : 'eye-blocked'}
               size={24}
+              color='#000000'
             />
           </TouchableOpacity>
       </View>
