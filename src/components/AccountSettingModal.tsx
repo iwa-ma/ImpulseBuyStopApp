@@ -15,6 +15,7 @@ import ButtonCancelMembershipSending from './AccountSetting/ButtonCancelMembersh
 import { EditPassWordType } from '../../types/ediPassWordType'
 import { FirebaseError } from 'firebase/app'
 
+/** accountSetting.tsxから受け取るprops型を定義 */
 interface Props {
   /** モーダル開閉状態(真の時開く) */
   modalVisible: boolean,
@@ -24,6 +25,12 @@ interface Props {
   modalMode: modalModeType
 }
 
+/**
+ * アカウント設定モーダル
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const accountSettingModal = (props: Props):JSX.Element => {
   // モーダル開閉制御
   const { modalVisible, setModalVisible, modalMode } = props

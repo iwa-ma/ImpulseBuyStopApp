@@ -12,6 +12,12 @@ interface Props {
   setPassWordInput: Dispatch<React.SetStateAction<EditPassWordType>>
 }
 
+/**
+ * パスワード入力
+ *
+ * @param props パスワード入力
+ * @returns {JSX.Element}
+ */
 const TextInputPassWord = (props: Props):JSX.Element => {
   // パスワード入力制御
   const { passWordInput, setPassWordInput } = props

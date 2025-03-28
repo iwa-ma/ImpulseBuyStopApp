@@ -18,6 +18,12 @@ interface Props {
   onPress?: () => void
 }
 
+/**
+ * 共通ボタン
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const Button = (props: Props):JSX.Element => {
   const { label, onPress, buttonStyle, disabled } = props
 

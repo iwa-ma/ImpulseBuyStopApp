@@ -14,6 +14,12 @@ interface Props {
   setDialogVisible:Dispatch<React.SetStateAction<boolean>>
 }
 
+/**
+ * パスワード送信ボタン押下時の処理
+ *
+ * @param props パスワード送信ボタン押下時の処理
+ * @returns {JSX.Element}
+ */
 const ButtonPasswordSending = (props: Props):JSX.Element => {
   const { passWordInput, setDialogVisible } = props
 

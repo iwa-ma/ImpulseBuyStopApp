@@ -4,6 +4,12 @@ import {
   Keyboard, Dimensions, Animated
 } from 'react-native'
 
+/**
+ * iOSキーボードバグ回避ビュー
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const KeyboardSafeView = ({ children, style }) => {
   const initialViewHeight = useRef(null)
   const animatedViewHeight = useRef(null)

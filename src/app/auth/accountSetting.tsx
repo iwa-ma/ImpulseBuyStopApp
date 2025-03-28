@@ -7,6 +7,11 @@ import AccountSettingModal from '../../components/AccountSettingModal'
 import { modalModeType } from '../../../types/accountSettingModalMode'
 import { FirebaseError } from 'firebase/app'
 
+/**
+ * アカウント設定画面
+ *
+ * @returns {JSX.Element}
+ */
 const accountSetting = ():JSX.Element => {
   const [ email, setEmail ] = useState<string | null>(null)
   const [ modalVisible, setModalVisible ] = useState(false)

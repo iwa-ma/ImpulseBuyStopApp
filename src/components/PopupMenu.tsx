@@ -8,6 +8,11 @@ import { router } from 'expo-router'
 import { auth } from '../config'
 import { FirebaseError } from 'firebase/app'
 
+/**
+ * ログアウトボタン押下時の処理
+ *
+ * @returns {Promise<void>}
+ */
 const handlePress = async (): Promise<void> => {
   try {
     await signOut(auth)
@@ -31,6 +36,11 @@ const isAnonymous = () :boolean => {
   return auth.currentUser?.isAnonymous
 }
 
+/**
+ * ポップアップメニュー
+ *
+ * @returns {JSX.Element}
+ */
 const PopupMenu = () => {
   return (
     <Menu>

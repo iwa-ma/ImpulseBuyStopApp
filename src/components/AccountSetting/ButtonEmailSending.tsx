@@ -15,6 +15,12 @@ interface Props {
   setDialogVisible:Dispatch<React.SetStateAction<boolean>>
 }
 
+/**
+ * メール送信ボタン押下時の処理
+ *
+ * @param props メール送信ボタン押下時の処理
+ * @returns {JSX.Element}
+ */
 const ButtonEmailSending = (props: Props):JSX.Element => {
   const { modalMode,emailInput, setDialogVisible } = props
 

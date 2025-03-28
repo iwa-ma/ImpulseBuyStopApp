@@ -16,6 +16,12 @@ interface Props {
   color: string
 }
 
+/**
+ * アイコン(vector-iconsをwrapしたコンポーネント)
+ *
+ * @param props
+ * @returns {JSX.Element}
+ */
 const Icon = (props: Props):JSX.Element | null => {
   const {name,size,color} = props
   const [ fontLoaded] = useFonts({

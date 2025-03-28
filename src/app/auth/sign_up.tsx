@@ -9,6 +9,12 @@ import { FirebaseError } from 'firebase/app'
 import { auth } from '../../config'
 import Button from '../../components/Button'
 
+/**
+ * サインアップボタン押下時の処理
+ *
+ * @param email メールアドレス
+ * @param password パスワード
+ */
 const handleSubmitPress = async (email: string, password: string): Promise<void> => {
   try {
     // 会員登録
@@ -35,6 +41,11 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
   }
 }
 
+/**
+ * サインアップ画面
+ *
+ * @returns {JSX.Element}
+ */
 const SignUp = (): JSX.Element => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
