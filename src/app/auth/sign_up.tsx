@@ -1,6 +1,6 @@
 import {
     View, Text, TextInput, Alert,
-    TouchableOpacity, StyleSheet
+    TouchableOpacity, StyleSheet, Modal
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
@@ -8,6 +8,8 @@ import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 import { auth } from '../../config'
 import Button from '../../components/Button'
+import Checkbox from 'expo-checkbox'
+import { WebView } from 'react-native-webview'
 
 /**
  * サインアップボタン押下時の処理
@@ -49,6 +51,9 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
 const SignUp = (): JSX.Element => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [isAgreed, setIsAgreed] = useState(false)
+    const [isTermsModalVisible, setIsTermsModalVisible] = useState(false)
+    const [isSecurityModalVisible, setIsSecurityModalVisible] = useState(false)
 
     return (
         <View style={styles.container}>
@@ -72,9 +77,31 @@ const SignUp = (): JSX.Element => {
                   placeholder='パスワードを入力してください'
                   textContentType='password'
                 />
+
+                <View style={styles.agreementContainer}>
+                    <Checkbox
+                        value={isAgreed}
+                        onValueChange={setIsAgreed}
+                        color={isAgreed ? '#467FD3' : undefined}
+                    />
+                    <TouchableOpacity onPress={() => setIsTermsModalVisible(true)}>
+                        <Text style={[styles.agreementText, styles.linkText]}>
+                            利用規約
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setIsSecurityModalVisible(true)}>
+                        <Text style={[styles.agreementText, styles.linkText]}>
+                            セキュリティポリシー
+                        </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.agreementText}>
+                        に同意する
+                    </Text>
+                </View>
+
                 <Button label='サインアップ'
-                  disabled={email === '' || password === ''}
-                  buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' ? 0.5 : 1 }}
+                  disabled={email === '' || password === '' || !isAgreed}
+                  buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' || !isAgreed ? 0.5 : 1 }}
                   onPress={() => { handleSubmitPress(email ,password) }}
                 />
 
@@ -87,6 +114,56 @@ const SignUp = (): JSX.Element => {
                     </Link>
                 </View>
             </View>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isTermsModalVisible}
+                onRequestClose={() => setIsTermsModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>利用規約</Text>
+                            <TouchableOpacity
+                                onPress={() => setIsTermsModalVisible(false)}
+                                style={styles.closeButton}
+                            >
+                                <Text style={styles.closeButtonText}>閉じる</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <WebView
+                            source={{ uri: 'https://fishy-flame-bf2.notion.site/1c5350886e3880ec929cdd3545bf13b2' }}
+                            style={styles.webview}
+                        />
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isSecurityModalVisible}
+                onRequestClose={() => setIsSecurityModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>セキュリティポリシー</Text>
+                            <TouchableOpacity
+                                onPress={() => setIsSecurityModalVisible(false)}
+                                style={styles.closeButton}
+                            >
+                                <Text style={styles.closeButtonText}>閉じる</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <WebView
+                            source={{ uri: 'https://www.notion.so/1c5350886e38806daa29e5b5b2f5262b' }}
+                            style={styles.webview}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </View>
     )
 }
@@ -128,6 +205,57 @@ const styles =StyleSheet.create({
         fontSize: 14,
         lineHeight: 24,
         color: '#467FD3'
+    },
+    agreementContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24
+    },
+    agreementText: {
+        marginLeft: 8,
+        fontSize: 14,
+        lineHeight: 24,
+        color: '#000000'
+    },
+    linkText: {
+        color: '#467FD3',
+        textDecorationLine: 'underline'
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalContent: {
+        width: '90%',
+        height: '80%',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        overflow: 'hidden'
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#DDDDDD'
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
+    },
+    closeButton: {
+        padding: 8
+    },
+    closeButtonText: {
+        color: '#467FD3',
+        fontSize: 16
+    },
+    webview: {
+        flex: 1
     }
 })
 
