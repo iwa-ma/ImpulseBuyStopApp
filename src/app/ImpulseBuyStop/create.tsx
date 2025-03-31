@@ -26,7 +26,7 @@ const handlePress = async (bodyText: string, priorityCode :number): Promise<void
   // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
   if (!auth.currentUser) {return}
 
-  const ref = collection(db, `users/${auth.currentUser.uid}/items`)
+  const ref = collection(db, `buyItem/${auth.currentUser.uid}/items`)
 
   // 受け取った引数を基に登録データを生成
   const data: BuyItem = {

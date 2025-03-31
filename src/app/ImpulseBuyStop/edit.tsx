@@ -30,7 +30,7 @@ const handlePress = async (id: string, bodyText: string, priorityCode : number):
 
     if (!auth.currentUser) { return}
 
-    const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+    const ref = doc(db, `buyItem/${auth.currentUser.uid}/items`, id)
 
     // 受け取った引数を基に登録データを生成
     const data: BuyItem = {
@@ -73,7 +73,7 @@ const Edit = ():JSX.Element => {
   useEffect(() => {
     try {
       if(!auth.currentUser){return}
-      const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+      const ref = doc(db, `buyItem/${auth.currentUser.uid}/items`, id)
       getDoc(ref)
         .then((docRef) =>{
           // Firestore データに型指定を適用

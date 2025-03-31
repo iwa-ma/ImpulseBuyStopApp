@@ -116,10 +116,10 @@ const List = ():JSX.Element => {
     let collectionPath = ''
     if(anonymous === 'true'){
       // collectionPathにサンプルデータのパスを指定
-      collectionPath  = 'users/sample9999/items'
+      collectionPath  = 'buyItem/sample9999/items'
     }else{
       // collectionPathにログイン中ユーザーのパスを指定
-      collectionPath  = `users/${auth.currentUser?.uid}/items`
+      collectionPath  = `buyItem/${auth.currentUser?.uid}/items`
     }
 
     // コレクションを取得して、指定された項目の指定順でソート

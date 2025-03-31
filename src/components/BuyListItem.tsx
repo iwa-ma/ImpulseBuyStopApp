@@ -33,7 +33,7 @@ const handlePress = (id: string,anonymous: string): void => {
     return
   }
 
-  const ref = doc(db, `users/${auth.currentUser.uid}/items`, id)
+  const ref = doc(db, `buyItem/${auth.currentUser.uid}/items`, id)
 
   Alert.alert('表示中のデータを削除します','宜しいですか？',[
     {
