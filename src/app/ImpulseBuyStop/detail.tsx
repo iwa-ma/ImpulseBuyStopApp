@@ -42,10 +42,10 @@ const Detail = (): JSX.Element => {
   let docPath = ''
   if(anonymous === 'true'){
     // docPathにサンプルデータのパスを指定
-    docPath = 'users/sample9999/items'
+    docPath = 'buyItem/sample9999/items'
   }else{
     // docPathにログイン中ユーザーのパスを指定
-    docPath = `users/${auth.currentUser?.uid}/items`
+    docPath = `buyItem/${auth.currentUser?.uid}/items`
   }
 
   const [item, setItems] = useState<BuyItem | null>(null)
