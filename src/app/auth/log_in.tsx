@@ -20,25 +20,34 @@ import { FirebaseError } from 'firebase/app'
 const handleSubmitPress = async (email: string, password: string): Promise<void> => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
-    if(userCredential.user.uid){
-      // ログイン処理に成功でリスト画面に書き換え、anonymousパラメーターに'false'を設定
-      router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
-    }else{
-      Alert.alert('ログインに失敗しました')
+    const user = userCredential.user
+
+    if (!user.emailVerified) {
+      Alert.alert('メールアドレスが確認されていません。有効期限が切れている場合は、再登録して下さい。')
+      return
     }
+
+    // ログイン成功時はリスト画面に遷移
+    router.replace({ pathname: '/ImpulseBuyStop/list', params: { anonymous: 'false' }})
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
-      const { code, message } = error
-      // メールアドレスまたはパスワードが違う
-      if(code === 'auth/invalid-email' ){
-        Alert.alert('メールアドレスまたはパスワードが違います')
-        return
-      }
+      const { code } = error
 
-      // 登録に失敗でアラートを画面に表示
-      Alert.alert(message)
+      switch (code) {
+        case 'auth/user-not-found':
+          Alert.alert('メールアドレスまたはパスワードが違います')
+          break
+        case 'auth/too-many-requests':
+          Alert.alert('ログイン試行回数が多すぎます。しばらく時間をおいて再度お試しください。')
+          break
+        case 'auth/network-request-failed':
+          Alert.alert('ネットワークエラーが発生しました。インターネット接続を確認してください。')
+          break
+        default:
+          Alert.alert('ログインに失敗しました')
+      }
     } else {
-      Alert.alert('予期せぬエラーが発生しました\n'+error)
+      Alert.alert('予期せぬエラーが発生しました')
     }
   }
 }
