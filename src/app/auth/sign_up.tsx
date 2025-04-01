@@ -4,7 +4,7 @@ import {
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword,sendEmailVerification } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 import { auth } from '../../config'
 import Button from '../../components/Button'
@@ -21,17 +21,32 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
   try {
     // 会員登録
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-    if(userCredential.user.uid){
-        // 登録に成功でリスト画面に書き換え
-        router.replace('/ImpulseBuyStop/list')
+    if(userCredential){
+      const user = userCredential.user
+      sendEmailVerification(user).then(() => {
+        Alert.alert('確認メールを送信しました。メールを確認してください。')
+        router.replace({ pathname: '/auth/log_in'})
+      })
     }else{
       Alert.alert('登録に失敗しました')
     }
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
       const { code, message } = error
-      // 登録済みメールアドレス
+      // 登録済みメールアドレスの処理
       if (code === 'auth/email-already-in-use') {
+        if (!auth.currentUser) {
+          Alert.alert('登録済みのメールアドレスです')
+          return
+        }
+        // メール未確認の場合
+        if (!auth.currentUser.emailVerified) {
+          await sendEmailVerification(auth.currentUser)
+          Alert.alert('確認メールを再送信しました。メールを確認してください。')
+          router.replace({ pathname: '/auth/log_in'})
+          return
+        }
+        // メール確認済みの場合
         Alert.alert('登録済みのメールアドレスです')
         return
       }
