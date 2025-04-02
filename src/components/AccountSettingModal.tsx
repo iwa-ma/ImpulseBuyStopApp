@@ -69,8 +69,8 @@ const accountSettingModal = (props: Props):JSX.Element => {
     if ( modalMode == 'passWord' ){
       setModalTitle('パスワード変更')
       setModalText('パスワードは半角英数字記号6文字以上入力して下さい。')
-      setDialogTitle('パスワード変更が完了しました。')
-      setDialogText('新しいパスワードで再ログインして下さい。')
+      setDialogTitle('パスワードを変更し、確認メールを送信しました。')
+      setDialogText('メールから確認後、新しいパスワードが有効になります。')
     }
 
     if ( modalMode == 'passWordReset' ){

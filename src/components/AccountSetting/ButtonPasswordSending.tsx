@@ -3,7 +3,7 @@ import { auth } from '../../config'
 import { type Dispatch } from 'react'
 import { EditPassWordType} from '../../../types/ediPassWordType'
 import { Alert } from 'react-native'
-import { updatePassword } from 'firebase/auth'
+import { updatePassword, sendEmailVerification } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
@@ -50,7 +50,11 @@ const ButtonPasswordSending = (props: Props):JSX.Element => {
     try {
       // パスワード変更処理
       await updatePassword(auth.currentUser, passWordInput.new)
-      // 送信成功後、完了ダイアログを表示
+
+      // メール確認メールを送信
+      await sendEmailVerification(auth.currentUser)
+
+      // 送信成功後、完了ダイアログを表示（サインアウトはAccountSettingModal.tsxで実行）
       setDialogVisible(true)
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {
