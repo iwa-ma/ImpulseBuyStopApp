@@ -1,14 +1,13 @@
-import { Alert } from 'react-native'
-import { View, TextInput, StyleSheet } from 'react-native'
+import { useState } from 'react'
+import { View, TextInput, StyleSheet,Alert } from 'react-native'
 import { router } from 'expo-router'
 import { collection, addDoc, Timestamp, FirestoreError } from 'firebase/firestore'
-import { useState } from 'react'
-import KeyboardAvoidingView from '../../components/KeyboardAvoidingView'
-import CircleButton from '../../components/CircleButton'
-import Icon from '../../components/icon'
-import PriorityPicker from '../../components/PriorityPicker'
-import { BuyItem } from '../.../../../../types/buyItem'
-import { db, auth } from '../../config'
+import { db, auth } from 'config'
+import { BuyItem } from 'types/buyItem'
+import KeyboardAvoidingView from 'components/KeyboardAvoidingView'
+import CircleButton from 'components/CircleButton'
+import Icon from 'components/icon'
+import PriorityPicker from 'components/PriorityPicker'
 
 /**
  * 新規登録ボタン押下時の処理

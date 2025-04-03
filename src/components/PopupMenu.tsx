@@ -2,11 +2,10 @@ import { Alert } from 'react-native'
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
-
+import { FirebaseError } from 'firebase/app'
 import { signOut } from 'firebase/auth'
 import { router } from 'expo-router'
-import { auth } from '../config'
-import { FirebaseError } from 'firebase/app'
+import { auth } from 'config'
 
 /**
  * ログアウトボタン押下時の処理

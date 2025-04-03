@@ -1,14 +1,14 @@
-import { View, Text,ScrollView, StyleSheet, Alert} from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Alert} from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { onSnapshot, doc } from 'firebase/firestore'
 import { useState, useEffect} from 'react'
-import { type priorityType} from '../../../types/priorityType'
-import { type BuyItem } from '../../../types/buyItem'
-import CircleButton from '../../components/CircleButton'
-import Icon from '../../components/icon'
-import { auth, db } from '../../config'
-import { getpriorityType, getpriorityName } from '../../utils/priorityUtils'
+import { onSnapshot, doc } from 'firebase/firestore'
 import { FirebaseError } from 'firebase/app'
+import { auth, db } from 'config'
+import { getpriorityType, getpriorityName } from 'utils/priorityUtils'
+import { type priorityType} from 'types/priorityType'
+import { type BuyItem } from 'types/buyItem'
+import CircleButton from 'components/CircleButton'
+import Icon from 'components/icon'
 
 /**
  * 編集アイコン選択動作

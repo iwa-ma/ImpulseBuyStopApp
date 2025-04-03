@@ -1,9 +1,9 @@
 import { type Dispatch} from 'react'
-import { db, auth } from '../config'
-import { collection, query ,getDocs, where } from 'firebase/firestore'
-import { type priorityType} from '../../types/priorityType'
 import { Alert } from 'react-native'
+import { db, auth } from 'config'
 import { FirebaseError } from 'firebase/app'
+import { collection, query ,getDocs, where } from 'firebase/firestore'
+import { type priorityType} from 'types/priorityType'
 
 interface Props {
   /** 優先度名更新 */

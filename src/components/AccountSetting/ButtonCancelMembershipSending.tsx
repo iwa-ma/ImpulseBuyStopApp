@@ -1,12 +1,12 @@
 import { Alert } from 'react-native'
-import Button from '../Button'
-import { auth, db } from '../../config'
-import { doc, setDoc, Timestamp, deleteDoc, getDoc } from 'firebase/firestore'
-import { deleteUser }from 'firebase/auth'
 import { type Dispatch} from 'react'
-import { useUnsubscribe } from '../../app/UnsubscribeContext'
-import { DeleteUsers } from '../../../types/deleteUsers'
+import { auth, db } from 'config'
+import { doc, setDoc, Timestamp, deleteDoc, getDoc } from 'firebase/firestore'
 import { FirebaseError } from "firebase/app"
+import { deleteUser }from 'firebase/auth'
+import { useUnsubscribe } from 'app/UnsubscribeContext'
+import { DeleteUsers } from 'types/deleteUsers'
+import Button from 'components/Button'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {

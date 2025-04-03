@@ -2,14 +2,14 @@ import {
     View, Text, TextInput, Alert,
     TouchableOpacity, StyleSheet, Modal
 } from 'react-native'
-import { Link, router } from 'expo-router'
 import { useState } from 'react'
-import { createUserWithEmailAndPassword,sendEmailVerification } from 'firebase/auth'
-import { FirebaseError } from 'firebase/app'
-import { auth } from '../../config'
-import Button from '../../components/Button'
-import Checkbox from 'expo-checkbox'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { WebView } from 'react-native-webview'
+import { Link, router } from 'expo-router'
+import Checkbox from 'expo-checkbox'
+import { FirebaseError } from 'firebase/app'
+import { auth } from 'config'
+import Button from 'components/Button'
 
 /**
  * サインアップボタン押下時の処理

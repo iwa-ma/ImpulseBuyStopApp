@@ -1,11 +1,11 @@
 import { View, StyleSheet, Text, Alert } from 'react-native'
 import { useState, useEffect} from 'react'
-import { auth } from '../../config'
-import { onAuthStateChanged } from 'firebase/auth'
-import Button from '../../components/Button'
-import AccountSettingModal from '../../components/AccountSettingModal'
-import { modalModeType } from '../../../types/accountSettingModalMode'
+import { auth } from 'config'
 import { FirebaseError } from 'firebase/app'
+import { onAuthStateChanged } from 'firebase/auth'
+import { modalModeType } from 'types/accountSettingModalMode'
+import Button from 'components/Button'
+import AccountSettingModal from 'components/AccountSettingModal'
 
 /**
  * アカウント設定画面

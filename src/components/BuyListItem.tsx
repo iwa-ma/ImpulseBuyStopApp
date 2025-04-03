@@ -2,10 +2,9 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native'
 import { Link } from 'expo-router'
 import { deleteDoc, doc } from 'firebase/firestore'
 import { FirebaseError } from 'firebase/app'
-
-import Icon from './icon'
-import { auth, db } from '../config'
-import { OutPutBuyItem } from '../app/../../types/outPutBuyItem'
+import { auth, db } from 'config'
+import { OutPutBuyItem } from 'types/outPutBuyItem'
+import Icon from 'components/icon'
 
 /** list.tsxから受け取るprops型を定義 */
 interface Props {

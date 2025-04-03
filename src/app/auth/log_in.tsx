@@ -1,15 +1,15 @@
 import {
-  View, Text, TextInput,Alert,
+  View, Text, TextInput, Alert,
   TouchableOpacity, StyleSheet
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { auth } from 'config'
 import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase/auth'
-import CustomIcon from '../../components/icon'
-import Button from '../../components/Button'
-import { auth } from '../../config'
-import AccountSettingModal from '../../components/AccountSettingModal'
 import { FirebaseError } from 'firebase/app'
+import CustomIcon from 'components/icon'
+import Button from 'components/Button'
+import AccountSettingModal from 'components/AccountSettingModal'
 
 /**
  * ログインボタンクリック動作

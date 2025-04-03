@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, ActionSheetIOS, TouchableOpacity } from 'react-native'
 import { type Dispatch, useState} from 'react'
-import { type SortType,OrderByDirection, SortValueType } from '../../app/../../types/list'
+import { type SortType, OrderByDirection, SortValueType } from 'types/list'
 
 /**
  * ソートオプションキー
