@@ -1,7 +1,7 @@
 import {
   View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity, Alert
 } from 'react-native'
-import { type Dispatch, useEffect,useState } from 'react'
+import { type Dispatch, useEffect, useState } from 'react'
 import { collection, query, getDocs, where } from 'firebase/firestore'
 import { FirebaseError } from 'firebase/app'
 import { db, auth } from 'config'

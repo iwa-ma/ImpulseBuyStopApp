@@ -1,7 +1,7 @@
 import { Alert } from 'react-native'
 import { type Dispatch} from 'react'
 import { auth } from 'config'
-import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
+import { verifyBeforeUpdateEmail, sendPasswordResetEmail }from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 import { modalModeType } from 'types/accountSettingModalMode'
 import Button from 'components/Button'

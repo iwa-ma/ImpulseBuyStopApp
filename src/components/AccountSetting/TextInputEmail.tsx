@@ -1,4 +1,4 @@
-import { TextInput,StyleSheet } from 'react-native'
+import { TextInput, StyleSheet } from 'react-native'
 import { type Dispatch} from 'react'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */

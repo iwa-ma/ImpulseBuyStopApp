@@ -1,5 +1,5 @@
 import {
-  View, Text, TextInput,Alert,
+  View, Text, TextInput, Alert,
   TouchableOpacity, StyleSheet
 } from 'react-native'
 import { Link, router } from 'expo-router'

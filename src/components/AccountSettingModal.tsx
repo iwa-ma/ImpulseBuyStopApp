@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, Modal, Alert } from 'react-native'
 import Dialog from "react-native-dialog"
-import { type Dispatch,useState, useEffect} from 'react'
+import { type Dispatch, useState, useEffect} from 'react'
 import { auth } from 'config'
 import { FirebaseError } from 'firebase/app'
 import { signOut } from 'firebase/auth'

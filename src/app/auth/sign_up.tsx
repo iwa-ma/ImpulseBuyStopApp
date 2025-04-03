@@ -3,7 +3,7 @@ import {
     TouchableOpacity, StyleSheet, Modal
 } from 'react-native'
 import { useState } from 'react'
-import { createUserWithEmailAndPassword,sendEmailVerification } from 'firebase/auth'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { WebView } from 'react-native-webview'
 import { Link, router } from 'expo-router'
 import Checkbox from 'expo-checkbox'
