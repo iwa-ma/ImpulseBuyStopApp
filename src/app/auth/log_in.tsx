@@ -13,10 +13,14 @@ import AccountSettingModal from 'components/AccountSettingModal'
 
 /** ログイン画面の状態 */
 type LoginState = {
+  /** メールアドレス */
   email: string
+  /** パスワード */
   password: string
-  modalVisible: boolean
+  /** パスワード表示状態 */
   isSecure: boolean
+  /** パスワード再設定モーダル表示状態 */
+  modalVisible: boolean
 }
 
 /** ログイン画面のアクション */
