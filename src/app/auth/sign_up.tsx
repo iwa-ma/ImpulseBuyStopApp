@@ -2,14 +2,63 @@ import {
     View, Text, TextInput, Alert,
     TouchableOpacity, StyleSheet, Modal
 } from 'react-native'
-import { useState } from 'react'
+import { Link, router } from 'expo-router'
+import { useReducer } from 'react'
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { WebView } from 'react-native-webview'
-import { Link, router } from 'expo-router'
-import Checkbox from 'expo-checkbox'
 import { FirebaseError } from 'firebase/app'
 import { auth } from 'config'
 import Button from 'components/Button'
+import Checkbox from 'expo-checkbox'
+
+/** サインアップ画面の状態 */
+type SignUpState = {
+  /** メールアドレス */
+  email: string
+  /** パスワード */
+  password: string
+  /** 利用規約同意状態 */
+  isAgreed: boolean
+  /** 利用規約モーダル表示状態 */
+  isTermsModalVisible: boolean
+  /** セキュリティポリシーモーダル表示状態 */
+  isSecurityModalVisible: boolean
+}
+
+/** サインアップ画面のアクション */
+type SignUpAction =
+  | { type: 'SET_EMAIL'; payload: string }
+  | { type: 'SET_PASSWORD'; payload: string }
+  | { type: 'SET_IS_AGREED'; payload: boolean }
+  | { type: 'SET_TERMS_MODAL_VISIBLE'; payload: boolean }
+  | { type: 'SET_SECURITY_MODAL_VISIBLE'; payload: boolean }
+
+/** サインアップ画面の初期状態 */
+const initialState: SignUpState = {
+  email: '',
+  password: '',
+  isAgreed: false,
+  isTermsModalVisible: false,
+  isSecurityModalVisible: false
+}
+
+/** サインアップ画面の状態変更リデューサー */
+const signUpReducer = (state: SignUpState, action: SignUpAction): SignUpState => {
+  switch (action.type) {
+    case 'SET_EMAIL':
+      return { ...state, email: action.payload }
+    case 'SET_PASSWORD':
+      return { ...state, password: action.payload }
+    case 'SET_IS_AGREED':
+      return { ...state, isAgreed: action.payload }
+    case 'SET_TERMS_MODAL_VISIBLE':
+      return { ...state, isTermsModalVisible: action.payload }
+    case 'SET_SECURITY_MODAL_VISIBLE':
+      return { ...state, isSecurityModalVisible: action.payload }
+    default:
+      return state
+  }
+}
 
 /**
  * サインアップボタン押下時の処理
@@ -64,11 +113,7 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
  * @returns {JSX.Element}
  */
 const SignUp = (): JSX.Element => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [isAgreed, setIsAgreed] = useState(false)
-    const [isTermsModalVisible, setIsTermsModalVisible] = useState(false)
-    const [isSecurityModalVisible, setIsSecurityModalVisible] = useState(false)
+    const [state, dispatch] = useReducer(signUpReducer, initialState)
 
     return (
         <View style={styles.container}>
@@ -76,8 +121,8 @@ const SignUp = (): JSX.Element => {
                 <Text style={styles.title}>サインアップ</Text>
                 <TextInput
                   style={styles.input}
-                  value={email}
-                  onChangeText={(text) => {setEmail(text)}}
+                  value={state.email}
+                  onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
                   autoCapitalize='none'
                   keyboardType='email-address'
                   placeholder='メールアドレスを入力してください'
@@ -85,8 +130,8 @@ const SignUp = (): JSX.Element => {
                 />
                 <TextInput
                   style={styles.input}
-                  value={password}
-                  onChangeText={(text) => {setPassword(text)}}
+                  value={state.password}
+                  onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
                   autoCapitalize='none'
                   secureTextEntry
                   placeholder='パスワードを入力してください'
@@ -95,16 +140,16 @@ const SignUp = (): JSX.Element => {
 
                 <View style={styles.agreementContainer}>
                     <Checkbox
-                        value={isAgreed}
-                        onValueChange={setIsAgreed}
-                        color={isAgreed ? '#467FD3' : undefined}
+                        value={state.isAgreed}
+                        onValueChange={(value) => dispatch({ type: 'SET_IS_AGREED', payload: value })}
+                        color={state.isAgreed ? '#467FD3' : undefined}
                     />
-                    <TouchableOpacity onPress={() => setIsTermsModalVisible(true)}>
+                    <TouchableOpacity onPress={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: true })}>
                         <Text style={[styles.agreementText, styles.linkText]}>
                             利用規約
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setIsSecurityModalVisible(true)}>
+                    <TouchableOpacity onPress={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: true })}>
                         <Text style={[styles.agreementText, styles.linkText]}>
                             セキュリティポリシー
                         </Text>
@@ -115,9 +160,9 @@ const SignUp = (): JSX.Element => {
                 </View>
 
                 <Button label='サインアップ'
-                  disabled={email === '' || password === '' || !isAgreed}
-                  buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' || !isAgreed ? 0.5 : 1 }}
-                  onPress={() => { handleSubmitPress(email ,password) }}
+                  disabled={state.email === '' || state.password === '' || !state.isAgreed}
+                  buttonStyle={{ marginBottom: 24, opacity: state.email === '' || state.password === '' || !state.isAgreed ? 0.5 : 1 }}
+                  onPress={() => { handleSubmitPress(state.email ,state.password) }}
                 />
 
                 <View style={styles.footer}>
@@ -133,15 +178,15 @@ const SignUp = (): JSX.Element => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={isTermsModalVisible}
-                onRequestClose={() => setIsTermsModalVisible(false)}
+                visible={state.isTermsModalVisible}
+                onRequestClose={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: false })}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>利用規約</Text>
                             <TouchableOpacity
-                                onPress={() => setIsTermsModalVisible(false)}
+                                onPress={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: false })}
                                 style={styles.closeButton}
                             >
                                 <Text style={styles.closeButtonText}>閉じる</Text>
@@ -158,15 +203,15 @@ const SignUp = (): JSX.Element => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={isSecurityModalVisible}
-                onRequestClose={() => setIsSecurityModalVisible(false)}
+                visible={state.isSecurityModalVisible}
+                onRequestClose={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: false })}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>セキュリティポリシー</Text>
                             <TouchableOpacity
-                                onPress={() => setIsSecurityModalVisible(false)}
+                                onPress={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: false })}
                                 style={styles.closeButton}
                             >
                                 <Text style={styles.closeButtonText}>閉じる</Text>
