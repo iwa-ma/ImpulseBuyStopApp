@@ -1,10 +1,10 @@
 import { Alert } from 'react-native'
-import Button from '../Button'
-import { auth } from '../../config'
-import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
 import { type Dispatch} from 'react'
-import { modalModeType } from '../../../types/accountSettingModalMode'
+import { auth } from 'config'
+import { verifyBeforeUpdateEmail,sendPasswordResetEmail }from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
+import { modalModeType } from 'types/accountSettingModalMode'
+import Button from 'components/Button'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {

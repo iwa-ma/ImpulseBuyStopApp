@@ -1,13 +1,11 @@
 import {
   View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity, Alert
 } from 'react-native'
+import { type Dispatch, useEffect,useState } from 'react'
 import { collection, query, getDocs, where } from 'firebase/firestore'
 import { FirebaseError } from 'firebase/app'
-
-import { type priorityType} from '../../types/priorityType'
-import { useEffect,useState } from 'react'
-import { db, auth } from '../config'
-import { type Dispatch} from 'react'
+import { db, auth } from 'config'
+import { type priorityType} from 'types/priorityType'
 
 /** 親コンポーネントから受け取るprops型を定義 */
 interface Props {

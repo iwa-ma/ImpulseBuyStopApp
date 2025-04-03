@@ -1,10 +1,10 @@
-import Button from '../Button'
-import { auth } from '../../config'
 import { type Dispatch } from 'react'
-import { EditPassWordType} from '../../../types/ediPassWordType'
 import { Alert } from 'react-native'
+import { auth } from 'config'
+import { EditPassWordType} from 'types/editPassWordType'
 import { updatePassword } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
+import Button from 'components/Button'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {

@@ -1,17 +1,14 @@
-import {
-    View, TextInput, StyleSheet,
-    Alert
-} from 'react-native'
-import { router,useLocalSearchParams  } from 'expo-router'
 import { useState, useEffect } from 'react'
+import { View, TextInput, StyleSheet, Alert } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore'
-import KeyboardAvoidingView from '../../components/KeyboardAvoidingView'
-import CircleButton from '../../components/CircleButton'
-import Icon from '../../components/icon'
-import PriorityPicker from '../../components/PriorityPicker'
-import { auth, db } from '../../config'
-import { BuyItem } from '../.../../../../types/buyItem'
 import { FirebaseError } from "firebase/app"
+import { auth, db } from 'config'
+import { BuyItem } from 'types/buyItem'
+import KeyboardAvoidingView from 'components/KeyboardAvoidingView'
+import CircleButton from 'components/CircleButton'
+import Icon from 'components/icon'
+import PriorityPicker from 'components/PriorityPicker'
 
 /**
  * 編集ボタン押下時の処理

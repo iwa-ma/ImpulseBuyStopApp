@@ -1,8 +1,7 @@
-import { View,Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
-import { type Dispatch} from 'react'
-import { EditPassWordType} from '../../../types/ediPassWordType'
-import { useState } from 'react'
-import CustomIcon from '../../components/icon'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { type Dispatch, useState } from 'react'
+import { EditPassWordType} from 'types/editPassWordType'
+import CustomIcon from 'components/icon'
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
