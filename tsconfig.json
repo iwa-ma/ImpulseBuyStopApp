@@ -4,6 +4,8 @@
     "strict": true,
     "jsx": "react-jsx", // JSXサポートを追加
     "paths": {
+      // src\config.ts内importのgetReactNativePersistenceに対する警告を解消
+      "@firebase/auth": ["../node_modules/@firebase/auth/dist/index.rn.d.ts"],
       "@/*": ["./*"],
       "@assets/*": ["../assets/*"]
     },
