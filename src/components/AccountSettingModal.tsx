@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, Modal, Alert } from 'react-native'
 import Dialog from "react-native-dialog"
-import { type Dispatch, useState, useEffect} from 'react'
+import { useReducer, useEffect, type Dispatch } from 'react'
 import { auth } from 'config'
 import { FirebaseError } from 'firebase/app'
 import { signOut } from 'firebase/auth'
@@ -14,6 +14,105 @@ import TextInputPassWord from 'components/AccountSetting/TextInputPassWord'
 import ButtonEmailSending from 'components/AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from 'components/AccountSetting/ButtonPasswordSending'
 import ButtonCancelMembershipSending from 'components/AccountSetting/ButtonCancelMembershipSending'
+
+/** モーダルの状態管理 */
+type ModalState = {
+  /** メールアドレス入力値 */
+  emailInput: string
+  /** パスワード入力値 */
+  passWordInput: EditPassWordType
+  /** 完了ダイアログ表示状態 */
+  dialogVisible: boolean
+  /** モーダルタイトル */
+  modalTitle: string
+  /** モーダル説明テキスト */
+  modalText: string
+  /** 完了ダイアログタイトル */
+  dialogTitle: string
+  /** 完了ダイアログ説明テキスト */
+  dialogText: string
+}
+
+/** モーダルの状態変更 */
+type ModalAction =
+  | { type: 'SET_EMAIL_INPUT'; payload: string }
+  | { type: 'SET_PASSWORD_INPUT'; payload: EditPassWordType }
+  | { type: 'SET_DIALOG_VISIBLE'; payload: boolean }
+  | { type: 'SET_MODAL_TITLE'; payload: string }
+  | { type: 'SET_MODAL_TEXT'; payload: string }
+  | { type: 'SET_DIALOG_TITLE'; payload: string }
+  | { type: 'SET_DIALOG_TEXT'; payload: string }
+  | { type: 'INITIALIZE_MODAL'; payload: modalModeType }
+
+/** モーダルの初期状態 */
+const initialState: ModalState = {
+  emailInput: '',
+  passWordInput: { new: '', confirm: '' },
+  dialogVisible: false,
+  modalTitle: '',
+  modalText: '',
+  dialogTitle: '',
+  dialogText: ''
+}
+
+/** モーダルの状態変更リデューサー  */
+const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
+  switch (action.type) {
+    case 'SET_EMAIL_INPUT':
+      return { ...state, emailInput: action.payload }
+    case 'SET_PASSWORD_INPUT':
+      return { ...state, passWordInput: action.payload }
+    case 'SET_DIALOG_VISIBLE':
+      return { ...state, dialogVisible: action.payload }
+    case 'SET_MODAL_TITLE':
+      return { ...state, modalTitle: action.payload }
+    case 'SET_MODAL_TEXT':
+      return { ...state, modalText: action.payload }
+    case 'SET_DIALOG_TITLE':
+      return { ...state, dialogTitle: action.payload }
+    case 'SET_DIALOG_TEXT':
+      return { ...state, dialogText: action.payload }
+    case 'INITIALIZE_MODAL': {
+      const mode = action.payload
+      if (mode === 'eMail') {
+        return {
+          ...state,
+          modalTitle: '登録メールアドレス変更',
+          modalText: '変更すると新しいメールアドレスに確認メールが送信されます。',
+          dialogTitle: '確認メールを送信しました。',
+          dialogText: '確認メールから確認処理を行う事で、設定変更が完了します。'
+        }
+      } else if (mode === 'passWord') {
+        return {
+          ...state,
+          modalTitle: 'パスワード変更',
+          modalText: 'パスワードは半角英数字記号6文字以上入力して下さい。',
+          dialogTitle: 'パスワード変更が完了しました。',
+          dialogText: '新しいパスワードで再ログインして下さい。'
+        }
+      } else if (mode === 'passWordReset') {
+        return {
+          ...state,
+          modalTitle: 'パスワード再設定',
+          modalText: 'パスワード変更画面のURLをメールでお送りいたします。\nご登録されているメールアドレスを入力して送信してください。',
+          dialogTitle: 'URLの送信が完了しました。',
+          dialogText: 'メールに送らせて頂いたURLから再設定を行って下さい。'
+        }
+      } else if (mode === 'cancelMembership') {
+        return {
+          ...state,
+          modalTitle: '退会',
+          modalText: '退会すると登録データが消去されます。\nよろしいですか？',
+          dialogTitle: '退会処理が完了しました。',
+          dialogText: 'またのご利用よろしくお願いいたします。'
+        }
+      }
+      return state
+    }
+    default:
+      return state
+  }
+}
 
 /** accountSetting.tsxから受け取るprops型を定義 */
 interface Props {
@@ -34,65 +133,16 @@ interface Props {
 const accountSettingModal = (props: Props):JSX.Element => {
   // モーダル開閉制御
   const { modalVisible, setModalVisible, modalMode } = props
-  // メールアドレス入力制御
-  const [ emailInput, setInputEmail ] = useState('')
-  // パスワード入力制御
-  const [ passWordInput, setPassWordInput ] = useState<EditPassWordType>({
-    new: '',
-    confirm: ''
-  })
-
-  // ダイアログ表示制御
-  const [ dialogVisible, setDialogVisible ] = useState(false)
+  // モーダルの状態管理
+  const [state, dispatch] = useReducer(modalReducer, initialState)
   // リスト(list.tsx)のリスト取得処理のunsubscribe
   const { unsubscribe } = useUnsubscribe()
-
-  // モーダルタイトル
-  const [ modalTitle, setModalTitle ] = useState('')
-  // モーダルテキスト
-  const [ modalText, setModalText ] = useState('')
-
-  // ダイアログタイトル
-  const [ dialogTitle, setDialogTitle ] = useState('')
-  // ダイアログテキスト
-  const [ dialogText, setDialogText ] = useState('')
-
-  function modalInit():void {
-    // modalModeを基にタイトル、説明文設定
-    if ( modalMode == 'eMail' ){
-      setModalTitle('登録メールアドレス変更')
-      setModalText('変更すると新しいメールアドレスに確認メールが送信されます。')
-      setDialogTitle('確認メールを送信しました。')
-      setDialogText('確認メールから確認処理を行う事で、設定変更が完了します。')
-    }
-
-    if ( modalMode == 'passWord' ){
-      setModalTitle('パスワード変更')
-      setModalText('パスワードは半角英数字記号6文字以上入力して下さい。')
-      setDialogTitle('パスワード変更が完了しました。')
-      setDialogText('新しいパスワードで再ログインして下さい。')
-    }
-
-    if ( modalMode == 'passWordReset' ){
-      setModalTitle('パスワード再設定')
-      setModalText('パスワード変更画面のURLをメールでお送りいたします。\nご登録されているメールアドレスを入力して送信してください。')
-      setDialogTitle('URLの送信が完了しました。')
-      setDialogText('メールに送らせて頂いたURLから再設定を行って下さい。')
-    }
-
-    if ( modalMode == 'cancelMembership' ){
-      setModalTitle('退会')
-      setModalText('退会すると登録データが消去されます。\nよろしいですか？')
-      setDialogTitle('退会処理が完了しました。')
-      setDialogText('またのご利用よろしくお願いいたします。')
-    }
-  }
 
   // 完了ダイアログでOKボタンタッチ処理
   const onPressDialog = (): void => {
     // パスワード再設定の場合は、サインアウトを実行せずに、ダイアログとモーダルを閉じる
     if(modalMode == 'passWordReset') {
-      setDialogVisible(false)
+      dispatch({ type: 'SET_DIALOG_VISIBLE', payload: false })
       setModalVisible(false)
       return
     }else{
@@ -119,19 +169,18 @@ const accountSettingModal = (props: Props):JSX.Element => {
     }
   }
 
-  useEffect( () => {
+  useEffect(() => {
     setModalVisible(props.modalVisible)
     // モーダルの状態が変わる時は、毎回Emailアドレスを初期化する
-    setInputEmail('')
-
+    dispatch({ type: 'SET_EMAIL_INPUT', payload: '' })
     // モーダルの状態が変わる時は、毎回パスワード入力値を初期化する
-    setPassWordInput({ ...passWordInput, new: '', confirm:'' })
-  },[props.modalVisible])
+    dispatch({ type: 'SET_PASSWORD_INPUT', payload: { new: '', confirm: '' } })
+  }, [props.modalVisible])
 
   // モーダル種別の変更を検知して初期化処理実行
-  useEffect( () => {
-    modalInit()
-  },[modalMode])
+  useEffect(() => {
+    dispatch({ type: 'INITIALIZE_MODAL', payload: modalMode })
+  }, [modalMode])
 
   return (
     <Modal
@@ -139,9 +188,9 @@ const accountSettingModal = (props: Props):JSX.Element => {
       transparent={true} //背景透明に
     >
       {/* 完了ダイアログ */}
-      <Dialog.Container visible={dialogVisible}>
-        <Dialog.Title>{dialogTitle}</Dialog.Title>
-        <Dialog.Description>{dialogText}</Dialog.Description>
+      <Dialog.Container visible={state.dialogVisible}>
+        <Dialog.Title>{state.dialogTitle}</Dialog.Title>
+        <Dialog.Description>{state.dialogText}</Dialog.Description>
         <Dialog.Button label="OK"
           onPress={()=> { onPressDialog()}
           } />
@@ -159,35 +208,65 @@ const accountSettingModal = (props: Props):JSX.Element => {
           }
         }>
           {/* モーダルタイトル */}
-          <Text style={styles.modalTitleFontType}>{ modalTitle }</Text>
+          <Text style={styles.modalTitleFontType}>{ state.modalTitle }</Text>
 
           {/* モーダル説明テキスト */}
-          <Text style={styles.modalContentsFontType}>{ modalText }</Text>
+          <Text style={styles.modalContentsFontType}>{ state.modalText }</Text>
 
           {/* メールアドレス入力欄(登録メールアドレス変更時に表示) */}
           { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
-            <TextInputEmail emailInput={emailInput} setInputEmail={setInputEmail}  />
+            <TextInputEmail
+              emailInput={state.emailInput}
+              setInputEmail={(value: string | ((prevState: string) => string)) => {
+                const newValue = typeof value === 'function' ? value(state.emailInput) : value
+                dispatch({ type: 'SET_EMAIL_INPUT', payload: newValue })
+              }}
+            />
           }
 
           {/* パスワード入力欄(パスワード変更時に表示) */}
           { modalMode == 'passWord' &&
-            <TextInputPassWord passWordInput={passWordInput} setPassWordInput={setPassWordInput} />
+            <TextInputPassWord
+              passWordInput={state.passWordInput}
+              setPassWordInput={(value: EditPassWordType | ((prevState: EditPassWordType) => EditPassWordType)) => {
+                const newValue = typeof value === 'function' ? value(state.passWordInput) : value
+                dispatch({ type: 'SET_PASSWORD_INPUT', payload: newValue })
+              }}
+            />
           }
 
           <View style={styles.modalButtonWrap}>
             {/* 送信ボタン（登録メールアドレス変更、パスワード再設定） */}
             { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
-              <ButtonEmailSending modalMode={modalMode} emailInput={emailInput} setDialogVisible={setDialogVisible} />
+              <ButtonEmailSending
+                modalMode={modalMode}
+                emailInput={state.emailInput}
+                setDialogVisible={(value: boolean | ((prevState: boolean) => boolean)) => {
+                  const newValue = typeof value === 'function' ? value(state.dialogVisible) : value
+                  dispatch({ type: 'SET_DIALOG_VISIBLE', payload: newValue })
+                }}
+              />
             }
 
             {/* 送信ボタン（パスワード変更） */}
             { modalMode == 'passWord' &&
-              <ButtonPasswordSending passWordInput={passWordInput} setDialogVisible={setDialogVisible} />
+              <ButtonPasswordSending
+                passWordInput={state.passWordInput}
+                setDialogVisible={(value: boolean | ((prevState: boolean) => boolean)) => {
+                  const newValue = typeof value === 'function' ? value(state.dialogVisible) : value
+                  dispatch({ type: 'SET_DIALOG_VISIBLE', payload: newValue })
+                }}
+              />
             }
 
             {/* はいボタン（退会） */}
             { modalMode == 'cancelMembership' &&
-              <ButtonCancelMembershipSending setDialogVisible={setDialogVisible} />
+              <ButtonCancelMembershipSending
+                setDialogVisible={(value: boolean | ((prevState: boolean) => boolean)) => {
+                  const newValue = typeof value === 'function' ? value(state.dialogVisible) : value
+                  dispatch({ type: 'SET_DIALOG_VISIBLE', payload: newValue })
+                }}
+              />
             }
 
             <Button
