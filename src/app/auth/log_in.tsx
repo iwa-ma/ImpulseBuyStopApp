@@ -3,13 +3,52 @@ import {
   TouchableOpacity, StyleSheet
 } from 'react-native'
 import { Link, router } from 'expo-router'
-import { useState } from 'react'
+import { useReducer } from 'react'
 import { auth } from 'config'
 import { signInWithEmailAndPassword, getAuth, signInAnonymously } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 import CustomIcon from 'components/icon'
 import Button from 'components/Button'
 import AccountSettingModal from 'components/AccountSettingModal'
+
+/** ログイン画面の状態 */
+type LoginState = {
+  email: string
+  password: string
+  modalVisible: boolean
+  isSecure: boolean
+}
+
+/** ログイン画面のアクション */
+type LoginAction =
+  | { type: 'SET_EMAIL'; payload: string }
+  | { type: 'SET_PASSWORD'; payload: string }
+  | { type: 'SET_MODAL_VISIBLE'; payload: boolean }
+  | { type: 'TOGGLE_SECURE' }
+
+/** ログイン画面の初期状態 */
+const initialState: LoginState = {
+  email: '',
+  password: '',
+  modalVisible: false,
+  isSecure: true
+}
+
+/** ログイン画面のリデューサー */
+const loginReducer = (state: LoginState, action: LoginAction): LoginState => {
+  switch (action.type) {
+    case 'SET_EMAIL':
+      return { ...state, email: action.payload }
+    case 'SET_PASSWORD':
+      return { ...state, password: action.payload }
+    case 'SET_MODAL_VISIBLE':
+      return { ...state, modalVisible: action.payload }
+    case 'TOGGLE_SECURE':
+      return { ...state, isSecure: !state.isSecure }
+    default:
+      return state
+  }
+}
 
 /**
  * ログインボタンクリック動作
@@ -84,15 +123,7 @@ const handleAnonymously = async (): Promise<void> => {
  * @returns {JSX.Element}
  */
 const LogIn = (): JSX.Element => {
-  const [ email, setEmail ] = useState('')
-  const [ password, setPassword ] = useState('')
-  const [ modalVisible, setModalVisible ] = useState(false)
-
-  const [isSecure, setIsSecure] = useState(true)// secureTextEntryの状態を管理
-
-  const togglePasswordVisibility = () => {
-    setIsSecure(!isSecure) // 表示/非表示を切り替える
-  }
+  const [state, dispatch] = useReducer(loginReducer, initialState)
 
   return (
     <View style={styles.container}>
@@ -102,8 +133,8 @@ const LogIn = (): JSX.Element => {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            value={email}
-            onChangeText={(text) => {setEmail(text)}}
+            value={state.email}
+            onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
             autoCapitalize='none'
             keyboardType='email-address'
             placeholder='メールアドレスを入力してください'
@@ -114,19 +145,19 @@ const LogIn = (): JSX.Element => {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            value={password}
-            onChangeText={(text) => {setPassword(text)}}
+            value={state.password}
+            onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
             autoCapitalize='none'
-            secureTextEntry={isSecure}
+            secureTextEntry={state.isSecure}
             placeholder='パスワードを入力してください'
             textContentType='password'
           />
           <TouchableOpacity
             style={styles.visibilityToggle}
-            onPress={togglePasswordVisibility}
+            onPress={() => dispatch({ type: 'TOGGLE_SECURE' })}
           >
             <CustomIcon
-              name={isSecure ? 'eye' : 'eye-blocked'}
+              name={state.isSecure ? 'eye' : 'eye-blocked'}
               size={24}
               color='#000000'
             />
@@ -134,9 +165,9 @@ const LogIn = (): JSX.Element => {
         </View>
 
         <Button label='ログイン'
-          disabled={email === '' || password === ''}
-          buttonStyle={{ marginBottom: 24, opacity: email === '' || password === '' ? 0.5 : 1 }}
-          onPress={() => {handleSubmitPress(email,password)}}
+          disabled={state.email === '' || state.password === ''}
+          buttonStyle={{ marginBottom: 24, opacity: state.email === '' || state.password === '' ? 0.5 : 1 }}
+          onPress={() => {handleSubmitPress(state.email, state.password)}}
         />
         <View>
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
@@ -159,7 +190,7 @@ const LogIn = (): JSX.Element => {
 
           <Text style={styles.footerText}>パスワードを忘れてしまった方</Text>
           <Text>
-            <TouchableOpacity onPress={() => { setModalVisible(true) }}>
+            <TouchableOpacity onPress={() => dispatch({ type: 'SET_MODAL_VISIBLE', payload: true })}>
               <Text style={styles.footerLink}>
                 3.パスワード再設定
               </Text>
@@ -168,9 +199,12 @@ const LogIn = (): JSX.Element => {
 
           {/* パスワード再設定用モーダル */}
           <AccountSettingModal
-            modalVisible={ modalVisible }
+            modalVisible={state.modalVisible}
             modalMode='passWordReset'
-            setModalVisible={ setModalVisible }
+            setModalVisible={(value: boolean | ((prevState: boolean) => boolean)) => {
+              const newValue = typeof value === 'function' ? value(state.modalVisible) : value
+              dispatch({ type: 'SET_MODAL_VISIBLE', payload: newValue })
+            }}
           />
         </View>
       </View>
