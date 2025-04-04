@@ -60,14 +60,14 @@ const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element =
         <FontAwesomeIcon size={24} icon={faComment} />
       </Text>
     )
-  }else{
-    return (
-      <FlatList
-        data={items}
-        renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
-      />
-    )
   }
+
+  return (
+    <FlatList
+      data={items}
+      renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
+    />
+  )
 }
 
 /** リスト画面の状態 */
@@ -147,10 +147,10 @@ const List = ():JSX.Element => {
   useEffect(() => {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
-    // 優先度名が取得されていない場合は処理を実行ぜずに終了する
-    if(!state.priorityType) { return }
 
-    dispatch({ type: 'SET_ITEMS', payload: [] })
+    // 依存配列の値が変更されたらitemsをnullにリセット
+    dispatch({ type: 'SET_ITEMS', payload: null })
+
     let collectionPath = ''
     if(anonymous === 'true'){
       // collectionPathにサンプルデータのパスを指定
@@ -199,6 +199,8 @@ const List = ():JSX.Element => {
             'データの取得中にエラーが発生しました。もう一度お試しください。'
           )
         }
+        // エラー発生時はitemsをnullにリセット
+        dispatch({ type: 'SET_ITEMS', payload: [] })
       }
     })
 
