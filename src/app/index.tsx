@@ -21,7 +21,7 @@ const Index = ():JSX.Element => {
     })
 
   },[])
-  return <Redirect href='./auth/log_in' />
+  return <Redirect href='./auth/log-in' />
 }
 
 export default Index

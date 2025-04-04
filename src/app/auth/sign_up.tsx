@@ -74,7 +74,7 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
       const user = userCredential.user
       sendEmailVerification(user).then(() => {
         Alert.alert('確認メールを送信しました。メールを確認してください。')
-        router.replace({ pathname: '/auth/log_in'})
+        router.replace({ pathname: '/auth/log-in'})
       })
     }else{
       Alert.alert('登録に失敗しました')
@@ -92,7 +92,7 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
         if (!auth.currentUser.emailVerified) {
           await sendEmailVerification(auth.currentUser)
           Alert.alert('確認メールを再送信しました。メールを確認してください。')
-          router.replace({ pathname: '/auth/log_in'})
+          router.replace({ pathname: '/auth/log-in'})
           return
         }
         // メール確認済みの場合
@@ -167,7 +167,7 @@ const SignUp = (): JSX.Element => {
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>すでに登録されている場合 → </Text>
-                    <Link href='auth/log_in' asChild replace>
+                    <Link href='auth/log-in' asChild replace>
                         <TouchableOpacity>
                             <Text style={styles.footerLink}>ログイン</Text>
                         </TouchableOpacity>

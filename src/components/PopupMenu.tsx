@@ -16,7 +16,7 @@ const handlePress = async (): Promise<void> => {
   try {
     await signOut(auth)
     // ログイン画面に書き換え
-    router.replace('/auth/log_in')
+    router.replace('/auth/log-in')
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
       const { message }: { message: string } = error

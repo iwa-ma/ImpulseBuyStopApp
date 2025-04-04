@@ -158,7 +158,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
       // モーダルを閉じる、スタック(リスト画面 → アカウント設定画面へ遷移履歴)を削除
       router.dismissAll()
       // ログイン画面に書き換え
-      router.replace('/auth/log_in')
+      router.replace('/auth/log-in')
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {
         const { message }: { message: string } = error
