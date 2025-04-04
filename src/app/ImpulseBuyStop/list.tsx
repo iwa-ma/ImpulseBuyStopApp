@@ -14,7 +14,7 @@ import ListSort from 'app/ImpulseBuyStop/listSort'
 import { type priorityType } from 'types/priorityType'
 import { OutPutBuyItem } from 'types/outPutBuyItem'
 import { type SortType, OrderByDirection } from 'types/list'
-import { getpriorityType, getpriorityName } from 'utils/priorityUtils'
+import { getPriorityType, getPriorityName } from 'utils/priorityUtils'
 import BuyListItem from 'components/BuyListItem'
 import CircleButton from 'components/CircleButton'
 import CustomIcon from 'components/icon'
@@ -156,11 +156,8 @@ const List = (): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      await getpriorityType({
-        setPriorityType: (value: priorityType[] | ((prevState: priorityType[]) => priorityType[])) => {
-          const types = typeof value === 'function' ? value([]) : value
-          dispatch({ type: 'SET_PRIORITY_TYPE', payload: types })
-        }
+      await getPriorityType((types: priorityType[]) => {
+        dispatch({ type: 'SET_PRIORITY_TYPE', payload: types })
       })
     })()
   }, [])
@@ -192,7 +189,7 @@ const List = (): JSX.Element => {
               id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
               bodyText: data.bodyText,
               updatedAt: data.updatedAt,
-              priority: getpriorityName(state.priorityType, data.priority)
+              priority: getPriorityName(state.priorityType, data.priority)
             }
             tempItems.push(buyItem)
           }

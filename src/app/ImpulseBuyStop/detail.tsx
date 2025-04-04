@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { FirebaseError } from 'firebase/app'
 import { auth, db } from 'config'
-import { getpriorityType, getpriorityName } from 'utils/priorityUtils'
+import { getPriorityType, getPriorityName } from 'utils/priorityUtils'
 import { type priorityType } from 'types/priorityType'
 import { type BuyItem } from 'types/buyItem'
 import CircleButton from 'components/CircleButton'
@@ -61,7 +61,7 @@ const ItemBody = ({ text }: { text?: string }) => (
 // 優先度コンポーネント
 const ItemPriority = ({ priority, priorityTypes }: { priority?: number; priorityTypes: priorityType[] }) => (
   <View style={styles.itemPriorityText}>
-    <Text>優先度:{priority ? getpriorityName(priorityTypes, priority) : null}</Text>
+    <Text>優先度:{priority ? getPriorityName(priorityTypes, priority) : null}</Text>
   </View>
 )
 
@@ -137,7 +137,9 @@ const Detail = (): JSX.Element => {
   useEffect(() => {
     (async () => {
       try {
-        await getpriorityType({ setPriorityType })
+        await getPriorityType((types: priorityType[]) => {
+          setPriorityType(types)
+        })
       } catch (error) {
         Alert.alert(
           'エラーが発生しました',

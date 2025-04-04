@@ -1,11 +1,10 @@
 import {
-  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity, Alert
+  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity
 } from 'react-native'
 import { type Dispatch, useEffect, useState } from 'react'
-import { collection, query, getDocs, where } from 'firebase/firestore'
-import { FirebaseError } from 'firebase/app'
-import { db, auth } from 'config'
+import { auth } from 'config'
 import { type priorityType } from 'types/priorityType'
+import { getPriorityType } from 'utils/priorityUtils'
 
 // スタイル定数
 const FONT_SIZES = {
@@ -39,34 +38,11 @@ interface Props {
 const PriorityPicker = ({ priorityCode, setPriorityCode }: Props): JSX.Element => {
   const [priorityType, setPriorityType] = useState<priorityType[] | null>(null)
 
-  /** 優先度タイプの取得 */
-  const getPriorityType = async (): Promise<void> => {
-    if (!auth.currentUser) return
-
-    try {
-      const ref = collection(db, 'priorityType')
-      const q = query(ref, where('disabled', '==', false))
-      const querySnapshot = await getDocs(q)
-
-      const tempItems = querySnapshot.docs
-        .map(doc => {
-          const { name, disabled, id } = doc.data()
-          return !disabled ? { id, name } : null
-        })
-        .filter((item): item is priorityType => item !== null)
-
-      setPriorityType(tempItems)
-    } catch (error) {
-      const message = error instanceof FirebaseError
-        ? error.message
-        : String(error)
-      Alert.alert('優先度の取得に失敗しました', message)
-    }
-  }
-
   useEffect(() => {
     if (!auth.currentUser) return
-    getPriorityType()
+    getPriorityType((types: priorityType[]) => {
+      setPriorityType(types)
+    })
   }, [])
 
   /** 優先度選択値の変更 */
