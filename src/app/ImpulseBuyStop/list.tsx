@@ -3,7 +3,7 @@ import {
   Text, Alert, ActivityIndicator
 } from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { FirebaseError } from 'firebase/app'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -70,24 +70,59 @@ const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element =
   }
 }
 
+/** リスト画面の状態 */
+type ListState = {
+  /** リスト表示データ */
+  items: OutPutBuyItem[] | null
+  /** 優先度名リスト */
+  priorityType: priorityType[]
+  /** ソートタイプ */
+  sortType: SortType
+  /** ソート順 */
+  sortOrder: OrderByDirection
+}
+
+/** リスト画面のアクション */
+type ListAction =
+  | { type: 'SET_ITEMS'; payload: OutPutBuyItem[] | null }
+  | { type: 'SET_PRIORITY_TYPE'; payload: priorityType[] }
+  | { type: 'SET_SORT_TYPE'; payload: SortType }
+  | { type: 'SET_SORT_ORDER'; payload: OrderByDirection }
+
+/** リスト画面の初期状態 */
+const initialState: ListState = {
+  items: null,
+  priorityType: [],
+  sortType: 'updatedAt',
+  sortOrder: 'desc'
+}
+
+/** リスト画面の状態変更リデューサー */
+const listReducer = (state: ListState, action: ListAction): ListState => {
+  switch (action.type) {
+    case 'SET_ITEMS':
+      return { ...state, items: action.payload }
+    case 'SET_PRIORITY_TYPE':
+      return { ...state, priorityType: action.payload }
+    case 'SET_SORT_TYPE':
+      return { ...state, sortType: action.payload }
+    case 'SET_SORT_ORDER':
+      return { ...state, sortOrder: action.payload }
+    default:
+      return state
+  }
+}
+
 /**
  * リスト画面
  *
  * @returns {JSX.Element}
  */
 const List = ():JSX.Element => {
-  // パラメーターとして、受け取ったanonymous(匿名ログイン状態)を定数定義
   const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
-
-  const [items, setItems ] = useState<OutPutBuyItem[] | null>(null)
+  const [state, dispatch] = useReducer(listReducer, initialState)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
-  const [ priorityType , setPriorityType ] = useState<priorityType[]>([])
-
-  // 優先度のソートタイプ
-  const [ itemsSortType, setItemsSortType ] = useState<SortType>('updatedAt')
-  // 優先度のソート順
-  const [ itemsSortOrder, setItemsSortOrder ] = useState<OrderByDirection>('desc')
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
@@ -99,7 +134,12 @@ const List = ():JSX.Element => {
   // 優先度名リストを取得
   useEffect(() => {
     (async () =>{
-      await getpriorityType({setPriorityType})
+      await getpriorityType({
+        setPriorityType: (value: priorityType[] | ((prevState: priorityType[]) => priorityType[])) => {
+          const types = typeof value === 'function' ? value([]) : value
+          dispatch({ type: 'SET_PRIORITY_TYPE', payload: types })
+        }
+      })
     })()
   }, [])
 
@@ -108,9 +148,9 @@ const List = ():JSX.Element => {
     // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
     if(!auth.currentUser) { return }
     // 優先度名が取得されていない場合は処理を実行ぜずに終了する
-    if(!priorityType) { return }
+    if(!state.priorityType) { return }
 
-    setItems([])
+    dispatch({ type: 'SET_ITEMS', payload: [] })
     let collectionPath = ''
     if(anonymous === 'true'){
       // collectionPathにサンプルデータのパスを指定
@@ -122,7 +162,7 @@ const List = ():JSX.Element => {
 
     // コレクションを取得して、指定された項目の指定順でソート
     const ref = collection(db, collectionPath)
-    const q = query(ref, orderBy(itemsSortType, itemsSortOrder))
+    const q = query(ref, orderBy(state.sortType, state.sortOrder))
 
     // ドキュメントを取得して、出力用の配列を生成(リアルタイムリスナーで監視)
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -138,14 +178,14 @@ const List = ():JSX.Element => {
               id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
               bodyText: data.bodyText,
               updatedAt: data.updatedAt,
-              priority: getpriorityName(priorityType, data.priority)
+              priority: getpriorityName(state.priorityType, data.priority)
             }
             tempItems.push(buyItem)
           }
         })
 
         // 出力用の配列を更新
-        setItems(tempItems)
+        dispatch({ type: 'SET_ITEMS', payload: tempItems })
       } catch (error: unknown) {
         if (error instanceof FirebaseError) {
           const { message } = error
@@ -166,20 +206,20 @@ const List = ():JSX.Element => {
 
     // コンポーネントアンマウント時、onSnapshotの監視を終了させる
     return unsubscribe
-  }, [priorityType,itemsSortType,itemsSortOrder])
+  }, [state.priorityType, state.sortType, state.sortOrder])
 
   return (
     <View style={styles.container}>
       {/* リストソートUI */}
       <ListSort
-        itemsSortType={itemsSortType}
-        itemsSortOrder={itemsSortOrder}
-        setItemsSortType={setItemsSortType}
-        setItemsSortOrder={setItemsSortOrder}
+        itemsSortType={state.sortType}
+        itemsSortOrder={state.sortOrder}
+        setItemsSortType={(type) => dispatch({ type: 'SET_SORT_TYPE', payload: type })}
+        setItemsSortOrder={(order) => dispatch({ type: 'SET_SORT_ORDER', payload: order })}
       />
 
       {/* リスト表示 */}
-      {buyList(items,anonymous)}
+      {buyList(state.items, anonymous)}
 
       <CircleButton onPress={() => { handlePress(anonymous)}}>
         <CustomIcon name='plus' size={40} color='#FFFFFF' />

@@ -13,8 +13,11 @@ import AccountSettingModal from 'components/AccountSettingModal'
  * @returns {JSX.Element}
  */
 const accountSetting = ():JSX.Element => {
+  // メールアドレス
   const [ email, setEmail ] = useState<string | null>(null)
+  // モーダル表示
   const [ modalVisible, setModalVisible ] = useState(false)
+  // モーダルモード
   const [ modalMode, setModalMode ] = useState<modalModeType>(null)
 
   const emailContent:string = `登録しているメールアドレスを変更します\n\nメールアドレス(現在設定): ${email}`

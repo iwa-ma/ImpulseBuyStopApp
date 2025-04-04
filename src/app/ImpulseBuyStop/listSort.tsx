@@ -1,5 +1,5 @@
 import { View, StyleSheet, Text, ActionSheetIOS, TouchableOpacity } from 'react-native'
-import { type Dispatch, useState} from 'react'
+import { useState } from 'react'
 import { type SortType, OrderByDirection, SortValueType } from 'types/list'
 
 /**
@@ -23,13 +23,13 @@ const SORT_LABELS = ['キャンセル', ...Object.values(SORT_OPTIONS)]
 /** list.tsxから受け取るprops型を定義 */
 interface Props {
   /** リストソートキー選択値 */
-  itemsSortType:SortType
+  itemsSortType: SortType
   /** リストソート選択値 */
-  itemsSortOrder:OrderByDirection
+  itemsSortOrder: OrderByDirection
   /** リストソートキー制御 */
-  setItemsSortType:Dispatch<React.SetStateAction<SortType>>
+  setItemsSortType: (type: SortType) => void
   /** リストソート順制御 */
-  setItemsSortOrder:Dispatch<React.SetStateAction<OrderByDirection>>
+  setItemsSortOrder: (order: OrderByDirection) => void
 }
 
 /**

@@ -1,4 +1,3 @@
-import { type Dispatch} from 'react'
 import { Alert } from 'react-native'
 import { db, auth } from 'config'
 import { FirebaseError } from 'firebase/app'
@@ -7,7 +6,7 @@ import { type priorityType} from 'types/priorityType'
 
 interface Props {
   /** 優先度名更新 */
-  setPriorityType: Dispatch<React.SetStateAction<priorityType[]>>
+  setPriorityType: (types: priorityType[]) => void
 }
 
 /** 優先度名を取得 */
