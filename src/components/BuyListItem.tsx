@@ -70,7 +70,13 @@ const BuyListItem = (props: Props): JSX.Element | null => {
   const { id ,bodyText , updatedAt, priority } = buyItem
 
   if ( !bodyText || !updatedAt ) { return null}
-  const dateString = updatedAt.toDate().toLocaleDateString('ja-JP')
+  const dateString = updatedAt.toDate().toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 
   return (
     <Link
