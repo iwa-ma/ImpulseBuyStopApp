@@ -15,6 +15,45 @@ import ButtonEmailSending from 'components/AccountSetting/ButtonEmailSending'
 import ButtonPasswordSending from 'components/AccountSetting/ButtonPasswordSending'
 import ButtonCancelMembershipSending from 'components/AccountSetting/ButtonCancelMembershipSending'
 
+// スタイル定数
+const STYLES = {
+  modal: {
+    container: {
+      flex: 1,
+      flexDirection: 'column' as const,
+      justifyContent: 'center' as const,
+      backgroundColor: '#00000080',
+      opacity: 1
+    },
+    content: {
+      backgroundColor: 'white',
+      paddingVertical: 14,
+      paddingHorizontal: 14
+    },
+    title: {
+      paddingBottom: 10,
+      textAlign: 'center' as const,
+      fontSize: 28,
+      fontWeight: 'normal' as const,
+      fontFamily: 'Meiryo'
+    },
+    text: {
+      paddingBottom: 10,
+      fontSize: 19,
+      fontWeight: 'normal' as const,
+      backgroundColor: 'white',
+      lineHeight: 38
+    },
+    buttonWrap: {
+      flexDirection: 'row' as const,
+      marginLeft: 'auto' as const,
+      marginRight: 'auto' as const,
+      marginTop: 'auto' as const,
+      marginBottom: 'auto' as const
+    }
+  }
+}
+
 /** モーダルの状態管理 */
 type ModalState = {
   /** メールアドレス入力値 */
@@ -74,40 +113,33 @@ const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
       return { ...state, dialogText: action.payload }
     case 'INITIALIZE_MODAL': {
       const mode = action.payload
-      if (mode === 'eMail') {
-        return {
-          ...state,
+      const modalConfigs = {
+        eMail: {
           modalTitle: '登録メールアドレス変更',
           modalText: '変更すると新しいメールアドレスに確認メールが送信されます。',
           dialogTitle: '確認メールを送信しました。',
           dialogText: '確認メールから確認処理を行う事で、設定変更が完了します。'
-        }
-      } else if (mode === 'passWord') {
-        return {
-          ...state,
+        },
+        passWord: {
           modalTitle: 'パスワード変更',
           modalText: 'パスワードは半角英数字記号6文字以上入力して下さい。',
           dialogTitle: 'パスワード変更が完了しました。',
           dialogText: '新しいパスワードで再ログインして下さい。'
-        }
-      } else if (mode === 'passWordReset') {
-        return {
-          ...state,
+        },
+        passWordReset: {
           modalTitle: 'パスワード再設定',
           modalText: 'パスワード変更画面のURLをメールでお送りいたします。\nご登録されているメールアドレスを入力して送信してください。',
           dialogTitle: 'URLの送信が完了しました。',
           dialogText: 'メールに送らせて頂いたURLから再設定を行って下さい。'
-        }
-      } else if (mode === 'cancelMembership') {
-        return {
-          ...state,
+        },
+        cancelMembership: {
           modalTitle: '退会',
           modalText: '退会すると登録データが消去されます。\nよろしいですか？',
           dialogTitle: '退会処理が完了しました。',
           dialogText: 'またのご利用よろしくお願いいたします。'
         }
-      }
-      return state
+      } as const
+      return { ...state, ...modalConfigs[mode as keyof typeof modalConfigs] }
     }
     default:
       return state
@@ -130,7 +162,7 @@ interface Props {
  * @param props
  * @returns {JSX.Element}
  */
-const accountSettingModal = (props: Props):JSX.Element => {
+const AccountSettingModal = (props: Props):JSX.Element => {
   // モーダル開閉制御
   const { modalVisible, setModalVisible, modalMode } = props
   // モーダルの状態管理
@@ -182,6 +214,9 @@ const accountSettingModal = (props: Props):JSX.Element => {
     dispatch({ type: 'INITIALIZE_MODAL', payload: modalMode })
   }, [modalMode])
 
+  const modalHeight = (modalMode === 'passWord' || modalMode === 'passWordReset') ? 415 : 300
+  const modalMarginBottom = (modalMode === 'passWord' || modalMode === 'passWordReset') ? 200 : 300
+
   return (
     <Modal
       visible={modalVisible}
@@ -199,22 +234,15 @@ const accountSettingModal = (props: Props):JSX.Element => {
       {/* モーダル背景 */}
       <View style={styles.modalContainer}>
         {/* UI表示部分 モーダル種別を基に高さを変更する */}
-        <View style={{
-            height: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 415: 300),
-            backgroundColor:'white',
-            paddingVertical: 14,
-            marginBottom: ( modalMode == 'passWord'|| modalMode == 'passWordReset' ? 200: 300),
-            paddingHorizontal: 14
-          }
-        }>
+        <View style={[styles.modalContent, { height: modalHeight, marginBottom: modalMarginBottom }]}>
           {/* モーダルタイトル */}
-          <Text style={styles.modalTitleFontType}>{ state.modalTitle }</Text>
+          <Text style={styles.modalTitle}>{state.modalTitle}</Text>
 
           {/* モーダル説明テキスト */}
-          <Text style={styles.modalContentsFontType}>{ state.modalText }</Text>
+          <Text style={styles.modalText}>{state.modalText}</Text>
 
           {/* メールアドレス入力欄(登録メールアドレス変更時に表示) */}
-          { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
+          { (modalMode == 'eMail' || modalMode == 'passWordReset') &&
             <TextInputEmail
               emailInput={state.emailInput}
               setInputEmail={(value: string | ((prevState: string) => string)) => {
@@ -237,7 +265,7 @@ const accountSettingModal = (props: Props):JSX.Element => {
 
           <View style={styles.modalButtonWrap}>
             {/* 送信ボタン（登録メールアドレス変更、パスワード再設定） */}
-            { ( modalMode == 'eMail' || modalMode == 'passWordReset' ) &&
+            { (modalMode == 'eMail' || modalMode == 'passWordReset') &&
               <ButtonEmailSending
                 modalMode={modalMode}
                 emailInput={state.emailInput}
@@ -285,41 +313,11 @@ const accountSettingModal = (props: Props):JSX.Element => {
 }
 
 const styles = StyleSheet.create({
-  modalContainer:{
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    backgroundColor: '#00000080',
-    opacity: 1
-  },
-  modalTitleFontType: {
-    paddingBottom: 10,
-    textAlign:'center',
-    fontSize: 28,
-    fontWeight: 'normal',
-    fontFamily: 'Meiryo'
-  },
-  modalContentsFontType:{
-    paddingBottom: 10,
-    fontSize: 19,
-    fontWeight: 'normal',
-    backgroundColor:'white',
-    lineHeight:38
-  },
-  modalTextWrap:{
-    flex: 1/3,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 'auto',
-    marginBottom: 'auto'
-  },
-  modalButtonWrap: {
-    flexDirection: 'row',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 'auto',
-    marginBottom: 'auto'
-  }
+  modalContainer: STYLES.modal.container,
+  modalContent: STYLES.modal.content,
+  modalTitle: STYLES.modal.title,
+  modalText: STYLES.modal.text,
+  modalButtonWrap: STYLES.modal.buttonWrap
 })
 
-export default accountSettingModal
+export default AccountSettingModal
