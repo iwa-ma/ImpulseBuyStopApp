@@ -7,32 +7,53 @@ import { signOut } from 'firebase/auth'
 import { router } from 'expo-router'
 import { auth } from 'config'
 
+// スタイル定数
+const COLORS = {
+  white: 'white',
+  black: 'black',
+  silver: 'silver',
+  gold: 'gold',
+  red: 'red',
+  hover: '#cccccc'
+} as const
+
+const STYLES = {
+  menu: {
+    marginLeft: 100,
+    paddingBottom: 20
+  },
+  option: {
+    paddingTop: 20,
+    activeOpacity: {
+      normal: 0.6,
+      hover: 0.8
+    }
+  }
+} as const
+
 /**
  * ログアウトボタン押下時の処理
  *
  * @returns {Promise<void>}
  */
-const handlePress = async (): Promise<void> => {
+const handleSignOut = async (): Promise<void> => {
   try {
     await signOut(auth)
     // ログイン画面に書き換え
     router.replace('/auth/log-in')
-  } catch (error: unknown) {
-    if (error instanceof FirebaseError) {
-      const { message }: { message: string } = error
-      Alert.alert('ログアウトに失敗しました\n'+message)
-    } else {
-      Alert.alert('ログアウトに失敗しました\n'+error)
-    }
+  } catch (error) {
+    const message = error instanceof FirebaseError
+      ? error.message
+      : String(error)
+    Alert.alert('ログアウトに失敗しました', message)
   }
 }
 
-/** 匿名ログイン状態を判定する */
-const isAnonymous = () :boolean => {
-  // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-  if(!auth.currentUser) { return true }
-
-  return auth.currentUser?.isAnonymous
+/**
+ * 匿名ログイン状態の判定
+ */
+const isAnonymous = (): boolean => {
+  return !auth.currentUser || auth.currentUser.isAnonymous
 }
 
 /**
@@ -40,72 +61,71 @@ const isAnonymous = () :boolean => {
  *
  * @returns {JSX.Element}
  */
-const PopupMenu = () => {
-  return (
-    <Menu>
-      <MenuTrigger >
-        <FontAwesomeIcon size={30} icon={faBars} color="white"/>
-      </MenuTrigger>
-      <MenuOptions customStyles={optionsStyles}>
-        <MenuOption
-          text='アカウント設定'
-          customStyles={isAnonymous() ? optionStylesDisabled :optionStyles}
-          onSelect={() =>router.push({ pathname: '/auth/accountSetting'})}
-          disabled={isAnonymous()}
-        />
-        <MenuOption
-          text='ログアウト'
-          customStyles={optionStyles} onSelect={handlePress}
-        />
-      </MenuOptions>
-    </Menu>
-  )
-}
+const PopupMenu = (): JSX.Element => (
+  <Menu>
+    <MenuTrigger>
+      <FontAwesomeIcon size={30} icon={faBars} color={COLORS.white} />
+    </MenuTrigger>
+    <MenuOptions customStyles={optionsStyles}>
+      <MenuOption
+        text='アカウント設定'
+        customStyles={isAnonymous() ? optionStylesDisabled : optionStyles}
+        onSelect={() => router.push({ pathname: '/auth/accountSetting' })}
+        disabled={isAnonymous()}
+      />
+      <MenuOption
+        text='ログアウト'
+        customStyles={optionStyles}
+        onSelect={handleSignOut}
+      />
+    </MenuOptions>
+  </Menu>
+)
 
-export default PopupMenu
-
+// スタイル定義
 const optionStyles = {
   optionTouchable: {
-    underlayColor: 'red',
-    activeOpacity: 40
+    underlayColor: COLORS.hover,
+    activeOpacity: STYLES.option.activeOpacity.normal
   },
   optionWrapper: {
-    backgroundColor: 'white',
-    paddingTop: 20
+    backgroundColor: COLORS.white,
+    paddingTop: STYLES.option.paddingTop
   },
   optionText: {
-    color: 'black'
+    color: COLORS.black
   }
 }
 
-/** アカウント設定無効時のスタイル設定 */
 const optionStylesDisabled = {
   optionWrapper: {
-    backgroundColor: 'white',
-    paddingTop: 20
+    backgroundColor: COLORS.white,
+    paddingTop: STYLES.option.paddingTop
   },
   optionText: {
-    color: 'silver'
+    color: COLORS.silver
   }
 }
 
 const optionsStyles = {
   optionsContainer: {
-    backgroundColor: 'white',
-    marginLeft:100,
-    paddingBottom: 20
+    backgroundColor: COLORS.white,
+    marginLeft: STYLES.menu.marginLeft,
+    paddingBottom: STYLES.menu.paddingBottom
   },
   optionsWrapper: {
-    backgroundColor: 'white'
+    backgroundColor: COLORS.white
   },
   optionWrapper: {
-    backgroundColor: 'white'
+    backgroundColor: COLORS.white
   },
   optionTouchable: {
-    underlayColor: 'gold',
-    activeOpacity: 90
+    underlayColor: COLORS.hover,
+    activeOpacity: STYLES.option.activeOpacity.hover
   },
   optionText: {
-    color: 'black'
+    color: COLORS.black
   }
 }
+
+export default PopupMenu
