@@ -60,14 +60,14 @@ const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element =
         <FontAwesomeIcon size={24} icon={faComment} />
       </Text>
     )
-  }else{
-    return (
-      <FlatList
-        data={items}
-        renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
-      />
-    )
   }
+
+  return (
+    <FlatList
+      data={items}
+      renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
+    />
+  )
 }
 
 /** リスト画面の状態 */
