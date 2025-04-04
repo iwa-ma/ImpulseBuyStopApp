@@ -104,7 +104,13 @@ const Detail = (): JSX.Element => {
     <View style={styles.container}>
       <View style={styles.itemHeader}>
         <Text style={styles.itemTitle} numberOfLines={1}>{item?.bodyText}</Text>
-        <Text style={styles.itemDate}>{item?.updatedAt.toDate().toLocaleDateString('ja-JP')}</Text>
+        <Text style={styles.itemDate}>{item?.updatedAt.toDate().toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}</Text>
       </View>
       <ScrollView style={styles.itemBody}>
         <Text style={styles.itemBodyText}>
