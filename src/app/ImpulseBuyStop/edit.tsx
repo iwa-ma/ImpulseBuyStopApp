@@ -10,6 +10,38 @@ import CircleButton from 'components/CircleButton'
 import Icon from 'components/icon'
 import PriorityPicker from 'components/PriorityPicker'
 
+// スタイル定数
+const FONT_SIZES = {
+  input: 16,
+  lineHeight: 24
+}
+
+const SPACING = {
+  padding: {
+    vertical: 32,
+    horizontal: 27
+  }
+}
+
+// 入力フィールドコンポーネント
+const InputField = ({
+  value,
+  onChangeText
+}: {
+  /** 入力値 */
+  value: string
+  /** 入力値変更時の処理 */
+  onChangeText: (text: string) => void
+}) => (
+  <TextInput
+    multiline
+    style={styles.input}
+    value={value}
+    onChangeText={onChangeText}
+    autoFocus
+  />
+)
+
 /**
  * 編集ボタン押下時の処理
  *
@@ -68,43 +100,38 @@ const Edit = ():JSX.Element => {
   const [priorityCode, setPriorityCode] = useState<number>(1)
 
   useEffect(() => {
-    try {
-      if(!auth.currentUser){return}
-      const ref = doc(db, `buyItem/${auth.currentUser.uid}/items`, id)
-      getDoc(ref)
-        .then((docRef) =>{
-          // Firestore データに型指定を適用
-          const data = docRef.data() as BuyItem | undefined // データがない場合に `undefined` を考慮
-          if (data) {
-            // データが存在する場合、登録内容、優先度を初期値として設定
-            setBodyText(data.bodyText)
-            setPriorityCode(data.priority)
-          }else{
-            Alert.alert('データが見つかりません')
-            router.back()
-          }
-        })
-        .catch((error) => {
-          console.error('データの取得に失敗しました:', error)
-          Alert.alert('データの取得に失敗しました')
+    const fetchData = async () => {
+      try {
+        if (!auth.currentUser) return
+
+        const ref = doc(db, `buyItem/${auth.currentUser.uid}/items`, id)
+        const docRef = await getDoc(ref)
+        const data = docRef.data() as BuyItem | undefined
+
+        if (data) {
+          setBodyText(data.bodyText)
+          setPriorityCode(data.priority)
+        } else {
+          Alert.alert('データが見つかりません')
           router.back()
-        })
-    } catch (error: unknown) {
-      if (error instanceof FirebaseError) {
-        const { code, message } = error
-
-        if(code === 'permission-denied' ){
-          Alert.alert('データの取得に失敗しました\n'+'参照権限が無いユーザーです。')
-          return
         }
-
-        Alert.alert('データの取得に失敗しました\n'+message)
-      } else {
-        Alert.alert('予期せぬエラーが発生しました\n'+error)
+      } catch (error: unknown) {
+        if (error instanceof FirebaseError) {
+          const { code, message } = error
+          if (code === 'permission-denied') {
+            Alert.alert('データの取得に失敗しました\n参照権限が無いユーザーです。')
+            return
+          }
+          Alert.alert('データの取得に失敗しました\n' + message)
+        } else {
+          Alert.alert('予期せぬエラーが発生しました\n' + error)
+        }
+        router.back()
       }
-      router.back()
     }
-  },[])
+
+    fetchData()
+  }, [id])
 
   return (
     <KeyboardAvoidingView style={styles.container} >
@@ -112,13 +139,7 @@ const Edit = ():JSX.Element => {
 
       <View style={styles.inputContainer}>
         {/* multiline iOSで上揃えにする為に必要 */}
-        <TextInput
-          multiline
-          style={styles.input}
-          value={bodyText}
-          onChangeText={(text) => {setBodyText(text)}}
-          autoFocus
-        />
+        <InputField value={bodyText} onChangeText={setBodyText} />
         {/* 優先度選択Picker */}
         <PriorityPicker priorityCode={priorityCode} setPriorityCode={setPriorityCode}/>
       </View>
@@ -139,10 +160,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     textAlignVertical: 'top',
-    fontSize: 16,
-    lineHeight: 24,
-    paddingVertical: 32,
-    paddingHorizontal: 27
+    fontSize: FONT_SIZES.input,
+    lineHeight: FONT_SIZES.lineHeight,
+    paddingVertical: SPACING.padding.vertical,
+    paddingHorizontal: SPACING.padding.horizontal
   }
 })
 
