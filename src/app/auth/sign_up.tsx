@@ -11,6 +11,33 @@ import { auth } from 'config'
 import Button from 'components/Button'
 import Checkbox from 'expo-checkbox'
 
+// スタイル定数
+const COLORS = {
+  background: '#F0F4F8',
+  border: '#DDDDDD',
+  white: '#FFFFFF',
+  link: '#467FD3',
+  black: '#000000'
+}
+
+const FONT_SIZES = {
+  title: 24,
+  input: 16,
+  footer: 14,
+  modalTitle: 18,
+  closeButton: 16
+}
+
+const SPACING = {
+  padding: {
+    vertical: 24,
+    horizontal: 27
+  },
+  margin: {
+    bottom: 24
+  }
+}
+
 /** サインアップ画面の状態 */
 type SignUpState = {
   /** メールアドレス */
@@ -60,6 +87,79 @@ const signUpReducer = (state: SignUpState, action: SignUpAction): SignUpState =>
   }
 }
 
+// 入力フィールドコンポーネント
+const InputField = ({
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry,
+  keyboardType,
+  autoCapitalize,
+  textContentType
+}: {
+  /** 入力値 */
+  value: string
+  /** 入力値変更時の処理 */
+  onChangeText: (text: string) => void
+  /** プレースホルダー */
+  placeholder: string
+  /** パスワード表示状態 */
+  secureTextEntry?: boolean
+  /** キーボードタイプ */
+  keyboardType?: 'email-address' | 'default'
+  /** 自動大文字化 */
+  autoCapitalize?: 'none' | 'sentences'
+  /** テキストコンテンツタイプ */
+  textContentType?: 'emailAddress' | 'password'
+}) => (
+  <TextInput
+    style={styles.input}
+    value={value}
+    onChangeText={onChangeText}
+    placeholder={placeholder}
+    secureTextEntry={secureTextEntry}
+    keyboardType={keyboardType}
+    autoCapitalize={autoCapitalize}
+    textContentType={textContentType}
+  />
+)
+
+// モーダルコンポーネント
+const TermsModal = ({
+  visible,
+  onClose,
+  title,
+  uri
+}: {
+  /** モーダル表示状態 */
+  visible: boolean
+  /** モーダル閉じる時の処理 */
+  onClose: () => void
+  /** モーダルのタイトル */
+  title: string
+  /** モーダルのURI */
+  uri: string
+}) => (
+  <Modal
+    animationType="slide"
+    transparent={true}
+    visible={visible}
+    onRequestClose={onClose}
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>{title}</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+        <WebView source={{ uri }} style={styles.webview} />
+      </View>
+    </View>
+  </Modal>
+)
+
 /**
  * サインアップボタン押下時の処理
  *
@@ -72,10 +172,9 @@ const handleSubmitPress = async (email: string, password: string): Promise<void>
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
     if(userCredential){
       const user = userCredential.user
-      sendEmailVerification(user).then(() => {
-        Alert.alert('確認メールを送信しました。メールを確認してください。')
-        router.replace({ pathname: '/auth/log-in'})
-      })
+      await sendEmailVerification(user)
+      Alert.alert('確認メールを送信しました。メールを確認してください。')
+      router.replace({ pathname: '/auth/log-in'})
     }else{
       Alert.alert('登録に失敗しました')
     }
@@ -119,30 +218,28 @@ const SignUp = (): JSX.Element => {
         <View style={styles.container}>
             <View style={styles.inner}>
                 <Text style={styles.title}>サインアップ</Text>
-                <TextInput
-                  style={styles.input}
+                <InputField
                   value={state.email}
                   onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
-                  autoCapitalize='none'
-                  keyboardType='email-address'
-                  placeholder='メールアドレスを入力してください'
-                  textContentType='emailAddress'
+                  placeholder="メールアドレスを入力してください"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  textContentType="emailAddress"
                 />
-                <TextInput
-                  style={styles.input}
+                <InputField
                   value={state.password}
                   onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
-                  autoCapitalize='none'
+                  placeholder="パスワードを入力してください"
                   secureTextEntry
-                  placeholder='パスワードを入力してください'
-                  textContentType='password'
+                  autoCapitalize="none"
+                  textContentType="password"
                 />
 
                 <View style={styles.agreementContainer}>
                     <Checkbox
                         value={state.isAgreed}
                         onValueChange={(value) => dispatch({ type: 'SET_IS_AGREED', payload: value })}
-                        color={state.isAgreed ? '#467FD3' : undefined}
+                        color={state.isAgreed ? COLORS.link : undefined}
                     />
                     <TouchableOpacity onPress={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: true })}>
                         <Text style={[styles.agreementText, styles.linkText]}>
@@ -161,7 +258,7 @@ const SignUp = (): JSX.Element => {
 
                 <Button label='サインアップ'
                   disabled={state.email === '' || state.password === '' || !state.isAgreed}
-                  buttonStyle={{ marginBottom: 24, opacity: state.email === '' || state.password === '' || !state.isAgreed ? 0.5 : 1 }}
+                  buttonStyle={{ marginBottom: SPACING.margin.bottom, opacity: state.email === '' || state.password === '' || !state.isAgreed ? 0.5 : 1 }}
                   onPress={() => { handleSubmitPress(state.email ,state.password) }}
                 />
 
@@ -175,110 +272,74 @@ const SignUp = (): JSX.Element => {
                 </View>
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <TermsModal
                 visible={state.isTermsModalVisible}
-                onRequestClose={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: false })}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>利用規約</Text>
-                            <TouchableOpacity
-                                onPress={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: false })}
-                                style={styles.closeButton}
-                            >
-                                <Text style={styles.closeButtonText}>閉じる</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <WebView
-                            source={{ uri: 'https://fishy-flame-bf2.notion.site/1c5350886e3880ec929cdd3545bf13b2' }}
-                            style={styles.webview}
-                        />
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => dispatch({ type: 'SET_TERMS_MODAL_VISIBLE', payload: false })}
+                title="利用規約"
+                uri="https://fishy-flame-bf2.notion.site/1c5350886e3880ec929cdd3545bf13b2"
+            />
 
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <TermsModal
                 visible={state.isSecurityModalVisible}
-                onRequestClose={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: false })}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>セキュリティポリシー</Text>
-                            <TouchableOpacity
-                                onPress={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: false })}
-                                style={styles.closeButton}
-                            >
-                                <Text style={styles.closeButtonText}>閉じる</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <WebView
-                            source={{ uri: 'https://www.notion.so/1c5350886e38806daa29e5b5b2f5262b' }}
-                            style={styles.webview}
-                        />
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => dispatch({ type: 'SET_SECURITY_MODAL_VISIBLE', payload: false })}
+                title="セキュリティポリシー"
+                uri="https://www.notion.so/1c5350886e38806daa29e5b5b2f5262b"
+            />
         </View>
     )
 }
 
-const styles =StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F0F4F8'
+        backgroundColor: COLORS.background
     },
     inner: {
-        paddingVertical: 24,
-        paddingHorizontal: 27
+        paddingVertical: SPACING.padding.vertical,
+        paddingHorizontal: SPACING.padding.horizontal
     },
     title: {
-        fontSize: 24,
+        fontSize: FONT_SIZES.title,
         lineHeight: 32,
         fontWeight: 'bold',
-        marginBottom: 24
+        marginBottom: SPACING.margin.bottom
     },
     input: {
         borderWidth: 1,
-        borderColor: '#DDDDDD',
-        backgroundColor: '#FFFFFF',
+        borderColor: COLORS.border,
+        backgroundColor: COLORS.white,
         height: 48,
         padding: 8,
-        fontSize: 16,
-        marginBottom: 24
+        fontSize: FONT_SIZES.input,
+        marginBottom: SPACING.margin.bottom
     },
     footer:{
         flexDirection: 'row'
     },
     footerText:{
-        fontSize: 14,
+        fontSize: FONT_SIZES.footer,
         lineHeight: 24,
         marginRight: 8,
-        color: '#000000'
+        color: COLORS.black
     },
     footerLink:{
-        fontSize: 14,
+        fontSize: FONT_SIZES.footer,
         lineHeight: 24,
-        color: '#467FD3'
+        color: COLORS.link
     },
     agreementContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 24
+        marginBottom: SPACING.margin.bottom
     },
     agreementText: {
         marginLeft: 8,
-        fontSize: 14,
+        fontSize: FONT_SIZES.footer,
         lineHeight: 24,
-        color: '#000000'
+        color: COLORS.black
     },
     linkText: {
-        color: '#467FD3',
+        color: COLORS.link,
         textDecorationLine: 'underline'
     },
     modalContainer: {
@@ -290,7 +351,7 @@ const styles =StyleSheet.create({
     modalContent: {
         width: '90%',
         height: '80%',
-        backgroundColor: 'white',
+        backgroundColor: COLORS.white,
         borderRadius: 10,
         overflow: 'hidden'
     },
@@ -300,19 +361,19 @@ const styles =StyleSheet.create({
         alignItems: 'center',
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#DDDDDD'
+        borderBottomColor: COLORS.border
     },
     modalTitle: {
-        fontSize: 18,
+        fontSize: FONT_SIZES.modalTitle,
         fontWeight: 'bold',
-        color: '#000000'
+        color: COLORS.black
     },
     closeButton: {
         padding: 8
     },
     closeButtonText: {
-        color: '#467FD3',
-        fontSize: 16
+        color: COLORS.link,
+        fontSize: FONT_SIZES.closeButton
     },
     webview: {
         flex: 1
