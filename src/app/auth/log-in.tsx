@@ -267,7 +267,7 @@ const LogIn = (): JSX.Element => {
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
           <FooterLink
             text="1.ユーザー登録する！"
-            href="/auth/sign_up"
+            href="/auth/sign-up"
           />
           <FooterLink
             text="2.お試し体験モードで操作する！"
