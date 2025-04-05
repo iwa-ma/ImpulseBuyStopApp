@@ -10,15 +10,44 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 import { db, auth } from 'config'
 import { useUnsubscribe } from 'app/UnsubscribeContext'
-import  ListSort from 'app/ImpulseBuyStop/listSort'
-import { type priorityType} from 'types/priorityType'
+import ListSort from 'app/ImpulseBuyStop/listSort'
+import { type priorityType } from 'types/priorityType'
 import { OutPutBuyItem } from 'types/outPutBuyItem'
 import { type SortType, OrderByDirection } from 'types/list'
-import { getpriorityType, getpriorityName } from 'utils/priorityUtils'
+import { getPriorityType, getPriorityName } from 'utils/priorityUtils'
 import BuyListItem from 'components/BuyListItem'
 import CircleButton from 'components/CircleButton'
 import CustomIcon from 'components/icon'
 import PopupMenu from 'components/PopupMenu'
+
+// スタイル定数
+const COLORS = {
+  white: '#ffffff'
+}
+
+const FONT_SIZES = {
+  noData: 24
+}
+
+const SPACING = {
+  //const styles の警告を出さないために、as constを追加
+  margin: {
+    auto: 'auto' as const
+  }
+}
+
+// ローディングインジケータコンポーネント
+const LoadingIndicator = () => (
+  <ActivityIndicator size={120} style={styles.loadingWrap} />
+)
+
+// データなしメッセージコンポーネント
+const NoDataMessage = () => (
+  <Text style={styles.nodetaWrap}>
+    <Text style={styles.nodetaTextStyle}>表示するデータがありません。</Text>
+    <FontAwesomeIcon size={24} icon={faComment} />
+  </Text>
+)
 
 /**
  * 新規追加アイコン選択動作
@@ -26,15 +55,14 @@ import PopupMenu from 'components/PopupMenu'
  * @param anonymous 匿名ログイン状態
    */
 const handlePress = (anonymous: string): void => {
-  if (!auth.currentUser) { return }
+  if (!auth.currentUser) return
 
-  // 匿名ログインの場合、警告表示して処理終了
-  if( anonymous === 'true' ){
-    Alert.alert('お試し体験モード中はデータ追加できません。','キャンセルを選択して下さい',[
-      {
-        text:'キャンセル'
-      }
-    ])
+  if (anonymous === 'true') {
+    Alert.alert(
+      'お試し体験モード中はデータ追加できません。',
+      'キャンセルを選択して下さい',
+      [{ text: 'キャンセル' }]
+    )
     return
   }
 
@@ -46,26 +74,21 @@ const handlePress = (anonymous: string): void => {
  * @items リスト表示データ
  * @anonymous 匿名ログイン状態
  */
-const buyList = (items: OutPutBuyItem[] | null,anonymous: string): JSX.Element => {
-  // ローディング中(itemsがnull)はインジケータを表示
-  if(!items){
-    return (<ActivityIndicator size={120} style={styles.loadingWrap}/> )
+const buyList = (items: OutPutBuyItem[] | null, anonymous: string): JSX.Element => {
+  if (!items) {
+    return <LoadingIndicator />
   }
 
-  // 取得データが0件の場合、FlatListではなくメッセージを表示
-  if(items.length === 0){
-    return (
-      <Text style={styles.nodetaWrap}>
-        <Text style={styles.nodetaTextStyle}>表示するデータがありません。</Text>
-        <FontAwesomeIcon size={24} icon={faComment} />
-      </Text>
-    )
+  if (items.length === 0) {
+    return <NoDataMessage />
   }
 
   return (
     <FlatList
       data={items}
-      renderItem={({ item }) => { return <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} /> }}
+      renderItem={({ item }) => (
+        <BuyListItem key={item.id} buyItem={item} anonymous={anonymous} />
+      )}
     />
   )
 }
@@ -118,8 +141,8 @@ const listReducer = (state: ListState, action: ListAction): ListState => {
  *
  * @returns {JSX.Element}
  */
-const List = ():JSX.Element => {
-  const anonymous = useLocalSearchParams<{anonymous:string}>().anonymous
+const List = (): JSX.Element => {
+  const anonymous = useLocalSearchParams<{ anonymous: string }>().anonymous
   const [state, dispatch] = useReducer(listReducer, initialState)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
@@ -127,40 +150,28 @@ const List = ():JSX.Element => {
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => { return <PopupMenu />}
+      headerRight: () => <PopupMenu />
     })
   }, [])
 
-  // 優先度名リストを取得
   useEffect(() => {
-    (async () =>{
-      await getpriorityType({
-        setPriorityType: (value: priorityType[] | ((prevState: priorityType[]) => priorityType[])) => {
-          const types = typeof value === 'function' ? value([]) : value
-          dispatch({ type: 'SET_PRIORITY_TYPE', payload: types })
-        }
+    (async () => {
+      await getPriorityType((types: priorityType[]) => {
+        dispatch({ type: 'SET_PRIORITY_TYPE', payload: types })
       })
     })()
   }, [])
 
   // リストデータ取得処理
   useEffect(() => {
-    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-    if(!auth.currentUser) { return }
+    if (!auth.currentUser) return
 
-    // 依存配列の値が変更されたらitemsをnullにリセット
     dispatch({ type: 'SET_ITEMS', payload: null })
 
-    let collectionPath = ''
-    if(anonymous === 'true'){
-      // collectionPathにサンプルデータのパスを指定
-      collectionPath  = 'buyItem/sample9999/items'
-    }else{
-      // collectionPathにログイン中ユーザーのパスを指定
-      collectionPath  = `buyItem/${auth.currentUser?.uid}/items`
-    }
+    const collectionPath = anonymous === 'true'
+      ? 'buyItem/sample9999/items'
+      : `buyItem/${auth.currentUser.uid}/items`
 
-    // コレクションを取得して、指定された項目の指定順でソート
     const ref = collection(db, collectionPath)
     const q = query(ref, orderBy(state.sortType, state.sortOrder))
 
@@ -178,7 +189,7 @@ const List = ():JSX.Element => {
               id: doc.id, // idはコレクション要素として不可していないので、ドキュメントオブジェクトから取得する
               bodyText: data.bodyText,
               updatedAt: data.updatedAt,
-              priority: getpriorityName(state.priorityType, data.priority)
+              priority: getPriorityName(state.priorityType, data.priority)
             }
             tempItems.push(buyItem)
           }
@@ -199,7 +210,6 @@ const List = ():JSX.Element => {
             'データの取得中にエラーが発生しました。もう一度お試しください。'
           )
         }
-        // エラー発生時はitemsをnullにリセット
         dispatch({ type: 'SET_ITEMS', payload: [] })
       }
     })
@@ -223,8 +233,8 @@ const List = ():JSX.Element => {
       {/* リスト表示 */}
       {buyList(state.items, anonymous)}
 
-      <CircleButton onPress={() => { handlePress(anonymous)}}>
-        <CustomIcon name='plus' size={40} color='#FFFFFF' />
+      <CircleButton onPress={() => handlePress(anonymous)}>
+        <CustomIcon name="plus" size={40} color={COLORS.white} />
       </CircleButton>
     </View>
   )
@@ -232,23 +242,23 @@ const List = ():JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
-    backgroundColor:'#ffffff'
+    flex: 1,
+    backgroundColor: COLORS.white
   },
   nodetaWrap: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 'auto',
-    marginBottom: 'auto'
+    marginLeft: SPACING.margin.auto,
+    marginRight: SPACING.margin.auto,
+    marginTop: SPACING.margin.auto,
+    marginBottom: SPACING.margin.auto
   },
   loadingWrap: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 'auto',
-    marginBottom: 'auto'
+    marginLeft: SPACING.margin.auto,
+    marginRight: SPACING.margin.auto,
+    marginTop: SPACING.margin.auto,
+    marginBottom: SPACING.margin.auto
   },
   nodetaTextStyle: {
-    fontSize: 24
+    fontSize: FONT_SIZES.noData
   }
 })
 

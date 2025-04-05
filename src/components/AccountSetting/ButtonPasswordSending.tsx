@@ -1,7 +1,7 @@
 import { type Dispatch } from 'react'
 import { Alert } from 'react-native'
 import { auth } from 'config'
-import { EditPassWordType} from 'types/editPassWordType'
+import { EditPassWordType } from 'types/editPassWordType'
 import { updatePassword } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
 import Button from 'components/Button'
@@ -11,7 +11,7 @@ interface Props {
   /** パスワード入力値 */
   passWordInput: EditPassWordType,
   /** ダイアログ表示制御 */
-  setDialogVisible:Dispatch<React.SetStateAction<boolean>>
+  setDialogVisible: Dispatch<React.SetStateAction<boolean>>
 }
 
 /**
@@ -20,76 +20,60 @@ interface Props {
  * @param props パスワード送信ボタン押下時の処理
  * @returns {JSX.Element}
  */
-const ButtonPasswordSending = (props: Props):JSX.Element => {
+const ButtonPasswordSending = (props: Props): JSX.Element => {
   const { passWordInput, setDialogVisible } = props
 
   //** ボタンの有効状態を返す */
-  const buttonEnable = ():boolean => {
-    //「新しいパスワード」、「確認のため再入力」いずれかが未入力の場合、偽を返す
-    if (
-        passWordInput.confirm.length === 0 ||
-        passWordInput.new.length === 0
-      ){
-        return false
-      }
-
-    return true
+  const isButtonEnabled = (): boolean => {
+        //「新しいパスワード」、「確認のため再入力」いずれかが未入力の場合、偽を返す
+    return passWordInput.confirm.length > 0 && passWordInput.new.length > 0
   }
 
-  // パスワード変更処理送信
+  // パスワード変更処理
   const handlePasswordSending = async (): Promise<void> => {
-    // 未ログインの場合、以降の処理を実行しない
-    if (!auth.currentUser){ return }
+    if (!auth.currentUser) return
 
-    // 新しいパスワード不一致
-    if(passWordInput.confirm !== passWordInput.new){
+    if (passWordInput.confirm !== passWordInput.new) {
       Alert.alert('新しいパスワードが一致しません')
       return
     }
 
     try {
-      // パスワード変更処理
       await updatePassword(auth.currentUser, passWordInput.new)
-      // 送信成功後、完了ダイアログを表示
       setDialogVisible(true)
     } catch (error: unknown) {
       if (error instanceof FirebaseError) {
-        const { code, message }: { code: string, message: string } = error
-
         // パスワードポリシーを満たしていない
-        if(code === 'auth/weak-password' ){
+        if (error.code === 'auth/weak-password') {
           Alert.alert('パスワードは半角英数字記号6文字以上入力して下さい。')
           return
         }
-
         // 最後にログインから長期間経過
-        if(code === 'auth/requires-recent-login' ){
+        if (error.code === 'auth/requires-recent-login') {
           Alert.alert('長期間ログインされていない為、再ログイン後に操作を行って下さい。')
           return
         }
-
-        // パスワード変更失敗でアラートを画面に表示
-        Alert.alert(message)
+        Alert.alert(error.message)
       } else {
-        Alert.alert('予期せぬエラーが発生しました\n'+error)
+        Alert.alert('予期せぬエラーが発生しました\n' + error)
       }
     }
   }
 
+  const isDisabled = !isButtonEnabled()
+
   return (
     <Button
-      label='送信'
-      disabled={ !buttonEnable() ? true : false }
+      label="送信"
+      disabled={isDisabled}
       buttonStyle={{
         marginTop: 0,
         marginBottom: 0,
         marginRight: 96,
         marginLeft: 0,
-        opacity: !buttonEnable()  ? 0.7 : 1
+        opacity: !isButtonEnabled() ? 0.7 : 1
       }}
-      onPress={() => {
-        handlePasswordSending()
-      }}
+      onPress={handlePasswordSending}
     />
   )
 }

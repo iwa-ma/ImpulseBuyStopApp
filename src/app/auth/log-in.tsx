@@ -11,6 +11,31 @@ import CustomIcon from 'components/icon'
 import Button from 'components/Button'
 import AccountSettingModal from 'components/AccountSettingModal'
 
+// スタイル定数
+const COLORS = {
+  background: '#F0F4F8',
+  border: '#DDDDDD',
+  white: '#FFFFFF',
+  link: '#467FD3',
+  black: '#000000'
+}
+
+const FONT_SIZES = {
+  title: 24,
+  input: 16,
+  footer: 14
+}
+
+const SPACING = {
+  padding: {
+    vertical: 24,
+    horizontal: 27
+  },
+  margin: {
+    bottom: 24
+  }
+}
+
 /** ログイン画面の状態 */
 type LoginState = {
   /** メールアドレス */
@@ -53,6 +78,80 @@ const loginReducer = (state: LoginState, action: LoginAction): LoginState => {
       return state
   }
 }
+
+// 入力フィールドコンポーネント
+const InputField = ({
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry,
+  keyboardType,
+  autoCapitalize,
+  textContentType,
+  isSecure,
+  onToggleSecure
+}: {
+  /** 入力値 */
+  value: string
+  /** 入力値変更時の処理 */
+  onChangeText: (text: string) => void
+  /** プレースホルダー */
+  placeholder: string
+  /** パスワード表示状態 */
+  secureTextEntry?: boolean
+  /** キーボードタイプ */
+  keyboardType?: 'email-address' | 'default'
+  /** 自動大文字化 */
+  autoCapitalize?: 'none' | 'sentences'
+  /** テキストコンテンツタイプ */
+  textContentType?: 'emailAddress' | 'password'
+  /** パスワード表示状態 */
+  isSecure?: boolean
+  /** パスワード表示状態変更時の処理 */
+  onToggleSecure?: () => void
+}) => (
+  <View style={styles.inputContainer}>
+    <TextInput
+      style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      secureTextEntry={secureTextEntry}
+      keyboardType={keyboardType}
+      autoCapitalize={autoCapitalize}
+      textContentType={textContentType}
+    />
+    {onToggleSecure && (
+      <TouchableOpacity
+        style={styles.visibilityToggle}
+        onPress={onToggleSecure}
+      >
+        <CustomIcon
+          name={isSecure ? 'eye' : 'eye-blocked'}
+          size={24}
+          color={COLORS.black}
+        />
+      </TouchableOpacity>
+    )}
+  </View>
+)
+
+// フッターリンクコンポーネント
+const FooterLink = ({ text, onPress, href }: { text: string; onPress?: () => void; href?: string }) => (
+  <Text>
+    {href ? (
+      <Link href={href} asChild replace>
+        <TouchableOpacity>
+          <Text style={styles.footerLink}>{text}</Text>
+        </TouchableOpacity>
+      </Link>
+    ) : (
+      <TouchableOpacity onPress={onPress}>
+        <Text style={styles.footerLink}>{text}</Text>
+      </TouchableOpacity>
+    )}
+  </Text>
+)
 
 /**
  * ログインボタンクリック動作
@@ -134,72 +233,52 @@ const LogIn = (): JSX.Element => {
       <View style={styles.inner}>
         <Text style={styles.title}>ログイン</Text>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={state.email}
-            onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
-            autoCapitalize='none'
-            keyboardType='email-address'
-            placeholder='メールアドレスを入力してください'
-            textContentType='emailAddress'
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={state.password}
-            onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
-            autoCapitalize='none'
-            secureTextEntry={state.isSecure}
-            placeholder='パスワードを入力してください'
-            textContentType='password'
-          />
-          <TouchableOpacity
-            style={styles.visibilityToggle}
-            onPress={() => dispatch({ type: 'TOGGLE_SECURE' })}
-          >
-            <CustomIcon
-              name={state.isSecure ? 'eye' : 'eye-blocked'}
-              size={24}
-              color='#000000'
-            />
-          </TouchableOpacity>
-        </View>
-
-        <Button label='ログイン'
-          disabled={state.email === '' || state.password === ''}
-          buttonStyle={{ marginBottom: 24, opacity: state.email === '' || state.password === '' ? 0.5 : 1 }}
-          onPress={() => {handleSubmitPress(state.email, state.password)}}
+        <InputField
+          value={state.email}
+          onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
+          placeholder="メールアドレスを入力してください"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          textContentType="emailAddress"
         />
+
+        <InputField
+          value={state.password}
+          onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
+          placeholder="パスワードを入力してください"
+          secureTextEntry={state.isSecure}
+          autoCapitalize="none"
+          textContentType="password"
+          isSecure={state.isSecure}
+          onToggleSecure={() => dispatch({ type: 'TOGGLE_SECURE' })}
+        />
+
+        <Button
+          label="ログイン"
+          disabled={!state.email || !state.password}
+          buttonStyle={{
+            marginBottom: SPACING.margin.bottom,
+            opacity: !state.email || !state.password ? 0.5 : 1
+          }}
+          onPress={() => handleSubmitPress(state.email, state.password)}
+        />
+
         <View>
           <Text style={styles.footerText}>未登録の場合はこちら</Text>
-
-          <Text>
-            <Link href='/auth/sign_up' asChild replace>
-              <TouchableOpacity>
-                  <Text style={styles.footerLink}>1.ユーザー登録する！</Text>
-              </TouchableOpacity>
-            </Link>
-          </Text>
-
-          <Text>
-            <TouchableOpacity onPress={() => { handleAnonymously() }}>
-              <Text style={styles.footerLink}>
-                2.お試し体験モードで操作する！
-              </Text>
-            </TouchableOpacity>
-          </Text>
+          <FooterLink
+            text="1.ユーザー登録する！"
+            href="/auth/sign-up"
+          />
+          <FooterLink
+            text="2.お試し体験モードで操作する！"
+            onPress={handleAnonymously}
+          />
 
           <Text style={styles.footerText}>パスワードを忘れてしまった方</Text>
-          <Text>
-            <TouchableOpacity onPress={() => dispatch({ type: 'SET_MODAL_VISIBLE', payload: true })}>
-              <Text style={styles.footerLink}>
-                3.パスワード再設定
-              </Text>
-            </TouchableOpacity>
-          </Text>
+          <FooterLink
+            text="3.パスワード再設定"
+            onPress={() => dispatch({ type: 'SET_MODAL_VISIBLE', payload: true })}
+          />
 
           {/* パスワード再設定用モーダル */}
           <AccountSettingModal
@@ -216,49 +295,48 @@ const LogIn = (): JSX.Element => {
   )
 }
 
-const styles =StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F4F8'
+    backgroundColor: COLORS.background
   },
   inner: {
-    paddingVertical: 24,
-    paddingHorizontal: 27
+    paddingVertical: SPACING.padding.vertical,
+    paddingHorizontal: SPACING.padding.horizontal
   },
   title: {
-    fontSize: 24,
+    fontSize: FONT_SIZES.title,
     lineHeight: 32,
     fontWeight: 'bold',
-    marginBottom: 24
+    marginBottom: SPACING.margin.bottom
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#DDDDDD',
-    backgroundColor: '#FFFFFF',
-    marginBottom: 24
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
+    marginBottom: SPACING.margin.bottom
   },
   input: {
     flex: 1,
     height: 48,
     padding: 8,
-    fontSize: 16
-
+    fontSize: FONT_SIZES.input
   },
   visibilityToggle: {
     padding: 8
   },
-  footerText:{
-    fontSize: 14,
+  footerText: {
+    fontSize: FONT_SIZES.footer,
     lineHeight: 24,
     marginRight: 8,
-    color: '#000000'
+    color: COLORS.black
   },
-  footerLink:{
-    fontSize: 14,
+  footerLink: {
+    fontSize: FONT_SIZES.footer,
     lineHeight: 24,
-    color: '#467FD3',
+    color: COLORS.link,
     paddingBottom: 32
   }
 })

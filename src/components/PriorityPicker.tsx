@@ -1,18 +1,32 @@
 import {
-  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity, Alert
+  View, Text, StyleSheet, ActionSheetIOS, TouchableOpacity
 } from 'react-native'
 import { type Dispatch, useEffect, useState } from 'react'
-import { collection, query, getDocs, where } from 'firebase/firestore'
-import { FirebaseError } from 'firebase/app'
-import { db, auth } from 'config'
-import { type priorityType} from 'types/priorityType'
+import { auth } from 'config'
+import { type priorityType } from 'types/priorityType'
+import { getPriorityType } from 'utils/priorityUtils'
+
+// スタイル定数
+const FONT_SIZES = {
+  normal: 16
+} as const
+
+const SPACING = {
+  padding: {
+    right: 16,
+    bottom: 2
+  },
+  height: {
+    picker: 60
+  }
+} as const
 
 /** 親コンポーネントから受け取るprops型を定義 */
 interface Props {
   /** 優先度選択値 */
-  priorityCode:number
+  priorityCode: number
   /** 優先度更新制御 */
-  setPriorityCode:Dispatch<React.SetStateAction<number>>
+  setPriorityCode: Dispatch<React.SetStateAction<number>>
 }
 
 /**
@@ -21,64 +35,26 @@ interface Props {
  * @param props
  * @returns {JSX.Element}
  */
-const PriorityPicker = (props: Props): JSX.Element => {
-  const [ priorityType, setPriorityType] = useState<priorityType[] | null>(null)
-  const { priorityCode, setPriorityCode } = props
-
-  async function getpriorityType():Promise<void> {
-    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-    if(!auth.currentUser) { return }
-
-    try {
-      // コレクションを取得して、更新日時の昇順でソート
-      const ref = collection(db, 'priorityType')
-      const q = query(ref, where("disabled", "==", false))
-      const tempItems: priorityType[] = []
-      const querySnapshot = await getDocs(q)
-
-      querySnapshot.forEach((doc)=> {
-        const { name, disabled,id} = doc.data()
-        // 項目が有効な場合、リスト項目として追加
-        if(!disabled){
-          tempItems.push({
-            id: id,
-            name
-          })
-        }
-      })
-
-      setPriorityType(tempItems)
-    } catch (error: unknown) {
-      if (error instanceof FirebaseError) {
-        const { message }: { message: string } = error
-        Alert.alert('優先度の取得に失敗しました\n'+message)
-      } else {
-        Alert.alert('優先度の取得に失敗しました\n'+error)
-      }
-    }
-  }
+const PriorityPicker = ({ priorityCode, setPriorityCode }: Props): JSX.Element => {
+  const [priorityType, setPriorityType] = useState<priorityType[] | null>(null)
 
   useEffect(() => {
-    // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-    if(!auth.currentUser) { return }
-
-    (async () =>{
-      await getpriorityType()
-    })()
+    if (!auth.currentUser) return
+    getPriorityType((types: priorityType[]) => {
+      setPriorityType(types)
+    })
   }, [])
 
-  // 優先度選択ピッカーの値を変更する
-  const handlePickerChange = (itemIndex: number) => {
-    if (priorityType && itemIndex >= 0 && itemIndex < priorityType.length) {
-      setPriorityCode(priorityType[itemIndex].id)
-    }
+  /** 優先度選択値の変更 */
+  const handlePickerChange = (itemIndex: number): void => {
+    if (!priorityType || itemIndex < 0 || itemIndex >= priorityType.length) return
+    setPriorityCode(priorityType[itemIndex].id)
   }
 
-  // 優先度選択ピッカーを表示する
-  const showActionSheet = () => {
+  /** アクションシートの表示 */
+  const showActionSheet = (): void => {
     if (!priorityType?.length) return
 
-    // 取得した優先度リストを表示する、キャンセルボタンを追加する
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: [...priorityType.map(item => item.name), 'キャンセル'],
@@ -88,40 +64,42 @@ const PriorityPicker = (props: Props): JSX.Element => {
     )
   }
 
+  if (!priorityType) return <></>
+
+  const selectedPriority = priorityType.find(item => item.id === priorityCode)
+
   return (
-    <>
-      { priorityType && (
-        <View style={{ flexDirection: 'row' }}>
-          <View style={styles.pickerTitleWrap}>
-            <Text style={styles.pickerTitleText}>【優先度選択】→</Text>
-          </View>
-
-          <View style={styles.pickerValueWrap}>
-            <TouchableOpacity onPress={showActionSheet}>
-              <Text>{priorityType.find((item) => item.id === priorityCode)?.name}</Text>
-            </TouchableOpacity>
-          </View>
-
-        </View>
-      )}
-    </>
+    <View style={styles.container}>
+      <View style={styles.pickerTitleWrap}>
+        <Text style={styles.pickerTitleText}>【優先度選択】→</Text>
+      </View>
+      <View style={styles.pickerValueWrap}>
+        <TouchableOpacity onPress={showActionSheet}>
+          <Text>{selectedPriority?.name}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  pickerTitleWrap:{
-    height: 60,
-    justifyContent: 'center', // 縦方向中央揃え
-    alignItems: 'center' // 横方向中央揃え
+  container: {
+    flexDirection: 'row' as const
   },
-  pickerTitleText:{
-    fontSize:16,
-    paddingRight:16
+  pickerTitleWrap: {
+    height: SPACING.height.picker,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const
   },
-  pickerValueWrap:{
-    justifyContent: 'center', // 縦方向中央揃え
-    alignItems: 'center', // 横方向中央揃え
-    paddingBottom: 2
+  pickerTitleText: {
+    fontSize: FONT_SIZES.normal,
+    paddingRight: SPACING.padding.right
+  },
+  pickerValueWrap: {
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    paddingBottom: SPACING.padding.bottom
   }
 })
+
 export default PriorityPicker

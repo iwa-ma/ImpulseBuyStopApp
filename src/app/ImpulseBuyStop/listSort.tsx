@@ -2,6 +2,23 @@ import { View, StyleSheet, Text, ActionSheetIOS, TouchableOpacity } from 'react-
 import { useState } from 'react'
 import { type SortType, OrderByDirection, SortValueType } from 'types/list'
 
+// スタイル定数
+const COLORS = {
+  blue: '#0E75FC',
+  white: '#ffffff'
+}
+
+const FONT_SIZES = {
+  title: 16
+}
+
+const SPACING = {
+  padding: {
+    horizontal: 19
+  },
+  height: 40
+}
+
 /**
  * ソートオプションキー
  */
@@ -69,31 +86,26 @@ const ListSort = (props: Props) => {
   }
 
   return (
-    <>
-      <View style={styles.sortContainer}>
-        <Text style={styles.sortTitleWrap}>並び替え → </Text>
-        <TouchableOpacity onPress={showActionSheet}>
-          <Text style={styles.sortTitleWrap}>{SORT_OPTIONS[sortKey]}</Text>
-        </TouchableOpacity>
-      </View>
-    </>
+    <View style={styles.sortContainer}>
+      <Text style={styles.sortTitleWrap}>並び替え → </Text>
+      <TouchableOpacity onPress={showActionSheet}>
+        <Text style={styles.sortTitleWrap}>{SORT_OPTIONS[sortKey]}</Text>
+      </TouchableOpacity>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   sortContainer: {
-    backgroundColor: '#0E75FC',
+    backgroundColor: COLORS.blue,
     flexDirection: 'row',
-    paddingHorizontal: 19,
+    paddingHorizontal: SPACING.padding.horizontal,
     alignItems: 'center',
-    height: 40
+    height: SPACING.height
   },
-  sortTitleWrap:{
-    color: '#ffffff',
-    fontSize: 16
-  },
-  pickerTitleText:{
-    fontSize: 16
+  sortTitleWrap: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.title
   }
 })
 

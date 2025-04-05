@@ -1,57 +1,42 @@
 import { Alert } from 'react-native'
 import { db, auth } from 'config'
 import { FirebaseError } from 'firebase/app'
-import { collection, query ,getDocs, where } from 'firebase/firestore'
-import { type priorityType} from 'types/priorityType'
+import { collection, query, getDocs, where } from 'firebase/firestore'
+import { type priorityType } from 'types/priorityType'
 
-interface Props {
-  /** 優先度名更新 */
-  setPriorityType: (types: priorityType[]) => void
-}
+/** 優先度タイプの更新関数の型定義 */
+type PriorityTypeSetter = (types: priorityType[]) => void
 
-/** 優先度名を取得 */
-export async function getpriorityType(props:Props):Promise<void> {
-  // ログイン中ユーザーが取得でない場合は処理を実行せずに終了する
-  if(!auth.currentUser) { return }
+/** 優先度タイプを取得する関数 */
+export async function getPriorityType(setPriorityType: PriorityTypeSetter): Promise<void> {
+  if (!auth.currentUser) return
 
   try {
-    // コレクションを取得して、更新日時の昇順でソート
     const ref = collection(db, 'priorityType')
-    const q = query(ref, where("disabled", "==", false))
-    const tempItems: priorityType[] = []
+    const q = query(ref, where('disabled', '==', false))
     const querySnapshot = await getDocs(q)
 
-    querySnapshot.forEach((doc)=> {
-      const { name, disabled,id} = doc.data()
-      // 項目が有効な場合、リスト項目として追加
-      if(!disabled){
-        tempItems.push({
-          id: id,
-          name
-        })
-      }
-    })
+    const priorityTypes = querySnapshot.docs
+      .map(doc => {
+        const { name, disabled, id } = doc.data()
+        return !disabled ? { id, name } : null
+      })
+      .filter((item): item is priorityType => item !== null)
 
-    props.setPriorityType(tempItems)
-  } catch (error: unknown) {
-    if (error instanceof FirebaseError) {
-      const { message }: { message: string } = error
-      Alert.alert('優先度の取得に失敗しました\n'+message)
-    } else {
-      Alert.alert('優先度の取得に失敗しました\n'+error)
-    }
+    setPriorityType(priorityTypes)
+  } catch (error) {
+    console.error('Priority type fetch error:', error)
+    const message = error instanceof FirebaseError
+      ? error.message
+      : String(error)
+    Alert.alert('優先度の取得に失敗しました', message)
   }
 }
 
-/** code → 優先度名の変換を行う */
-export function getpriorityName(priorityType:priorityType[],id:number):string {
-  // 優先度名が取得されていない場合は処理を実行ぜずに終了する
-  if(!priorityType.length){return ''}
-  const result = priorityType.find((type) => type.id == id)
+/** 優先度コードから優先度名を取得する関数 */
+export function getPriorityName(priorityTypes: priorityType[], id: number): string {
+  if (!priorityTypes.length) return ''
 
-  // codeに対応する優先度名が取得できた場合は結果を返す
-  if(result){return result.name}
-
-  // codeに対応する優先度名が取得できない場合は、空文字を返す
-  return ''
+  const priority = priorityTypes.find(type => type.id === id)
+  return priority?.name ?? ''
 }

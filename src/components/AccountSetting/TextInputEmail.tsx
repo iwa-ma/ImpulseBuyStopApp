@@ -1,12 +1,13 @@
 import { TextInput, StyleSheet } from 'react-native'
-import { type Dispatch} from 'react'
+import { type Dispatch } from 'react'
+
 
 /** accountSettingModal.tsxから受け取るprops型を定義 */
 interface Props {
   /** メールアドレス入力値 */
   emailInput: string,
   /**  メールアドレス入力値変更用関数 */
-  setInputEmail : Dispatch<React.SetStateAction<string>>
+  setInputEmail: Dispatch<React.SetStateAction<string>>
 }
 
 /**
@@ -23,7 +24,7 @@ const TextInputEmail = (props: Props):JSX.Element => {
     <TextInput
       style={styles.modalInput}
       value={emailInput}
-      onChangeText={(text) => { setInputEmail(text)} }
+      onChangeText={setInputEmail}
       autoCapitalize='none'
       keyboardType='email-address'
       placeholder='Email Address'

@@ -4,15 +4,26 @@ import { useFonts } from 'expo-font'
 import fontData from '@assets/fonts/icomoon.ttf'
 import fontSelection from '@assets/fonts/selection.json'
 
+// フォント設定
+const FONT_CONFIG = {
+  fontFamily: 'IcoMoon',
+  fontFile: 'icomoon.ttf'
+} as const
+
+// カスタムアイコンセットの作成
 const CustomIcon = createIconSetFromIcoMoon(
   fontSelection,
-  'IcoMoon',
-  'icomoon.ttf'
+  FONT_CONFIG.fontFamily,
+  FONT_CONFIG.fontFile
 )
 
+/** アイコンのプロパティ型定義 */
 interface Props {
+  /** アイコン名 */
   name: string
+  /** アイコンサイズ */
   size: number
+  /** アイコン色 */
   color: string
 }
 
@@ -22,18 +33,19 @@ interface Props {
  * @param props
  * @returns {JSX.Element}
  */
-const Icon = (props: Props):JSX.Element | null => {
-  const {name,size,color} = props
-  const [ fontLoaded] = useFonts({
-      IcoMoon: fontData
+const Icon = ({ name, size, color }: Props): JSX.Element | null => {
+  const [fontLoaded] = useFonts({
+    [FONT_CONFIG.fontFamily]: fontData
   })
 
-  if(!fontLoaded) {
-      return null
-  }
+  if (!fontLoaded) return null
 
   return (
-      <CustomIcon name={name} size={size} color={color} />
+    <CustomIcon
+      name={name}
+      size={size}
+      color={color}
+    />
   )
 }
 
