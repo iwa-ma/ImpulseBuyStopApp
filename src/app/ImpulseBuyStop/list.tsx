@@ -3,7 +3,7 @@ import {
   Text, Alert, ActivityIndicator
 } from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { FirebaseError } from 'firebase/app'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -146,6 +146,7 @@ const List = (): JSX.Element => {
   const [state, dispatch] = useReducer(listReducer, initialState)
   const navigation = useNavigation()
   const { setUnsubscribe } = useUnsubscribe()
+  const [hasShownErrorDialog, sethasShownErrorDialog] = useState(false) // エラーダイアログを1回だけ表示するフラグ
 
   // ヘッダーにポップアップメニュー表示処理
   useEffect(() => {
@@ -195,6 +196,9 @@ const List = (): JSX.Element => {
           }
         })
 
+        // エラーがない場合はフラグをリセット（次回のエラー処理が正常に動くようにする）
+        sethasShownErrorDialog(false)
+
         // 出力用の配列を更新
         dispatch({ type: 'SET_ITEMS', payload: tempItems })
       } catch (error: unknown) {
@@ -212,7 +216,20 @@ const List = (): JSX.Element => {
         }
         dispatch({ type: 'SET_ITEMS', payload: [] })
       }
-    })
+    },
+    (error) => {
+      // Firestore のエラーハンドリング
+      if (!hasShownErrorDialog) { // ダイアログがまだ表示されていない場合のみ
+        sethasShownErrorDialog(true)
+        if (error.code === 'permission-denied') {
+          Alert.alert('アクセス権がありません。正しい権限を持っていることを確認してください。')
+        } else {
+          Alert.alert('エラーが発生しました', `詳細: ${error.message}`)
+        }
+      }
+        dispatch({ type: 'SET_ITEMS', payload: [] })
+      }
+  )
 
     setUnsubscribe(() => unsubscribe)
 
