@@ -1,0 +1,25 @@
+## 優先度
+
+「コレクション名」
+priorityType
+
+「ドキュメント1」
+ドキュメントID:1
+
+disabled(boolean): false
+id(number): 1
+name(string): "高"
+
+「ドキュメント2」
+ドキュメントID:2
+
+disabled(boolean): false
+id(number): 2
+name(string): "中"
+
+「ドキュメント3」
+ドキュメントID:3
+
+disabled(boolean): false
+id(number): 3
+name(string): "低"

@@ -1,0 +1,19 @@
+「ルートコレクション」
+buyItem → sample9999 → items
+
+items配下にサンプルデータを作成
+「サンプルデータ1」
+ドキュメントID:0001
+
+bodyText(string):"1行目が題名になります。"
+priority(number):3
+updatedAt(timestamp):2025年2月22日 11:34:52 UTC+9
+
+「サンプルデータ2」
+ドキュメントID:0002
+
+bodyText(string):"買いたいけど検討"
+priority(number):1
+updatedAt(timestamp):2025年3月1日 11:10:33 UTC+9
+
+
