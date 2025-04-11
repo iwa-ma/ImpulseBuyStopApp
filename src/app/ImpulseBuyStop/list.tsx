@@ -1,5 +1,5 @@
 import {
-  View, StyleSheet, FlatList,
+  View, StyleSheet, FlatList, Platform,
   Text, Alert, ActivityIndicator
 } from 'react-native'
 import { router, useNavigation, useLocalSearchParams } from 'expo-router'
@@ -10,7 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment'
 import { db, auth } from 'config'
 import { useUnsubscribe } from 'app/UnsubscribeContext'
-import ListSort from 'app/ImpulseBuyStop/listSort'
+import ListSortIos from '@/app/ImpulseBuyStop/listSortIos'
+import ListSortAndroid from '@/app/ImpulseBuyStop/listSortAndroid'
 import { type priorityType } from 'types/priorityType'
 import { OutPutBuyItem } from 'types/outPutBuyItem'
 import { type SortType, OrderByDirection } from 'types/list'
@@ -239,13 +240,26 @@ const List = (): JSX.Element => {
 
   return (
     <View style={styles.container}>
-      {/* リストソートUI */}
-      <ListSort
-        itemsSortType={state.sortType}
-        itemsSortOrder={state.sortOrder}
-        setItemsSortType={(type) => dispatch({ type: 'SET_SORT_TYPE', payload: type })}
-        setItemsSortOrder={(order) => dispatch({ type: 'SET_SORT_ORDER', payload: order })}
-      />
+      {/* リストソートUI(ios) */}
+      {Platform.OS === 'ios' && (
+        <ListSortIos
+          itemsSortType={state.sortType}
+          itemsSortOrder={state.sortOrder}
+          setItemsSortType={(type) => dispatch({ type: 'SET_SORT_TYPE', payload: type })}
+          setItemsSortOrder={(order) => dispatch({ type: 'SET_SORT_ORDER', payload: order })}
+        />
+      )}
+
+      {/* リストソートUI(android) */}
+      {Platform.OS === 'android' && (
+        <ListSortAndroid
+          itemsSortType={state.sortType}
+          itemsSortOrder={state.sortOrder}
+          setItemsSortType={(type) => dispatch({ type: 'SET_SORT_TYPE', payload: type })}
+          setItemsSortOrder={(order) => dispatch({ type: 'SET_SORT_ORDER', payload: order })}
+        />
+      )}
+
 
       {/* リスト表示 */}
       {buyList(state.items, anonymous)}
