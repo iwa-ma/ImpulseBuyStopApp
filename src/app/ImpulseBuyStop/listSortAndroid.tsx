@@ -1,6 +1,7 @@
-import { View, StyleSheet, Text, ActionSheetIOS, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 import { useState } from 'react'
 import { type SortType, OrderByDirection, SortValueType } from 'types/list'
+import { Picker } from '@react-native-picker/picker'
 
 // スタイル定数
 const COLORS = {
@@ -34,9 +35,6 @@ const SORT_OPTIONS: Record<SortOptionKey, SortValueType> = {
   'priority:desc': '優先度 低い順'
 }
 
-// ソートキーとソート順に対応するラベル
-const SORT_LABELS = ['キャンセル', ...Object.values(SORT_OPTIONS)]
-
 /** list.tsxから受け取るprops型を定義 */
 interface Props {
   /** リストソートキー選択値 */
@@ -55,17 +53,13 @@ interface Props {
  * @param props リストソートキー選択値
  * @returns {JSX.Element}
  */
-const ListSort = (props: Props) => {
+const ListSortAndroid = (props: Props) => {
   const { itemsSortType, itemsSortOrder, setItemsSortType, setItemsSortOrder } = props
   // propsで受け取った値を初期値として設定
   const initialKey: SortOptionKey = `${itemsSortType}:${itemsSortOrder}`
   const [ sortKey, setSortKey ] = useState<SortOptionKey>(initialKey)
 
-  const handlePickerChange = (itemIndex: number) => {
-    // キャンセルボタンを選択した場合は何もしない
-    if (itemIndex === 0) return
-    // 選択されたキーを取得
-    const selectedKey = Object.keys(SORT_OPTIONS)[itemIndex - 1] as SortOptionKey
+  const handlePickerChange = (selectedKey: SortOptionKey) => {
     // キーを分割してソートタイプとソート順を取得
     const [sortType, sortOrder] = selectedKey.split(":") as [SortType, OrderByDirection]
     // 選択されたキーをセット
@@ -75,22 +69,24 @@ const ListSort = (props: Props) => {
     setItemsSortOrder(sortOrder)
   }
 
-  const showActionSheet = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: SORT_LABELS,
-        cancelButtonIndex: 0
-      },
-      handlePickerChange
-    )
-  }
-
   return (
     <View style={styles.sortContainer}>
       <Text style={styles.sortTitleWrap}>並び替え → </Text>
-      <TouchableOpacity onPress={showActionSheet}>
-        <Text style={styles.sortTitleWrap}>{SORT_OPTIONS[sortKey]}</Text>
-      </TouchableOpacity>
+      <Picker
+        selectedValue={sortKey}
+        onValueChange={handlePickerChange}
+        style={styles.picker}
+        mode="dropdown"
+      >
+        {Object.entries(SORT_OPTIONS).map(([key, value]) => (
+          <Picker.Item
+            key={key}
+            label={value}
+            value={key}
+            style={styles.pickerItem}
+          />
+        ))}
+      </Picker>
     </View>
   )
 }
@@ -101,12 +97,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: SPACING.padding.horizontal,
     alignItems: 'center',
-    height: SPACING.height
+    height: SPACING.height,
+    zIndex: 1  // 追加：他の要素の上に表示されるようにする
   },
   sortTitleWrap: {
     color: COLORS.white,
-    fontSize: FONT_SIZES.title
+    fontSize: FONT_SIZES.title,
+    marginRight: 10  // 追加：テキストとPickerの間隔
+  },
+  picker: {
+    flex: 1,
+    color: COLORS.white,
+    height: 60,  // 高さを50に変更してテキストが見えるようにする
+    backgroundColor: 'transparent'  // 追加：背景を透明に
+  },
+  pickerItem: {
+    color: '#000000',  // 追加：テキストの色を指定
+    fontSize: 16  // 追加：フォントサイズを指定
   }
 })
 
-export default ListSort
+export default ListSortAndroid
